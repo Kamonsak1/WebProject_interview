@@ -1,0 +1,31 @@
+{% extends 'admin/base/base.html' %}
+
+{% block topic %}
+<h1 class="text-3xl text-gray-100 mt-2 text-center">ผู้ใช้ชั่วคราว</h1>
+{% endblock %}
+{% block content %}
+<div class="pt-14 px-2">
+  <table>
+    <thead>
+        <tr>
+            <th>ชื่อ-นามสกุล</th>
+            <th>เลขบัตรประชาชน</th>
+            <th>คณะ</th>
+            <th>สาขาวิชา</th>
+            <th>จัดการข้อมูล</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.first_name }} {{ user.last_name }}</td>
+            <td>{{ user.citizen_id }}</td>
+            <td>{{ user.faculty }}</td>
+            <td>{{ user.major }}</td>
+            <td><a href="#">ดูข้อมูล</a> | <a href="#">แก้ไข</a> | <a href="#">ลบ</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

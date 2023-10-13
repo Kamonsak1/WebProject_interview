@@ -1,0 +1,54 @@
+{% extends 'admin/base/base.html' %}
+
+{% block topic %}
+<h1 class="text-3xl text-gray-100 mt-2 text-center">เพิ่มรายละเอียดรอบสัมภาษณ์</h1>
+{% endblock %}
+{% block content %}
+<div class="pt-14 px-2">
+    <form action="" method="POST">
+        {% csrf_token %}  
+        <div >  
+            <div >
+              <label>ชื่อรอบสัมภาษณ์</label>
+              <input type="text"  name="name_interview">
+            </div>
+            <div>
+                <label for="academic_year">ปีการศึกษา</label>
+                <select name="academic_year" id="academic_year">
+                </select>
+            
+                <label for="interview_round">รอบสัมภาษณ์</label>
+                <select name="interview_round" id="interview_round">
+                    <option value="รอบที่ 1">รอบที่ 1</option>
+                    <option value="รอบที่ 2">รอบที่ 2</option>
+                    <option value="รอบที่ 3">รอบที่ 3</option>
+                </select>
+            </div>
+            <div>
+                <label for="application_open_date">วันที่เปิดรับสมัคร</label>
+                <input type="date" name="application_open_date" id="application_open_date">
+            </div>
+            <div>
+                เอกสารที่จำเป็น<a href="#" id="addButton">เพิ่ม</a><br>
+                <div class="input-container">
+                    <!-- คำสั่งนี้จะให้แสดงช่อง input และปุ่มลบเมื่อคลิกปุ่ม "เพิ่ม" -->
+                    <div class="input-row">
+
+                    </div>
+                </div>
+            </div>
+
+            <div >
+                <label for="send_documents">เลือกการส่งเอกสาร</label>
+                <select name="send_documents" id="send_documents">
+                    <option value="ส่งตอนสัมภาษณ์">ส่งตอนสัมภาษณ์</option>
+                    <option value="ส่งทางเว็บ">ส่งทางเว็บ</option>
+                    <option value="ส่งทางเว็บและเตรียมแสดงตอนสัมภาษณ์">ส่งทางเว็บและเตรียมแสดงตอนสัมภาษณ์</option>
+                </select>
+            </div>
+            <button type="submit" >เพิ่มรายละเอียดรอบสัมภาษณ์</button>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

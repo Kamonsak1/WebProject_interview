@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ห้องสัมภาษณ์</title>
+</head>
+<body>
+    <h1>ห้องสัมภาษณ์</h1>
+    {% if user.is_authenticated %}
+    <h1>ชื่อผู้ใช้: {{ user.username }}</h1>
+    <a href="{% url 'log_out' %}">ออกจากระบบ</a><br>
+    {% for role in user.roles.all %}
+    {% if role.name == 'Admin' %}
+    <a href="{% url 'Admin_page' %}">Admin</a>
+    {% endif %}
+    {% if role.name == 'Manager' %}
+    <a href="{% url 'Manager_page' %}">Manager</a>
+    {% endif %}
+    {% if role.name == 'Interviewer' %}
+    <a href="{% url 'Interviewer_page' %}">Interviewer</a>
+    {% endif %}
+
+  {% endfor %}
+
+    <br>
+  <div>
+    <a href="{% url 'Interviewer_page'%}">หน้าหลัก</a>
+  </div>
+  <div>
+    <a href="{% url 'Interviewer_Profile'%}">ข้อมูลส่วนตัว</a>
+  </div>
+  <div>
+    <a href="{% url 'Interviewer_room'%}">ห้องสัมภาษณ์</a>
+  </div>
+
+    {% else %}
+    <a href="/login2"><span>เข้าสู่ระบบ</span></a>
+    <br>
+    <a href="/first_login"><span>เข้าสู่ระบบครั้งแรก</span></a>
+    {% endif %}
+</body>
+</html>

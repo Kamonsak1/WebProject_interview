@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/login_css/login_style.css' %}">
+    <title>login</title>
+  </head>
+  <body>
+    <form method=POST  action="{% url 'log_in' %}" >
+      {% csrf_token %}  
+      <div class="container">
+        <div class="login-box">
+            <p>เข้าสู่ระบบ</p>
+        </div>
+        <div class="user-box">
+          <div><input class="user-label" type="text" name="username" placeholder="ชื่อผู้ใช้"> </div>
+          <div><input class="user-label" type="password" name="password" placeholder="รหัสผ่าน"> </div>
+          <div class="user-actions">
+            <button type="submit" class="user-login" >เข้าสู่ระบบ</button>
+            {% load socialaccount %}
+            <a class="user-login-google" href="{% url 'social:begin' 'google-oauth2' %}">Google</a>
+          </div>
+          <br>
+          <div ><a class="user-first-login" href="{% url 'first_login' %}">เข้าสู่ระบบครั้งแรก</a></div>
+        </div>
+      </div>
+    </form>
+  </body>
+  </html>
+
+

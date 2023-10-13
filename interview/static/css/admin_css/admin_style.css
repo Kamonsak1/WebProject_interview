@@ -1,0 +1,64 @@
+.box-top {
+    width: 100%;
+    height: auto; /* Allow the height to adjust based on content */
+    background-color: #20409A;
+    color: #FFF200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0px 0px 30px 30px;
+    position: relative;
+    z-index: 2;
+}
+
+.box-left {
+    width: 100%; /* Make the left box take up the full width */
+    background-color: #20409A;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Style the links inside the left frame */
+.box-left a {
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+}
+
+.box-left a:hover {
+    background-color: #123456;
+}
+
+.circular-menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.menu-item {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    background-color: #20409A;
+    border-radius: 50%;
+    margin: 10px 0;
+}
+
+.menu-item a {
+    color: white;
+    text-decoration: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.menu-item:not(:last-child) {
+    border-bottom: 2px solid white;
+}
+
+.button-test{
+    color: #f60000;
+}

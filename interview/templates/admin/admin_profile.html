@@ -1,0 +1,17 @@
+{% extends 'admin/base/base.html' %}
+
+{% block topic %}
+<h1 class="text-3xl text-gray-100 mt-2 text-center">ข้อมูลส่วนตัว</h1>
+{% endblock %}
+{% block content %}
+
+<div class="pt-14 px-2">
+    <p>ชื่อผู้ใช้-นามสกุล: {{ user.first_name }} {{ user.last_name }}</p>
+    <p>อีเมล: {{ user.email }}</p>
+    <p>รหัสผ่าน: {{ user.password }}</p>
+    <p>คณะ </p>
+    <p>สาขาวิชา  </p>
+
+</div>
+
+{% endblock %}

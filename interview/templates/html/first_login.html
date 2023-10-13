@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/login_css/login_style.css' %}">
+    <title>first_login</title>
+  </head>
+  <body>
+    <form method=POST  action="{% url 'first_login' %}" >
+      {% csrf_token %}  
+      <div class="container">
+        <div class="login-box">
+            <p>เข้าสู่ระบบครั้งแรก</p>
+        </div>
+        <div class="user-box">
+          <div><input class="user-label" type="text" name="username" placeholder="ชื่อผู้ใช้"> </div>
+          <div><input class="user-label" type="password" name="password" placeholder="รหัสผ่าน"> </div>
+          <a href=""><button type="submit" class="user-first-login" >เข้าสู่ระบบครั้งแรก</button></a>
+      </div>
+    </form>
+  </body>
+  </html>
+
+

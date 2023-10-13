@@ -1,0 +1,85 @@
+body {
+    background-color: rgb(255, 255, 255);
+    background-image: url('login-1800x1200.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    display: flex;
+    flex-direction: column; /* เพิ่ม flex-direction เป็น column */
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 500px;
+    gap: 0;
+}
+
+
+.login-box {
+    flex: 1; /* ทำให้กรอบขยายตามพื้นที่ที่เหลือใน container */
+    margin: 0;
+    padding: 20px;
+    width: 229.37%;
+    background-color: #20409A;
+    border: 2px solid #EC008C;
+    border-radius: 20px 20px 0px 0px;
+    text-align: center;
+    color: white;
+    font-size: 24px;
+    display: flex;
+    flex-direction: column; /* เพิ่ม flex-direction เป็น column */
+    align-items: center;
+    justify-content: center;
+    margin-left: -18px;
+}
+.login-box2 {
+    flex: 1; /* ทำให้กรอบขยายตามพื้นที่ที่เหลือใน container */
+    margin: 0;
+    padding: 20px;
+    width: 200%;
+    background-color: #20409A;
+    border: 2px solid #EC008C;
+    border-radius: 0px 0px 20px 20px;
+    text-align: center;
+    color: white;
+    font-size: 24px;
+    display: flex;
+    flex-direction: column; /* เพิ่ม flex-direction เป็น column */
+    align-items: center;
+    justify-content: center;
+}
+
+.user-label {
+    width: 90%; /* Increased width to 90% */
+    border: 2px solid #EC008C;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background-color: white;
+}
+
+.user-confirm_email {
+    width: 100%;
+    border: 2px solid #EC008C;
+    padding: 20px;
+    border-radius: 20px;
+    background-color: #ffffff;
+    font-weight: bold;
+    text-align: center;
+    font-size: 30px;
+    text-decoration: none;
+    margin: 10px auto 50px;
+    color: #20409A;
+    transition: background-color 0.3s ease;
+}
+.user-confirm_email:hover {
+    background-color: #EC008C; /* เปลี่ยนสีพื้นหลังเมื่อ hover */
+    color: #ffffff; /* เปลี่ยนสีตัวอักษรเมื่อ hover */
+}
+

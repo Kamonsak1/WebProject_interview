@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ห้องสัมภาษณ์</title>
+</head>
+<body>
+    <h1>ห้องสัมภาษณ์</h1>
+    {% if user.is_authenticated %}
+    <h1>ชื่อผู้ใช้: {{ user.username }}</h1>
+    <a href="{% url 'log_out' %}">ออกจากระบบ</a><br>
+    <div>
+      <a href="{% url 'Student_page'%}">หน้าหลัก</a>
+    </div>
+    <div>
+      <a href="{% url 'Student_profile'%}">ข้อมูลส่วนตัว</a>
+    </div>
+    <div>
+      <a href="{% url 'Student_register'%}">ลงทะเบียนสัมภาษณ์</a>
+    </div>
+    <div>
+      <a href="{% url 'Student_room'%}">ห้องสัมภาษณ์</a>
+    </div>
+    <div>
+      <a href="{% url 'Student_evidence'%}">จัดการหลักฐาน</a>
+    </div>
+
+
+
+
+    {% else %}
+    <a href="/login2"><span>เข้าสู่ระบบ</span></a>
+    <br>
+    <a href="/first_login"><span>เข้าสู่ระบบครั้งแรก</span></a>
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" href="{% static 'css/admin_css/admin_style.css' %}">
+    <script src="{% static 'js/toggleiptions.js' %}"></script>
+
+</head>
+<div class="w-1/5 flex flex-col min-h-screen bg-violet-50 border-4 border-blue-900">
+    <div class="w-full pb-5  bg-blue-900" >
+        <!-- Name -->
+        {% if user.is_authenticated %}
+        <h1 class="text-2xl text-white mt-3 ml-3 ">{{ user.username }}</h1>
+        <h1 class="text-xl text-white mt-1 ml-3 ">{{ user.citizen_id }}</h1>
+        <a href="{% url 'log_out' %}">ออกจากระบบ</a>
+        {% endif %}
+        <!-- Change Role 3 Role-->
+        <div class="flex  place-content-center mt-8 text-blue-500 font-bold bg-clip-border">
+            {% for role in user.roles.all %}
+                {% if role.name == 'Admin' %}
+                <a href="{% url 'Admin_page' %}"><h1 class="p-2 bg-gray-200 border-2 border-white rounded-l-full">Admin</h1></a>
+                {% endif %}
+                {% if role.name == 'Manager' %}
+                <a href="{% url 'Manager_page' %}"><h1 class="p-2 bg-gray-200 border-2 border-white">Manager</h1></a>
+                {% endif %}
+                {% if role.name == 'Interviewer' %}
+                <a href="{% url 'Interviewer_page' %}"><h1 class="p-2 bg-gray-200 border-2 border-white rounded-r-full">Interviewer</h1></a>
+                {% endif %}
+            {% endfor %}
+            {% if user.roles.all.count == 0 %}
+            <h1 class="p-2 bg-gray-200 border-2 border-white rounded-r-full">student</h1>
+            {% endif %}
+        </div>
+        
+        
+
+        <!-- Change Role 2 Role-->
+        <!-- <div class="flex  place-content-center mt-8">
+            <h1 class="text-white font-bold bg-clip-border p-2 bg-amber-600 border-2 border-white rounded-l-full">Admin</h1>
+            <h1 class="text-white font-bold bg-clip-border p-2 bg-amber-400  border-2 border-white rounded-r-full">Interviewer</h1>
+        </div> -->
+
+
+    </div>
+    <div class="mt-4 flex flex-col space-y-4 text-2xl text-blue-500 drop-shadow-lg ">
+    <!-- SideBar Menu -->
+        <a href="{% url 'Admin_page'%}" class="mx-auto">
+            <div class="flex  mx-auto">
+                <!-- Logo -->
+                
+                <h2 class=" font-bold ml-2">หน้าหลัก</h2>
+            </div>
+        </a>
+        <a href="{% url 'profile'%}" class="mx-auto">
+            <div class="flex  mx-auto">
+                <!-- Logo -->
+                
+                <h2 class="font-bold ml-2">ข้อมูลส่วนตัว</h2>
+            </div>
+        </a>
+        <p class="mx-auto">
+            <div class="flex  mx-auto">
+                <!-- Logo -->
+                <h2 class=" font-bold ml-2" onclick="toggleOptions('userOptions')">จัดการผู้ใช้</h2>
+                <div id="userOptions" class="optionsDiv" style="display: none;">
+                    <br>
+                    <a href="{% url 'TemporaryUser'%}">- ผู้ใช้ชั่วคราว</a>
+                    <br>
+                    <a href="{% url 'User'%}">- ผู้ใช้หลัก</a>
+                </div>
+            </div>
+        </p> 
+        <p class="mx-auto">
+            <div class="flex  mx-auto">
+                <!-- Logo -->
+                <h2 class="font-bold ml-2" onclick="toggleOptions('interviewOptions')">จัดการสัมภาณ์</h2>
+                <div id="interviewOptions" class="optionsDiv" style="display: none;">
+                    <br>
+                    <a href="{% url 'Interview'%}">- รายละเอียดรอบสัมภาษณ์</a>
+                    <br>
+                    <a href="{% url 'Score'%}">- เทมเพลทการให้คะแนน</a>
+                    <br>
+                    <a href="{% url 'FacultyMajor'%}">- คณะและหลักสูตร</a>
+                </div> 
+            </div>
+        </p>
+        <a href="{% url 'Announcement'%}" class="mx-auto">
+            <div class="flex  mx-auto">
+                <!-- Logo -->
+                
+               <h2 class=" font-bold ml-2">ประกาศทั่วไป</h2>
+            </div>
+        </a>
+
+    </div>
+
+    <!-- Change Major -->
+        <div class="flex justify-center items-center w-full py-3 mt-auto bg-blue-900">  
+            <select class="w-5/6 rounded-full h-10 text-center" name="branch" id="branch">
+                <option value="M1">Major 1</option>
+                <option value="M2">Major 2</option>
+            </select>
+        </div>
+</div>
