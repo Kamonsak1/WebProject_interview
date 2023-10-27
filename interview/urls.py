@@ -49,7 +49,8 @@ urlpatterns = [
     path('Student_room',Student_room, name='Student_room'),
     path('Student_evidence',Student_evidence, name='Student_evidence'),
 
+    path('confirm_otp',confirm_otp, name='confirm_otp'),
+    path('changepassword',changepassword, name='changepassword'),
     path('send_email_password',send_email_password, name='send_email_password'),
 
-    path('google_login2',google_login2, name='google_login2'),
 ]

@@ -51,8 +51,8 @@ class CustomUserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=30, unique=True)
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
     gender = models.CharField(max_length=20)
     address = models.CharField(max_length=400)
     postcode = models.CharField(max_length=20)
@@ -100,6 +100,16 @@ class TemporaryUser(models.Model):
         self.password = thai_birth_date_str
         super().save(*args, **kwargs)
 
+
+
+class Faculty(models.Model):
+    faculty = models.CharField(max_length=100)
+
+class Major(models.Model):
+    major = models.CharField(max_length=100)
+    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
+    default_manager = models.ForeignKey(User, on_delete=models.CASCADE)
+
 class Role(models.Model):
     DEFAULT_ROLES = ['Admin', 'Manager','Interviewer', 'Student']
     
@@ -108,3 +118,52 @@ class Role(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Round(models.Model):
+    major = models.ForeignKey(Major, on_delete=models.CASCADE)
+    academic_year = models.CharField(max_length=20) 
+    round_name = models.CharField(max_length=20)
+    manager = models.ForeignKey(User, on_delete=models.CASCADE)
+    users = models.ManyToManyField(User, related_name='rounds_participated')
+
+class Schedule(models.Model):
+    start_date = models.DateField()
+    end_date = models.DateField()
+    round = models.ForeignKey(Round, on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
+    schedule_name = models.CharField(max_length=200)
+    schedule_content = models.TextField()
+
+class Announcement(models.Model):
+    post_date = models.DateField(default=datetime.now) 
+    expire_date = models.DateField()
+    round = models.ForeignKey(Round, on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    announcement_content = models.TextField()
+
+class Document(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    round = models.ForeignKey(Round, on_delete=models.CASCADE)
+    document = models.CharField(max_length=200)
+
+class ScoreTopic(models.Model):
+    round = models.ForeignKey(Round, on_delete=models.CASCADE)
+    pattern_id = models.CharField(max_length=100)
+    topic_name = models.CharField(max_length=100)
+    max_score = models.PositiveIntegerField()
+
+class Score(models.Model):
+    topic = models.ForeignKey(ScoreTopic, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    score = models.PositiveIntegerField()
+
+class InterviewStatus(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    status = models.CharField(max_length=100)
+    round = models.ForeignKey(Round, on_delete=models.CASCADE)
+
+class InterviewLink(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    link = models.CharField(max_length=300)

@@ -107,6 +107,9 @@ def Student_room(request):
 def Student_evidence(request):
     return render(request,'student/Student_evidence.html')
 
+def confirm_otp(request):
+    return render(request,'student/confirm_otp.html')
+
 def send_email_password(request):
     if request.method == "POST":
         username = request.session.get('username')
@@ -120,6 +123,7 @@ def send_email_password(request):
         from_email = settings.EMAIL_HOST_USER
         recipient_list = [email]
         send_mail(subject, message, from_email, recipient_list)
+        return redirect('confirm_otp')
 
     return render(request,'student/confirm_email.html')
 
@@ -145,8 +149,13 @@ def confirm_email(request):
                                 # กำหนดรหัสผ่านโดยตรง
                                 user.set_password(password)
                                 user.email = email
+                                user.phone_number = temporary_user.phone_number
+                                user.first_name = temporary_user.first_name
+                                user.last_name = temporary_user.last_name
+                                user.birth_date = temporary_user.birth_date
+                                user.citizen_id = temporary_user.citizen_id
                                 user.save()
-                                return redirect('Student_page')
+                                return redirect('changepassword')
                             else:
                                 return redirect('confirm_email')
                     else:
@@ -160,8 +169,29 @@ def confirm_email(request):
     
     return render(request,'student/confirm_email.html')
 
+def changepassword(request):
+    if request.method == "POST":
+        password_old = request.POST.get('password_old')
+        password_new1 = request.POST.get('password_new1')
+        password_new2 = request.POST.get('password_new2')
+        username = request.session.get('username')
+        
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return HttpResponse("หาผู้ใช้ไม่เจอ กรุณาล็อกอินด้วยรหัสผ่านเก่าเข้าสู่ระบบได้เลย")
 
+        if user.check_password(password_old):
+            if password_new1 == password_new2:
+                user.set_password(password_new1)
+                user.save()
+                return redirect('index')
+            else:
+                return HttpResponse("รหัสผ่านใหม่ไม่ตรงกัน")
+        else:
+            return HttpResponse("รหัสผ่านเก่าผิด")
 
+    return render(request, 'student/changepassword.html')
 
 def log_in(request):
     if request.method == "POST":
@@ -197,7 +227,6 @@ def log_out(request):
     return redirect('log_in')
 
 
-
 def first_login(request):
     if request.method == "POST":
         username = request.POST.get('username')
@@ -213,10 +242,6 @@ def first_login(request):
             pass
 
     return render(request, 'html/first_login.html')
-
-def google_login2(request):
-    pass
-
 
 
 
