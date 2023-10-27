@@ -2,3 +2,10 @@
  python manage.py migrate                       
  python manage.py createsuperuser
  .\env\Scripts\activate 
+
+
+git add (ชื่อไฟล์)
+git commit -m "(อธิบายที่แก้)"
+git branch -M main
+git remote add origin https://github.com/Kamonsak1/WebProject_interview.git
+git push -u origin main
