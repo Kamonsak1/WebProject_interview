@@ -1,33 +1,49 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'css/login_css/login_style.css' %}">
-    <title>login</title>
+  <head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>เข้าสู่ระบบ</title>
+    <link rel="stylesheet" href="{% static 'css/styles.min.css' %}" />
   </head>
-  <body>
-    <form method=POST  action="{% url 'log_in' %}" >
-      {% csrf_token %}  
-      <div class="container">
-        <div class="login-box">
-            <p>เข้าสู่ระบบ</p>
-        </div>
-        <div class="user-box">
-          <div><input class="user-label" type="text" name="username" placeholder="ชื่อผู้ใช้"> </div>
-          <div><input class="user-label" type="password" name="password" placeholder="รหัสผ่าน"> </div>
-          <div class="user-actions">
-            <button type="submit" class="user-login" >เข้าสู่ระบบ</button>
-            {% load socialaccount %}
-            <a class="user-login-google" href="{% url 'social:begin' 'google-oauth2' %}">Google</a>
+
+  <body style="background-image: url('/static/img/login-1800x1200.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+    <!--  Body Wrapper -->
+  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+  data-sidebar-position="fixed" data-header-position="fixed">
+  <div
+    class="position-relative overflow-hidden radial-gradient min-vh-100 d-flex align-items-center justify-content-center">
+    <div class="d-flex align-items-center justify-content-center w-100">
+      <div class="row justify-content-center w-100">
+        <div class="col-md-8 col-lg-6 col-xxl-3">
+          <div class="card mb-0">
+            <div class="card-body">
+              <h1 class="text-center pb-sm-6">เข้าสู่ระบบ</h1>
+              <form method=POST  action="{% url 'log_in' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                  <label for="exampleInputEmail1" class="form-label">ชื่อผู้ใช้ (Username)</label>
+                  <input type="text" class="form-control" name="username" aria-describedby="emailHelp">
+                </div>
+                <div class="mb-4">
+                  <label for="exampleInputPassword1" class="form-label">รหัสผ่าน (Password)</label>
+                  <input type="password" class="form-control" name="password">
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-8 fs-4 mb-2 rounded-2 " >เข้าสู่ระบบ</button>
+                {% load socialaccount %}
+                <a href="{% url 'social:begin' 'google-oauth2' %}" style="width: 45%" class="btn btn-danger me-4 ms-2 py-8 fs-4 mb-4 rounded-2">Google</a>
+                <a href="{% url 'first_login' %}" style="width: 45%" class="btn btn-success py-8 fs-4 mb-4 rounded-2">เข้าสู่ระบบครั้งแรก</a>
+              </form>
+            </div>
           </div>
-          <br>
-          <div ><a class="user-first-login" href="{% url 'first_login' %}">เข้าสู่ระบบครั้งแรก</a></div>
         </div>
       </div>
-    </form>
+    </div>
+  </div>
+</div>
   </body>
-  </html>
+</html>
 
 
