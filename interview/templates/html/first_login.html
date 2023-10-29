@@ -20,6 +20,9 @@
           <div class="col-md-8 col-lg-6 col-xxl-3">
             <div class="card mb-0">
               <div class="card-body">
+                <a href="/login" class="text-primary">
+                  <img src="{% static 'images/logos/arrow_left.svg' %}" alt="back">
+                </a>
                 <h1 class="text-center pb-sm-6">เข้าสู่ระบบครั้งแรก</h1>
                 <form method="POST" action="{% url 'first_login' %}">
                   {% csrf_token %}
@@ -31,7 +34,7 @@
                     <label for="exampleInputPassword1" class="form-label">รหัสผ่าน (Password)</label>
                     <input type="password" class="form-control" name="password">
                   </div>
-                  <button type="submit" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2" >เข้าสู่ระบบ</button>
+                  <button type="submit" class="btn btn-success w-100 py-8 fs-4 mb-4 rounded-2" >เข้าสู่ระบบ</button>
                 </form>
               </div>
             </div>
