@@ -11,5 +11,12 @@ git remote add origin https://github.com/Kamonsak1/WebProject_interview.git
 git push -u origin main
 
 
+ไว้ทำไรไม่รู้  เอาไว้ก่อน  
+git pull origin main
+
+
+
 docker-compose run web python manage.py makemigrations
 docker-compose run web python manage.py migrate
+
+
