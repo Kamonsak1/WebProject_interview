@@ -24,6 +24,11 @@ urlpatterns = [
     path('User',User_path, name='User'),
     path('form_interview',form_interview, name='form_interview'),
     path('profile',admin_profile, name='profile'),
+    path('add_Faculty',add_Faculty, name='add_Faculty'),
+    path('delete_Faculty/<int:id>',delete_Faculty ,name='delete_Faculty'),
+    path('add_Major',add_Major, name='add_Major'),
+    path('delete_Major/<int:id>',delete_Major ,name='delete_Major'),
+    
 
 
     #manage

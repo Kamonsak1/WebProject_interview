@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from social_core.backends.google import GoogleOAuth2
 from allauth.socialaccount.models import SocialAccount
+from django.shortcuts import get_object_or_404
 import random
 import string
 from django.core.mail import send_mail
@@ -27,7 +28,9 @@ def Announcement(request):
     return render(request,'admin/Announcement.html')
 @login_required
 def FacultyMajor(request):
-    return render(request,'admin/FacultyMajor.html')
+    faculty_all = Faculty.objects.all()
+
+    return render(request,'admin/FacultyMajor.html',{"faculty":faculty_all})
 @login_required
 def Interview(request):
     return render(request,'admin/Interview.html')
@@ -244,6 +247,44 @@ def first_login(request):
     return render(request, 'html/first_login.html')
 
 
+def add_Faculty(request):
+    if request.method == "POST":
+        add_Faculty = request.POST.get('faculty')
+        if add_Faculty:
+            try:
+                faculty_exists = Faculty.objects.get(faculty=add_Faculty)
+                return redirect("FacultyMajor")
+            except Faculty.DoesNotExist:
+                new_faculty = Faculty(faculty=add_Faculty)
+                new_faculty.save()
+                return redirect("FacultyMajor")
+        else:
+            return redirect("FacultyMajor")
+def delete_Faculty(request,id):
+    object = Faculty.objects.get(pk=id)
+    object.delete()
+    return redirect("FacultyMajor")
 
 
-    
+def add_Major(request):
+    if request.method == "POST":
+        
+        add_Major = request.POST.get('Major')
+        faculty_id = request.POST.get('faculty_id')
+        faculty = get_object_or_404(Faculty, pk=int(faculty_id))
+        
+        if add_Major:
+            try:
+                Major_exists = Major.objects.get(major=add_Major, faculty=faculty)
+                return redirect("FacultyMajor")
+            except Major.DoesNotExist:
+                new_Major = Major(major=add_Major, faculty=faculty)
+                new_Major.save()
+                return redirect("FacultyMajor")
+        else:
+            return redirect("FacultyMajor")
+
+def delete_Major(request,id):
+    object = Major.objects.get(pk=id)
+    object.delete()
+    return redirect("FacultyMajor")

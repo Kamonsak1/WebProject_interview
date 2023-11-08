@@ -105,10 +105,16 @@ class TemporaryUser(models.Model):
 class Faculty(models.Model):
     faculty = models.CharField(max_length=100)
 
+    def __str__(self) -> str:
+        return f"{self.faculty}"
+
 class Major(models.Model):
     major = models.CharField(max_length=100)
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
-    default_manager = models.ForeignKey(User, on_delete=models.CASCADE)
+    default_manager = models.ForeignKey(User, on_delete=models.CASCADE,null=True, blank=True)
+
+    def __str__(self) -> str:
+        return f"{self.major}"
 
 class Role(models.Model):
     DEFAULT_ROLES = ['Admin', 'Manager','Interviewer', 'Student']

@@ -1,0 +1,83 @@
+
+.top-up{
+    display: flex;
+    justify-content: space-between;
+}
+.top-up  h1{
+    display: inline;
+}
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: none;
+    width: 20%;
+    border: 2px solid #000; 
+    border-radius: 10px; 
+    box-sizing: border-box;
+}
+
+.topic {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #376CFF;
+    border-radius: 10px 10px 0px 0px;
+    
+}
+.topic h3{
+    flex: 1;
+    margin: 0;
+    text-align: center;
+    color: #FFFFFF; 
+    padding: 3px 3px;
+}
+.topic button{
+    background-color: #FFD700; 
+    color: #000; 
+    border: none;
+    border-radius: 5px;
+
+}
+.box_1{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+.input {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center; /* Center horizontally */
+    height: 100px; /* For visualization purposes */
+    border: 1px solid #ccc; /* For visualization purposes */
+}
+.input h3 {
+    margin: 0;
+}
+.bt_submit{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.faculty{
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.container2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: none;
+    width: 20%;
+    border: 2px solid #000; 
+    border-radius: 10px; 
+    box-sizing: border-box;
+}
