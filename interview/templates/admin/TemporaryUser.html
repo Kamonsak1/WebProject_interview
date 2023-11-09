@@ -5,6 +5,19 @@
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
+    <div>
+        <div class="container" id="add_TemporaryUser">
+            <form action="">
+                <h3>สร้างผู้ใช้งาน</h3>
+                ชื่อ-นามสกุล<input type="text" name="name" id=""><br>
+                เลขบัตรประชาชน<input type="text" name="citizen_id" id=""><br>
+                วัน/เดือน/ปี<input type="date" name="birth_date" id=""><br>
+                <button type="submit">สร้างบัญชีผู้ใช้</button>
+            </form>
+
+        </div>
+        <button onclick="add_TemporaryUser()">เพิ่มผู้ใช้งาน</button>
+    </div>
   <table>
     <thead>
         <tr>
