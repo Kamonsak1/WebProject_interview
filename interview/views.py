@@ -11,6 +11,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.shortcuts import get_object_or_404
 import random
 import string
+from django.http import JsonResponse
 from django.core.mail import send_mail
 # Create your views here.
 def index(request):
@@ -29,6 +30,7 @@ def Announcement(request):
 @login_required
 def FacultyMajor(request):
     faculty_all = Faculty.objects.all()
+    
 
     return render(request,'admin/FacultyMajor.html',{"faculty":faculty_all})
 @login_required
@@ -40,7 +42,9 @@ def Score(request):
 @login_required
 def TemporaryUser_path(request):
     users = TemporaryUser.objects.all()
-    return render(request,'admin/TemporaryUser.html', {'users': users})
+    faculty_all = Faculty.objects.all()
+    major_all = Major.objects.all()
+    return render(request,'admin/TemporaryUser.html', {'users': users,'faculty_all':faculty_all,"major_all":major_all})
 @login_required
 def User_path(request):
     users = User.objects.all()
@@ -288,3 +292,35 @@ def delete_Major(request,id):
     object = Major.objects.get(pk=id)
     object.delete()
     return redirect("FacultyMajor")
+
+def add_TemporaryUser(request):
+    if request.method == "POST":     
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        citizen_id = request.POST.get('citizen_id')
+        birth_date = request.POST.get('birth_date')
+        faculty_name = request.POST.get('faculty')  
+        major_name = request.POST.get('major')  
+        checkboxgroup = request.POST.getlist('checkboxgroup')
+        faculty, _ = Faculty.objects.get_or_create(faculty=faculty_name)
+        major, _ = Major.objects.get_or_create(major=major_name, faculty=faculty)
+        temporary_user, _ = TemporaryUser.objects.get_or_create(citizen_id=citizen_id,
+            defaults={
+                        'first_name': first_name,
+                        'last_name': last_name,
+                        'birth_date': birth_date,
+                        })
+        faculty.TemporaryUser.add(temporary_user)
+        major.TemporaryUser.add(temporary_user)
+        for role_name in checkboxgroup:
+            role_model, _ = Role.objects.get_or_create(name=role_name)
+            role_model.TemporaryUser.add(temporary_user)
+
+        temporary_user.save()
+            
+        return redirect("TemporaryUser")
+    
+def delete_TemporaryUser(request,id):
+    object = TemporaryUser.objects.get(pk=id)
+    object.delete()
+    return redirect("TemporaryUser")

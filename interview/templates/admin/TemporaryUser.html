@@ -7,11 +7,45 @@
 <div class="pt-14 px-2">
     <div>
         <div class="container" id="add_TemporaryUser">
-            <form action="">
+            <form action="{% url 'add_TemporaryUser' %}" method="post">
+                {% csrf_token %}
                 <h3>สร้างผู้ใช้งาน</h3>
-                ชื่อ-นามสกุล<input type="text" name="name" id=""><br>
+                ชื่อ<input type="text" name="first_name" id=""><br>
+                ชืนามสกุล<input type="text" name="last_name" id=""><br>
                 เลขบัตรประชาชน<input type="text" name="citizen_id" id=""><br>
                 วัน/เดือน/ปี<input type="date" name="birth_date" id=""><br>
+                <select name="faculty">
+                    <option value="">คณะ</option>
+                    {% for faculty in faculty_all %}
+                        <option value="{{ faculty }}">{{ faculty }}</option>
+                    {% endfor %}
+                </select>
+                
+                <select name="major" id="majorSelect">
+                    <option>สาขา</option>
+                    {% for faculty in faculty_all %}
+                        {% for major in faculty.major_set.all %}
+                            <option value="{{ major }}">{{ major }}</option>
+                        {% endfor %}
+                    {% endfor %}
+                </select>
+                <br>
+                <div class="radio">
+                    <h4>บทบาท</h4>
+                    <input type="checkbox" id="checkbox1" name="checkboxgroup" value="Admin">
+                    <label for="checkbox1">Admin</label>
+                  
+                    <input type="checkbox" id="checkbox2" name="checkboxgroup" value="Manager">
+                    <label for="checkbox2">Manager</label>
+                  
+                    <input type="checkbox" id="checkbox3" name="checkboxgroup" value="Interviewer">
+                    <label for="checkbox3">Interviewer</label>
+                
+                    <input type="checkbox" id="checkbox4" name="checkboxgroup" value="Student">
+                    <label for="checkbox4">Student</label>
+                </div>
+                
+                <br>
                 <button type="submit">สร้างบัญชีผู้ใช้</button>
             </form>
 
@@ -35,7 +69,7 @@
             <td>{{ user.citizen_id }}</td>
             <td>{{ user.faculty }}</td>
             <td>{{ user.major }}</td>
-            <td><a href="#">ดูข้อมูล</a> | <a href="#">แก้ไข</a> | <a href="#">ลบ</a></td>
+            <td><a href="#">ดูข้อมูล</a> | <a href="#">แก้ไข</a> | <a href="delete_TemporaryUser/{{user.id}}">ลบ</a></td>
         </tr>
         {% endfor %}
     </tbody>

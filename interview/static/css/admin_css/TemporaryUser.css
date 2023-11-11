@@ -8,3 +8,16 @@
     border-radius: 10px; 
     box-sizing: border-box;
 }
+
+.major {
+    display: none;
+}
+
+.radio h4 {
+    text-align: center;
+}
+
+.radio label {
+    display: inline-block;
+    margin-right: 20px; 
+  }

@@ -28,6 +28,8 @@ urlpatterns = [
     path('delete_Faculty/<int:id>',delete_Faculty ,name='delete_Faculty'),
     path('add_Major',add_Major, name='add_Major'),
     path('delete_Major/<int:id>',delete_Major ,name='delete_Major'),
+    path('add_TemporaryUser',add_TemporaryUser, name='add_TemporaryUser'),
+
     
 
 
@@ -40,6 +42,7 @@ urlpatterns = [
     path('Manager_Score',Manager_Score, name='Manager_Score'),
     path('Manager_Print_Interview',Manager_Print_Interview, name='Manager_Print_Interview'),
     path('Manager_Status',Manager_Status, name='Manager_Status'),
+    path('delete_TemporaryUser/<int:id>',delete_TemporaryUser,name='delete_TemporaryUser'),
 
     #Interviewer
     path('Interviewer_page',interviewer_page, name='Interviewer_page'),
@@ -57,5 +60,7 @@ urlpatterns = [
     path('confirm_otp',confirm_otp, name='confirm_otp'),
     path('changepassword',changepassword, name='changepassword'),
     path('send_email_password',send_email_password, name='send_email_password'),
+
+
 
 ]

@@ -64,6 +64,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
 
 
+
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'username'  # แก้ให้ USERNAME_FIELD เป็น 'email' แทน
@@ -83,27 +84,27 @@ class User(AbstractBaseUser, PermissionsMixin):
         return User.objects.authenticate_with_google(email=email,)
 
 
-
-
-
-
 class TemporaryUser(models.Model):
     citizen_id = models.CharField(max_length=13, unique=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    phone_number = models.CharField(max_length=20)
+    phone_number = models.CharField(max_length=20, null=True, blank=True)
     birth_date = models.DateField()
-    password = models.CharField(max_length=10, blank=True)
+    password = models.CharField(max_length=128, blank=True)
 
     def save(self, *args, **kwargs):
-        thai_birth_date_str = self.birth_date.strftime('%d/%m/%Y')  
-        self.password = thai_birth_date_str
-        super().save(*args, **kwargs)
+        self.password = (self.birth_date)
+        super(TemporaryUser, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
 
 
 
 class Faculty(models.Model):
     faculty = models.CharField(max_length=100)
+    users = models.ManyToManyField(User,blank=True)
+    TemporaryUser = models.ManyToManyField(TemporaryUser , blank=True)
 
     def __str__(self) -> str:
         return f"{self.faculty}"
@@ -111,7 +112,9 @@ class Faculty(models.Model):
 class Major(models.Model):
     major = models.CharField(max_length=100)
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
-    default_manager = models.ForeignKey(User, on_delete=models.CASCADE,null=True, blank=True)
+    default_manager = models.ManyToManyField(User, blank=True,related_name='manager')
+    users = models.ManyToManyField(User,blank=True,related_name='user')
+    TemporaryUser = models.ManyToManyField(TemporaryUser , blank=True)
 
     def __str__(self) -> str:
         return f"{self.major}"
@@ -120,7 +123,8 @@ class Role(models.Model):
     DEFAULT_ROLES = ['Admin', 'Manager','Interviewer', 'Student']
     
     name = models.CharField(max_length=50, default=DEFAULT_ROLES[0], choices=[(role, role) for role in DEFAULT_ROLES])
-    users = models.ManyToManyField(User, related_name='roles')
+    users = models.ManyToManyField(User, related_name='roles', blank=True)
+    TemporaryUser = models.ManyToManyField(TemporaryUser, related_name='roles', blank=True)
 
     def __str__(self):
         return self.name
