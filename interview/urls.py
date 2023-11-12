@@ -22,13 +22,16 @@ urlpatterns = [
     path('Score',Score, name='Score'),
     path('TemporaryUser',TemporaryUser_path, name='TemporaryUser'),
     path('User',User_path, name='User'),
-    path('form_interview',form_interview, name='form_interview'),
+    #path('form_interview',form_interview, name='form_interview'),
     path('profile',admin_profile, name='profile'),
     path('add_Faculty',add_Faculty, name='add_Faculty'),
     path('delete_Faculty/<int:id>',delete_Faculty ,name='delete_Faculty'),
     path('add_Major',add_Major, name='add_Major'),
     path('delete_Major/<int:id>',delete_Major ,name='delete_Major'),
     path('add_TemporaryUser',add_TemporaryUser, name='add_TemporaryUser'),
+    path('delete_TemporaryUser/<int:id>',delete_TemporaryUser,name='delete_TemporaryUser'),
+    path('add_InterviewRound',add_InterviewRound, name='add_InterviewRound'),
+    path('delete_InterviewRound/<int:id>',delete_InterviewRound, name='delete_InterviewRound'),
 
     
 
@@ -42,7 +45,7 @@ urlpatterns = [
     path('Manager_Score',Manager_Score, name='Manager_Score'),
     path('Manager_Print_Interview',Manager_Print_Interview, name='Manager_Print_Interview'),
     path('Manager_Status',Manager_Status, name='Manager_Status'),
-    path('delete_TemporaryUser/<int:id>',delete_TemporaryUser,name='delete_TemporaryUser'),
+
 
     #Interviewer
     path('Interviewer_page',interviewer_page, name='Interviewer_page'),

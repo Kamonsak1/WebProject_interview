@@ -5,6 +5,69 @@
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
-  <h1>รายละเอียดรอบสัมภาษณ์</h1><a href="#" id="addLink">เพิ่ม</a>
+  <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+    <thead>
+        <tr>
+            <th style="background-color: #4CAF50; color: white; padding: 10px;">รอบ</th>
+            <th style="background-color: #4CAF50; color: white; padding: 10px;">ปีการศึกษา</th>
+            <th style="background-color: #4CAF50; color: white; padding: 10px;">สาขาวิชา</th>
+            <th style="background-color: #4CAF50; color: white; padding: 10px;">ผู้ดูแล</th>
+            <th style="background-color: #4CAF50; color: white; padding: 10px; width: 15%;">จัดการ</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in rounds %}
+        <tr style="background-color: {% cycle '#f2f2f2' 'white' %};">
+            <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ i.round_name }}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ i.academic_year }}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ i.major }}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ i.manager }}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ddd; width: 15%;">
+                <a style="text-decoration: none; color: #4285F4; padding: 5px 10px; border: 1px solid #4285F4; border-radius: 5px; transition: background-color 0.3s ease;" href="#">แก้ไข</a> | 
+                <a style="text-decoration: none; color: #4285F4; padding: 5px 10px; border: 1px solid #4285F4; border-radius: 5px; transition: background-color 0.3s ease;" href="delete_InterviewRound/{{i.id}}">ลบ</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<form action="/add_InterviewRound" method="post" style="background-color: #f2f2f2; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 20px;">
+  {% csrf_token %}
+  
+  <div style="display: flex; justify-content: space-between;">
+    <input type="text" name="round_name" id="round_name" placeholder="ชื่อรอบ" style="width: 48%; padding: 12px 20px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+    <input type="text" name="academic_year" id="academic_year" placeholder="ปีการศึกษา" style="width: 48%; padding: 12px 20px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+  </div>
+
+  <div style="display: flex; justify-content: space-between;">
+    <select name="faculty" style="width: 30%; padding: 12px 20px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+        <option value="">คณะ</option>
+        {% for faculty in faculty_all %}
+            <option value="{{ faculty }}">{{ faculty }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="major" id="majorSelect" style="width: 30%; padding: 12px 20px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+        <option>สาขา</option>
+        {% for faculty in faculty_all %}
+            {% for major in faculty.major_set.all %}
+                <option value="{{ major }}">{{ major }}</option>
+            {% endfor %}
+        {% endfor %}
+    </select>
+
+    <select name="manager_name" id="manager_name" style="width: 30%; padding: 12px 20px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+        <option>ผู้ดูแล</option>
+        {% for managers in Manager %}
+            <option value="{{ managers.first_name }}">{{ managers.first_name }}</option>
+        {% endfor %}
+    </select>
+  </div>
+
+  <button type
+
+
+  <a href="#" id="addLink">เพิ่มรอบ</a>
 </div>
 {% endblock %}

@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from interview.models import *
 from django.contrib.auth import login, logout,authenticate
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,user_passes_test
 from django.shortcuts import render, redirect
 from social_core.backends.google import GoogleOAuth2
 from allauth.socialaccount.models import SocialAccount
@@ -14,6 +14,28 @@ import string
 from django.http import JsonResponse
 from django.core.mail import send_mail
 # Create your views here.
+
+def is_admin(user):
+    if isinstance(user, User):
+        return user.roles.filter(name='Admin').exists()
+    else:
+        return False
+def is_Interviewer(user):
+    if isinstance(user, User):
+        return user.roles.filter(name='Interviewer').exists()
+    else:
+        return False
+def is_Manager(user):
+    if isinstance(user, User):
+        return user.roles.filter(name='Manager').exists()
+    else:
+        return False
+def is_Student(user):
+    if isinstance(user, User):
+        return user.roles.filter(name='Student').exists()
+    else:
+        return False
+
 def index(request):
     return render(request,"html/index.html")
 
@@ -22,74 +44,103 @@ def test(request):
 
 #Admin_path
 @login_required
+@user_passes_test(is_admin)
 def admin_page(request):
     return render(request,'admin/Admin_page.html')
 @login_required
+@user_passes_test(is_admin)
 def Announcement(request):
     return render(request,'admin/Announcement.html')
 @login_required
+@user_passes_test(is_admin)
 def FacultyMajor(request):
     faculty_all = Faculty.objects.all()
     
 
     return render(request,'admin/FacultyMajor.html',{"faculty":faculty_all})
 @login_required
+@user_passes_test(is_admin)
 def Interview(request):
-    return render(request,'admin/Interview.html')
+    Manager_roles = Role.objects.get(name="Manager")
+    context = {
+        "rounds" : Round.objects.all(),
+        "Manager" : Manager_roles.users.all(),
+        "faculty_all" : Faculty.objects.all(),
+        "major_all" : Major.objects.all(),
+    }
+    return render(request,'admin/Interview.html',context)
 @login_required
+@user_passes_test(is_admin)
 def Score(request):
     return render(request,'admin/Score.html')
 @login_required
+@user_passes_test(is_admin)
 def TemporaryUser_path(request):
     users = TemporaryUser.objects.all()
     faculty_all = Faculty.objects.all()
     major_all = Major.objects.all()
     return render(request,'admin/TemporaryUser.html', {'users': users,'faculty_all':faculty_all,"major_all":major_all})
 @login_required
+@user_passes_test(is_admin)
 def User_path(request):
     users = User.objects.all()
     return render(request,'admin/User.html', {'users': users})
+
+# @login_required
+# @user_passes_test(is_admin)
+# def form_interview(request):
+#     return render(request,'admin/form_interview.html')
+
 @login_required
-def form_interview(request):
-    return render(request,'admin/form_interview.html')
-@login_required
+@user_passes_test(is_admin)
 def admin_profile(request):
     return render(request,'admin/admin_profile.html')
 
 #Manager
 @login_required
+@user_passes_test(is_Manager)
 def manager_page(request):
     return render(request,'manager/Manager_page.html')
 @login_required
+@user_passes_test(is_Manager)
 def manage_profile(request):
     return render(request,'manager/manage_profile.html')
 @login_required
+@user_passes_test(is_Manager)
 def Manage_personnel(request):
     return render(request,'manager/Manage_personnel.html')
 @login_required
+@user_passes_test(is_Manager)
 def Manager_Announcement(request):
     return render(request,'manager/Manager_Announcement.html')
 @login_required
+@user_passes_test(is_Manager)
 def Manager_interview(request):
     return render(request,'manager/Manager_interview.html')
 @login_required
+@user_passes_test(is_Manager)
 def Manager_Score(request):
     return render(request,'manager/Manager_Score.html')
 @login_required
+@user_passes_test(is_Manager)
 def Manager_Print_Interview(request):
     return render(request,'manager/Manager_Print_Interview.html')
 @login_required
+@user_passes_test(is_Manager)
 def Manager_Status(request):
     return render(request,'manager/Manager_Status.html')
 
 #Interviewer
 @login_required
+@user_passes_test(is_Interviewer)
 def interviewer_page(request):
     return render(request,'interviewer/Interviewer_page.html')
 @login_required
+@user_passes_test(is_Interviewer)
 def Interviewer_Profile(request):
     return render(request,'interviewer/Interviewer_Profile.html')
 @login_required
+@user_passes_test(is_Interviewer)
 def Interviewer_room(request):
     return render(request,'interviewer/Interviewer_room.html')
 
@@ -99,20 +150,26 @@ def Interviewer_room(request):
 
 #Student
 @login_required
+@user_passes_test(is_Student)
 def student_page(request):
     return render(request,'student/Student_page.html')
 @login_required
+@user_passes_test(is_Student)
 def Student_profile(request):
     return render(request,'student/Student_profile.html')
 @login_required
+@user_passes_test(is_Student)
 def Student_register(request):
     return render(request,'student/Student_register.html')
 @login_required
+@user_passes_test(is_Student)
 def Student_room(request):
     return render(request,'student/Student_room.html')
 @login_required
+@user_passes_test(is_Student)
 def Student_evidence(request):
     return render(request,'student/Student_evidence.html')
+
 
 def confirm_otp(request):
     return render(request,'student/confirm_otp.html')
@@ -250,7 +307,8 @@ def first_login(request):
 
     return render(request, 'html/first_login.html')
 
-
+@login_required
+@user_passes_test(is_admin)
 def add_Faculty(request):
     if request.method == "POST":
         add_Faculty = request.POST.get('faculty')
@@ -264,12 +322,16 @@ def add_Faculty(request):
                 return redirect("FacultyMajor")
         else:
             return redirect("FacultyMajor")
+
+@login_required
+@user_passes_test(is_admin)
 def delete_Faculty(request,id):
     object = Faculty.objects.get(pk=id)
     object.delete()
     return redirect("FacultyMajor")
 
-
+@login_required
+@user_passes_test(is_admin)
 def add_Major(request):
     if request.method == "POST":
         
@@ -288,11 +350,15 @@ def add_Major(request):
         else:
             return redirect("FacultyMajor")
 
+@login_required
+@user_passes_test(is_admin)
 def delete_Major(request,id):
     object = Major.objects.get(pk=id)
     object.delete()
     return redirect("FacultyMajor")
 
+@login_required
+@user_passes_test(is_admin)
 def add_TemporaryUser(request):
     if request.method == "POST":     
         first_name = request.POST.get('first_name')
@@ -320,7 +386,36 @@ def add_TemporaryUser(request):
             
         return redirect("TemporaryUser")
     
+@login_required
+@user_passes_test(is_admin)    
 def delete_TemporaryUser(request,id):
     object = TemporaryUser.objects.get(pk=id)
     object.delete()
     return redirect("TemporaryUser")
+
+@login_required
+@user_passes_test(is_admin)
+def add_InterviewRound(request):
+    if request.method == "POST":     
+        major_name = request.POST.get('major')
+        academic_year = request.POST.get('academic_year')
+        round_name = request.POST.get('round_name')
+        manager_name = request.POST.get('manager_name')
+        major = Major.objects.get(major=major_name)
+
+        r_mn = Role.objects.get(name="Manager")
+        manager = r_mn.users.get(first_name=manager_name)
+        interview_round, _ = Round.objects.get_or_create(major=major,
+                                                         academic_year=academic_year,
+                                                         round_name=round_name,
+                                                         manager=manager)
+        interview_round.save()
+            
+    return redirect("Interview")
+    
+@login_required
+@user_passes_test(is_admin)
+def delete_InterviewRound(request,id):
+    object = Round.objects.get(pk=id)
+    object.delete()
+    return redirect("Interview")
