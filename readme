@@ -14,7 +14,7 @@ git push -u origin main
 ไว้ทำไรไม่รู้  เอาไว้ก่อน  
 git pull origin main
 
-
+pip install -r requirements.txt
 
 docker-compose run web python manage.py makemigrations
 docker-compose run web python manage.py migrate
