@@ -171,3 +171,18 @@ input[type="checkbox"]:checked {
 .button-container button:hover {
     background-color: #2980b9;
 }
+
+
+.container_edit{
+    width: 700px;
+    margin: 0 auto;
+    display: none;
+    border: 3px solid black;
+    z-index: 999;
+    border-radius: 9px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+}

@@ -32,11 +32,13 @@
                 <tr>
                     <td>{{ user.first_name }} {{ user.last_name }}</td>
                     <td>{{ user.citizen_id }}</td>
-                    <td>{{ user.faculty }}</td>
-                    <td>{{ user.major }}</td>
+                    <td>{{ user.faculty_set.all.first.faculty }}</td>
+                    <td>{{ user.major_set.all.first.major }}</td>
                     <td>
-                        <a href="#">ดูข้อมูล</a> |
-                        <a href="#">แก้ไข</a> |
+                        <a href="">ดูข้อมูล</a> |
+                        <a href="javascript:void(0);" onclick="edit_popup
+                        ('{{ user.id }}', '{{ user.first_name }}', '{{ user.last_name }}',
+                        '{{ user.faculty_set.all }}','{{ user.major_set.all}}','{{ user.citizen_id }}','{{user.birth_date}}')">แก้ไข</a> |
                         <a href="delete_TemporaryUser/{{user.id}}">ลบ</a>
                     </td>
                 </tr>
@@ -44,6 +46,46 @@
             </tbody>
         </table>
     </div>
+    <div class="container_edit" id="edit_popup">
+        <form action="{% url 'edit_TemporaryUser' %}" method="post">
+            {% csrf_token %}
+            <div  class="topic">
+                <h3 >แก้ไขข้อมูล</h3>
+                <a href="TemporaryUser">
+                    <i class="fas fa-sign-out-alt"></i> Exit
+                </a>
+            </div>  
+            <div class="input_data">
+                <input type="hidden" name="user_id" id="user_id">
+                <div>
+                    <label >ชื่อ</label>
+                    <input type="text" name="field1" id="first_name" placeholder="">
+                </div>
+                <div>
+                    <label >ชื่อ-นามสกุล</label>
+                    <input type="text" name="field3" id="last_name" placeholder="">
+                </div>
+                <div>
+                    <label >เลขบัตรประชาชน</label>
+                    <input type="text" name="field4" id="citizen_id" placeholder="">
+                </div>
+                <div>
+                    <label>วัน/เดือน/ปีเกิด</label>
+                    <input type="date" name="field5" id="birth_date" placeholder="">
+                </div>
+
+
+                
+                
+            
+                
+            </div>
+            <div class="bt">
+            <button type="submit">ยืนยันการแก้ไขข้อมูล</button>
+        </div>
+        </form>
+    </div>
+
     
 
     <div class="container_add" id="add_TemporaryUser">
@@ -114,5 +156,10 @@
         </form>
 
     </div>
+
+
+
 </div>
+
+
 {% endblock %}
