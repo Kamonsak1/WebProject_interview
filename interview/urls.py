@@ -35,6 +35,7 @@ urlpatterns = [
     path('add_ScoreTopic',add_ScoreTopic, name='add_ScoreTopic'),
     path('delete_ScoreTopic/<int:id>',delete_ScoreTopic, name='delete_ScoreTopic'),
     path('View_ScoreTemplate/<int:id>',View_ScoreTopic, name='View_ScoreTopic'),
+    path('edit_TemporaryUser',edit_TemporaryUser, name='edit_TemporaryUser'),
 
     
 

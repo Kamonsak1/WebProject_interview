@@ -464,3 +464,8 @@ def delete_ScoreTopic(request,id):
     pattern = object.pattern_id
     object.delete()
     return redirect(f"/View_ScoreTemplate/{pattern}")
+
+
+def edit_TemporaryUser(request):
+    pass
+    return redirect('TemporaryUser')
