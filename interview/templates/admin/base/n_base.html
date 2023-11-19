@@ -5,10 +5,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="{% static 'css/styles.min.css' %}" />
-        <link rel="stylesheet" href="{% static 'css/admin_css/Faculty.css' %}" />
-        <link rel="stylesheet" href="{% static 'css/admin_css/TemporaryUser.css' %}" />
-        <script src="{% static 'js/admin_page/Faculty.js' %}"></script>
-        <script src="{% static 'js/admin_page/TemporaryUser.js' %}"></script>
+        {% block css_js %} 
+        {% endblock %} 
       </head>
     <body>
         {% include 'admin/base/n_sidebar.html' %} 

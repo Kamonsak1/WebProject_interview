@@ -1,58 +1,80 @@
 {% extends 'admin/base/n_base.html' %}
 {% load static %}
+
+
+{% block css_js %} 
+<link rel="stylesheet" href="{% static 'css/admin_css/Faculty.css' %}" />
+<script src="{% static 'js/admin_page/Faculty.js' %}"></script>
+{% endblock %} 
+
+
 {% block topic %}
 <h1 class="text-3xl text-gray-100 mt-2 text-center">คณะและหลักสูตร</h1>
 {% endblock %}
+
+
 {% block content %}
 <div class="pt-14 px-2">
   <div class="top-up">
     <h1>คณะและหลักสูตร</h1>
     <button onclick="add_Faculty()">เพิ่มคณะ</button>
-  </div>
-  <div  id="add_Faculty" class="container ">
+</div>
+<div class="faculty-container">
+  {% for i in faculty %}  
+    <div class="faculty"> 
+      <div class="faculty-header">
+        <h2>{{ i.faculty }}</h2>
+        <div class="faculty-buttons">
+          <button  class="add-button" onclick="add_Major('{{ i.faculty }}', '{{ i.id }}')">เพิ่มสาขา</button>
+          <a href="delete_Faculty/{{i.id}}"><button class="delete-button">ลบคณะ</button></a>
+        </div>
+      </div>
+      <div class="major-list">
+        {% for major in i.major_set.all %}
+          <div class="major-item">
+            <p>{{ major.major }}</p>
+            <a href="delete_Major/{{major.id}}"><button class="delete-button">ลบสาขา</button></a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+
+
+
+  <div  id="add_Faculty" class="container_Faculty ">
     <form  method="post" action="{% url 'add_Faculty' %}">
       {% csrf_token %}
-      <div class="topic">
-          <h3>เพิ่มชื่อคณะ</h3>
-          <button><img src="{% static 'css/icons/admin/xmark-solid.svg' %}" alt="ปุ่มกดออก"></button>
-      </div>
-      <div class="input">
+      <div  class="topic">
+        <h3 >เพิ่มชื่อคณะ</h3>
+        <a href="FacultyMajor">
+            <i class="fas fa-sign-out-alt"></i> Exit
+        </a>
+    </div> 
+      <div class="input_data">
         <p>ชื่อคณะ</p>
         <input type="text" name="faculty" >
         <button class="bt_submit" type="submit">เพิ่ม</button>
       </div>
     </form>
   </div>
-  <div>
-    {% for i in faculty %}  
-        <div class="faculty"> 
-        <p>{{ i.faculty }}</p>
-        <button onclick="add_Major('{{ i.faculty }}', '{{ i.id }}')">เพิ่มสาขา</button>
-        <a href="delete_Faculty/{{i.id}}"><button>ลบ</button></a>
-        </div>
-        <div>
-        {% for major in i.major_set.all %}
-         {{ major.major }}
-
-         <a href="delete_Major/{{major.id}}"><button>ลบ</button></a>
-         <br>
-        {% endfor %}
-        </div>
-    {% endfor %}
-</div>
 <div  id="add_Major" class="container2 ">
     <form  method="post" action="{% url 'add_Major' %}">
       {% csrf_token %}
-      <div class="topic">
-        <h3>เพิ่มชื่อสาขา</h3>
-        <button><img src="{% static 'css/icons/admin/xmark-solid.svg' %}" alt="ปุ่มกดออก"></button>
-      </div>
-      <div class="input">
+      <div  class="topic">
+        <h3 >เพิ่มชื่อสาขา</h3>
+        <a href="FacultyMajor">
+            <i class="fas fa-sign-out-alt"></i> Exit
+        </a>
+    </div> 
+      <div class="input_data">
         <p></p>
         <input type="text" name="Major" >
         <input type="hidden" name="faculty_id" id="facultyIdField">
+        <button class="bt_submit" type="submit">เพิ่ม</button>
       </div>
-      <button type="submit">เพิ่ม</button>
     </form> 
   </div>
 

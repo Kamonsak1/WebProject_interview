@@ -1,21 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Admin | Main</title>
-    </head>
-    <body>
-        {% extends 'admin/base/n_base.html' %}
+{% extends 'admin/base/n_base.html' %}
+{% load static %}
 
         {% block topic %}
         <h1 class="text-3xl text-gray-100 mt-2 text-center">หน้าหลัก</h1>
         {% endblock %}
         {% block content %}
+        <link rel="stylesheet" href="{% static 'css/admin_css/admin_index.css' %}" />
         <div class="pt-14 px-2">
-            <!-- ตำแหน่งเนื้อหาของหน้าหลัก -->
+            <div class="test">
+                <h2 class="announce">ประกาศ</h2>
+                    <div class="in-box">
+                        <p>รอบที่1</p>
+                        <p>รอบที่2</p>
+                    </div>
+
+            </div>
+            <div class="test">
+                <h2 class="Schedule">กำหนการ</h2>
+                    <div class="in-box">
+                        <p>รอบที่1</p>
+                        <p>รอบที่2</p>
+                    </div>
+
+            </div>
         </div>
 
         {% endblock %}
-    </body>
 </html>

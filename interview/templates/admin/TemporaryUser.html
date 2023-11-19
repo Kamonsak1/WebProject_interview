@@ -1,19 +1,79 @@
 {% extends 'admin/base/n_base.html' %}
+{% load static %}
+
+{% block css_js %} 
+<link rel="stylesheet" href="{% static 'css/admin_css/TemporaryUser.css' %}" />
+<script src="{% static 'js/admin_page/TemporaryUser.js' %}"></script>
+{% endblock %} 
+
 
 {% block topic %}
 <h1 class="text-3xl text-gray-100 mt-2 text-center">ผู้ใช้ชั่วคราว</h1>
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
-    <div>
-        <div class="container" id="add_TemporaryUser">
-            <form action="{% url 'add_TemporaryUser' %}" method="post">
-                {% csrf_token %}
-                <h3>สร้างผู้ใช้งาน</h3>
-                ชื่อ<input type="text" name="first_name" id=""><br>
-                ชืนามสกุล<input type="text" name="last_name" id=""><br>
-                เลขบัตรประชาชน<input type="text" name="citizen_id" id=""><br>
-                วัน/เดือน/ปี<input type="date" name="birth_date" id=""><br>
+    <div class="button-container">
+        <button onclick="add_TemporaryUser()">เพิ่มผู้ใช้งาน</button>
+    </div>
+    
+    <div class="table-container">
+        <table class="user">
+            <thead>
+                <tr>
+                    <th>ชื่อ-นามสกุล</th>
+                    <th>เลขบัตรประชาชน</th>
+                    <th>คณะ</th>
+                    <th>สาขาวิชา</th>
+                    <th>จัดการข้อมูล</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.first_name }} {{ user.last_name }}</td>
+                    <td>{{ user.citizen_id }}</td>
+                    <td>{{ user.faculty }}</td>
+                    <td>{{ user.major }}</td>
+                    <td>
+                        <a href="#">ดูข้อมูล</a> |
+                        <a href="#">แก้ไข</a> |
+                        <a href="delete_TemporaryUser/{{user.id}}">ลบ</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+
+    <div class="container_add" id="add_TemporaryUser">
+        <form action="{% url 'add_TemporaryUser' %}" method="post">
+            {% csrf_token %}
+            <div  class="topic">
+                <h3 >สร้างผู้ใช้งาน</h3>
+                <a href="TemporaryUser">
+                    <i class="fas fa-sign-out-alt"></i> Exit
+                </a>
+            </div>       
+            <div class="input_data">
+                <div >
+                    <label for="first_name">ชื่อ</label>
+                    <input type="text" name="first_name" id="first_name">
+                </div>
+                <div>
+                    <label for="last_name">นามสกุล</label>
+                    <input type="text" name="last_name" id="last_name">
+                </div>
+                <div>
+                    <label for="citizen_id">เลขบัตรประชาชน</label>
+                    <input type="text" name="citizen_id" id="citizen_id">
+                </div>
+                <div>
+                    <label for="birth_date">วัน/เดือน/ปี</label>
+                    <input type="date" name="birth_date" id="birth_date" onchange="convertToBuddhistEra(this.value)">
+                </div>
+            </div>
+            <div class="faculty_major">
                 <select name="faculty">
                     <option value="">คณะ</option>
                     {% for faculty in faculty_all %}
@@ -29,50 +89,30 @@
                         {% endfor %}
                     {% endfor %}
                 </select>
-                <br>
-                <div class="radio">
-                    <h4>บทบาท</h4>
-                    <input type="checkbox" id="checkbox1" name="checkboxgroup" value="Admin">
-                    <label for="checkbox1">Admin</label>
-                  
-                    <input type="checkbox" id="checkbox2" name="checkboxgroup" value="Manager">
-                    <label for="checkbox2">Manager</label>
-                  
-                    <input type="checkbox" id="checkbox3" name="checkboxgroup" value="Interviewer">
-                    <label for="checkbox3">Interviewer</label>
-                
-                    <input type="checkbox" id="checkbox4" name="checkboxgroup" value="Student">
-                    <label for="checkbox4">Student</label>
-                </div>
-                
-                <br>
-                <button type="submit">สร้างบัญชีผู้ใช้</button>
-            </form>
+            </div>
+            <div  class="title_role">
+                <h3 >หน้าที่</h3>
+            </div> 
+            <div class="radio">
+                <input type="checkbox" id="checkbox1" name="checkboxgroup" value="Admin">
+                <label for="checkbox1">Admin</label>
+            
+                <input type="checkbox" id="checkbox2" name="checkboxgroup" value="Manager">
+                <label for="checkbox2">Manager</label>
+            
+                <input type="checkbox" id="checkbox3" name="checkboxgroup" value="Interviewer">
+                <label for="checkbox3">Interviewer</label>
+            
+                <input type="checkbox" id="checkbox4" name="checkboxgroup" value="Student">
+                <label for="checkbox4">Student</label>
+            </div>
+            <br>
+            <div class="bt">
+                <button  type="submit">สร้างบัญชีผู้ใช้</button>
+            </div>
+            
+        </form>
 
-        </div>
-        <button onclick="add_TemporaryUser()">เพิ่มผู้ใช้งาน</button>
     </div>
-  <table>
-    <thead>
-        <tr>
-            <th>ชื่อ-นามสกุล</th>
-            <th>เลขบัตรประชาชน</th>
-            <th>คณะ</th>
-            <th>สาขาวิชา</th>
-            <th>จัดการข้อมูล</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for user in users %}
-        <tr>
-            <td>{{ user.first_name }} {{ user.last_name }}</td>
-            <td>{{ user.citizen_id }}</td>
-            <td>{{ user.faculty }}</td>
-            <td>{{ user.major }}</td>
-            <td><a href="#">ดูข้อมูล</a> | <a href="#">แก้ไข</a> | <a href="delete_TemporaryUser/{{user.id}}">ลบ</a></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
 </div>
 {% endblock %}

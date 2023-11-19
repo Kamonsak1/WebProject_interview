@@ -1,4 +1,8 @@
-
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 .top-up{
     display: flex;
     justify-content: space-between;
@@ -6,39 +10,49 @@
 .top-up  h1{
     display: inline;
 }
-.container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.top-up button {
+    background-color: #376CFF; 
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px; 
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer; 
+}
+
+.top-up button:hover {
+    background-color: #2980b9; 
+}
+.container_Faculty {
+    width: 500px;
+    margin: 0 auto;
     display: none;
-    width: 20%;
-    border: 2px solid #000; 
-    border-radius: 10px; 
-    box-sizing: border-box;
+    z-index: 999;
+    border: 3px solid black;
+    border-radius: 9px;
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
 }
 
 .topic {
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: space-between;
+    position: relative;
     background-color: #376CFF;
-    border-radius: 10px 10px 0px 0px;
-    
+    border-radius:  5px 5px 0px 0px;
+    z-index: 800;
+    padding: 1;
 }
 .topic h3{
-    flex: 1;
-    margin: 0;
+    color: white;
     text-align: center;
-    color: #FFFFFF; 
-    padding: 3px 3px;
 }
-.topic button{
-    background-color: #FFD700; 
-    color: #000; 
-    border: none;
-    border-radius: 5px;
-
+.topic a{
+    color: white;
+    top: 0;
+    right: 0;
+    position: absolute;
 }
 .box_1{
     display: flex;
@@ -46,38 +60,143 @@
     align-items: center;
 
 }
-.input {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    justify-content: center; /* Center horizontally */
-    height: 100px; /* For visualization purposes */
-    border: 1px solid #ccc; /* For visualization purposes */
+.input_data {
+    max-width: 400px;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
 }
-.input h3 {
-    margin: 0;
+
+.input_data  p{
+    color: #000;
+    font-size: 20px;
+    text-align: center;
 }
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
 .bt_submit{
     display: flex;
     justify-content: center;
     align-items: center;
-
-}
-
-.faculty{
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: space-between;
+    background-color: white;
+    width: 50%;
+    height: 5vh;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .container2 {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    width: 500px;
+    margin: 0 auto;
     display: none;
-    width: 20%;
-    border: 2px solid #000; 
-    border-radius: 10px; 
-    box-sizing: border-box;
+    z-index: 999;
+    border: 3px solid black;
+    border-radius: 9px;
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
 }
+.faculty-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+   
+  }
+  
+.faculty {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    width: 100%;
+    
+  }
+  
+.faculty-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    border-bottom: 2px solid #000;
+    
+    
+  }
+  
+.faculty h2 {
+    margin: 0;
+    font-weight: bold;
+  }
+  
+.faculty-buttons {
+    display: flex;
+    align-items: center;
+  }
+  
+.faculty-buttons button {
+    margin-left: 5px;
+  }
+  
+.major-list {
+    margin-left: 40px;
+    
+  }
+  
+.major-item {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold; 
+    color: #000;
+    border-bottom: 0.5px solid #000; 
+}
+.major-item p{
+    font-size: 20px;
+}
+
+  
+.delete-button {
+    background-color: #ff6666;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  
+.add-button{
+    background-color: #007BFF; 
+    color: #fff; 
+    padding: 8px 16px; 
+    font-size: 14px; 
+    border: none;
+    border-radius: 3px; 
+    cursor: pointer; 
+}
+
+.add-button {
+    background-color: #0056b3; 
+}
+  
+  
+  
+
