@@ -1,0 +1,35 @@
+{% extends 'admin/base/n_base.html' %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/admin_css/admin_style.css' %}">
+<script src="{% static 'js/toggleiptions.js' %}"></script>
+{% block topic %}
+<h1 class="text-3xl text-gray-100 mt-2 text-center">การให้คะแนน</h1>
+{% endblock %}
+{% block content %}
+
+<div class="pt-14 px-2">
+  <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+    <thead>
+        <tr>
+            <th style="background-color: #4CAF50; color: white; padding: 10px;">หัวข้อการให้คะแนน</th>
+            <th style="background-color: #4CAF50; color: white; padding: 10px;">ตะแนนเต็ม</th>
+            <th style="background-color: #4CAF50; color: white; padding: 10px; width: 15%;">จัดการ</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for topic in Topics %}
+        <tr style="background-color: {% cycle '#f2f2f2' 'white' %};">
+            <td style="padding: 10px; border-bottom: 1px solid #ddd; width: 50%;"">{{ topic.topic_name }}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ddd; width: 30%;"">{{ topic.max_score }}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ddd; width: 15%;">
+                <a style="text-decoration: none; color: #4285F4; padding: 5px 10px; border: 1px solid #4285F4; border-radius: 5px; transition: background-color 0.3s ease;" href="/delete_ScoreTopic/{{topic.id}}">ลบ</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+  <div style="text-align: center; margin-top: 20px;">
+    <a href="/Score" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border: none; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition-duration: 0.4s;">เพิ่มหัวข้อการให้คะแนน</a>
+  </div>
+</div>
+{% endblock %}

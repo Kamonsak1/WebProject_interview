@@ -13,6 +13,7 @@ import random
 import string
 from django.http import JsonResponse
 from django.core.mail import send_mail
+from django.db.models import Count
 # Create your views here.
 
 def is_admin(user):
@@ -72,7 +73,13 @@ def Interview(request):
 @login_required
 @user_passes_test(is_admin)
 def Score(request):
-    return render(request,'admin/Score.html')
+    Round_all = Round.objects.all()
+    template_all = ScoreTopic.objects.values('pattern_id').annotate(Count('id')).distinct()
+    context ={
+        "Round" : Round_all,
+        "Template" : template_all
+    }
+    return render(request,'admin/Score.html', context)
 @login_required
 @user_passes_test(is_admin)
 def TemporaryUser_path(request):
@@ -419,3 +426,41 @@ def delete_InterviewRound(request,id):
     object = Round.objects.get(pk=id)
     object.delete()
     return redirect("Interview")
+
+@login_required
+@user_passes_test(is_admin)
+def add_ScoreTopic(request):
+    if request.method == "POST":
+        if request.POST.get("Template_ID"):
+            Template_ID = request.POST.get("Template_ID")
+            return redirect(f"View_ScoreTemplate/{Template_ID}")
+        else:
+            template_num = request.POST.get('template_num')
+            topic_name = request.POST.get('topic_name')
+            max_score = request.POST.get('max_score')
+            round_name = request.POST.get('round_name')
+            round = Round.objects.get(round_name=round_name)
+            score_topic, _ = ScoreTopic.objects.get_or_create(round=round,
+                                                                pattern_id=template_num,
+                                                                topic_name=topic_name,
+                                                                max_score=max_score)
+            score_topic.save()
+            return redirect(f"View_ScoreTemplate/{template_num}")
+
+@login_required
+@user_passes_test(is_admin)
+def View_ScoreTopic(request,id):
+    Topics = ScoreTopic.objects.filter(pattern_id=id)
+    context = {
+        "Topics" : Topics
+    }
+            
+    return render(request , 'admin/Score_Template.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def delete_ScoreTopic(request,id):
+    object = ScoreTopic.objects.get(pk=id)
+    pattern = object.pattern_id
+    object.delete()
+    return redirect(f"/View_ScoreTemplate/{pattern}")
