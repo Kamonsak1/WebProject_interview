@@ -1,0 +1,108 @@
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container_profile {
+    display: flex;
+    flex-direction: column;
+    width: 1200px;
+    height: 80vh;
+    margin: 0 auto;
+    background-color: white;
+    margin-top: 50px;
+    padding: 20px; /* Add padding for better spacing */
+}
+
+.container_profile div {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #ddd;
+}
+
+.container_profile label {
+    margin-right: 20px; /* Adjust the margin as needed */
+    font-size: 30px;
+    color: #000;
+}
+
+.container_profile p {
+    margin: 20px 0;
+    font-size: 30px;
+    color: #000;
+}
+
+.edit-icon {
+    margin-left: 10px; /* Adjust the margin as needed */
+    cursor: pointer;
+}
+
+.changepassword{
+    width: 700px;
+    margin: 0 auto;
+    display: none;
+    border: 3px solid black;
+    z-index: 999;
+    border-radius: 9px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white
+}
+.topic {
+    position: relative;
+    background-color: #376CFF;
+    border-radius:  5px 5px 0px 0px;
+    z-index: 800;
+    padding: 1;
+}
+.topic h3{
+    color: white;
+    text-align: center;
+}
+.topic a{
+    color: white;
+    top: 0;
+    right: 0;
+    position: absolute;
+}
+
+.input_data {
+    max-width: 400px;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.input_data div {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.bt {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.bt button{
+    background-color: white;
+    width: 50%;
+    height: 5vh;
+    margin-bottom: 10px;
+    border-radius: 10px;
+}
