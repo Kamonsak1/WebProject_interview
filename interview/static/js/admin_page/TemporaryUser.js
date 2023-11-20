@@ -28,30 +28,39 @@ function updateMajorOptions() {
       }
   });
 }
-function edit_popup(user_id, first_name, last_name, faculty, major,citizen_id,birth_date) {
+function edit_popup(user_id, first_name, last_name, faculty, major,citizen_id,birth_date,role) {
 var optionsDiv = document.getElementById("edit_popup");
 document.getElementById('user_id').value = user_id;
 document.getElementById('first_name').value = first_name;
 document.getElementById('last_name').value = last_name;
 document.getElementById('citizen_id').value = citizen_id;
 document.getElementById('birth_date').value = birth_date;
-var a = [];
-a.push(faculty.split(':'));
+var faculty_new = [];
+faculty_new.push(faculty.split(':'));
 var faculty_split = [];
-for (var i = 0; i < a[0].length; i++) {
-    var a2 = a[0][i].split(">");
+for (var i = 0; i < faculty_new[0].length; i++) {
+    var a2 = faculty_new[0][i].split(">");
     a2[0] = a2[0].trim();
     faculty_split.push(a2[0]);
 }
-var aa = [];
-aa.push(major.split(':'));
+var major_new = [];
+major_new.push(major.split(':'));
 var major_split = [];
-for (var i = 0; i < aa[0].length; i++) {
-    var a2 = aa[0][i].split(">");
+for (var i = 0; i < major_new[0].length; i++) {
+    var a2 = major_new[0][i].split(">");
     a2[0] = a2[0].trim();
     major_split.push(a2[0]);
 }
+var role_new = [];
+role_new.push(role.split(':'));
+var role_split = [];
+for (var i = 0; i < role_new[0].length; i++) {
+    var a2 = role_new[0][i].split(">");
+    a2[0] = a2[0].trim();
+    role_split.push(a2[0]);
+}
 
+document.getElementById('role').value = role_split.slice(1);
 //document.getElementById('faculty').value = faculty_split.slice(1);
 //document.getElementById('major').value = major_split.slice(1);
 
@@ -62,5 +71,45 @@ if (optionsDiv.style.display === "block") {
 }
 }
 
+function display_popup(user_id, first_name, last_name, faculty, major,citizen_id,birth_date,role) {
+var optionsDiv = document.getElementById("display_popup");
+document.getElementById('user_id').value = user_id;
+document.getElementById('display_first_name').value = first_name;
+document.getElementById('display_last_name').value = last_name;
+document.getElementById('display_citizen_id').value = citizen_id;
+document.getElementById('display_birth_date').value = birth_date;
+var faculty_new = [];
+faculty_new.push(faculty.split(':'));
+var faculty_split = [];
+for (var i = 0; i < faculty_new[0].length; i++) {
+    var a2 = faculty_new[0][i].split(">");
+    a2[0] = a2[0].trim();
+    faculty_split.push(a2[0]);
+}
+var major_new = [];
+major_new.push(major.split(':'));
+var major_split = [];
+for (var i = 0; i < major_new[0].length; i++) {
+    var a2 = major_new[0][i].split(">");
+    a2[0] = a2[0].trim();
+    major_split.push(a2[0]);
+}
+var role_new = [];
+role_new.push(role.split(':'));
+var role_split = [];
+for (var i = 0; i < role_new[0].length; i++) {
+    var a2 = role_new[0][i].split(">");
+    a2[0] = a2[0].trim();
+    role_split.push(a2[0]);
+}
 
+document.getElementById('display_role').value = role_split.slice(1);
+//document.getElementById('faculty').value = faculty_split.slice(1);
+//document.getElementById('major').value = major_split.slice(1);
 
+if (optionsDiv.style.display === "block") {
+  optionsDiv.style.display = "none";
+} else {
+  optionsDiv.style.display = "block";
+}
+}

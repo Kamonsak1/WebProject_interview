@@ -35,10 +35,14 @@
                     <td>{{ user.faculty_set.all.first.faculty }}</td>
                     <td>{{ user.major_set.all.first.major }}</td>
                     <td>
-                        <a href="">ดูข้อมูล</a> |
+                        <a href="javascript:void(0);" onclick="display_popup
+                        ('{{ user.id }}', '{{ user.first_name }}', '{{ user.last_name }}',
+                        '{{ user.faculty_set.all }}','{{ user.major_set.all}}','{{ user.citizen_id }}',
+                        '{{user.birth_date}}','{{user.roles.all}}')">ดูข้อมูล</a> |
                         <a href="javascript:void(0);" onclick="edit_popup
                         ('{{ user.id }}', '{{ user.first_name }}', '{{ user.last_name }}',
-                        '{{ user.faculty_set.all }}','{{ user.major_set.all}}','{{ user.citizen_id }}','{{user.birth_date}}')">แก้ไข</a> |
+                        '{{ user.faculty_set.all }}','{{ user.major_set.all}}','{{ user.citizen_id }}',
+                        '{{user.birth_date}}','{{user.roles.all}}')">แก้ไข</a> |
                         <a href="delete_TemporaryUser/{{user.id}}">ลบ</a>
                     </td>
                 </tr>
@@ -59,31 +63,92 @@
                 <input type="hidden" name="user_id" id="user_id">
                 <div>
                     <label >ชื่อ</label>
-                    <input type="text" name="field1" id="first_name" placeholder="">
+                    <input type="text" name="first_name" id="first_name" placeholder="">
                 </div>
                 <div>
-                    <label >ชื่อ-นามสกุล</label>
-                    <input type="text" name="field3" id="last_name" placeholder="">
+                    <label >นามสกุล</label>
+                    <input type="text" name="last_name" id="last_name" placeholder="">
                 </div>
                 <div>
                     <label >เลขบัตรประชาชน</label>
-                    <input type="text" name="field4" id="citizen_id" placeholder="">
+                    <input type="text" name="citizen_id" id="citizen_id" placeholder="">
                 </div>
                 <div>
                     <label>วัน/เดือน/ปีเกิด</label>
-                    <input type="date" name="field5" id="birth_date" placeholder="">
+                    <input type="date" name="birth_date" id="birth_date" placeholder="">
                 </div>
-
-
+                <div>
+                    <label >role</label>
+                    <input type="text" name="role" id="role" placeholder="">
+                </div>
+                <div  class="title_role">
+                    <h3 >หน้าที่</h3>
+                </div> 
+                <div class="checkbox-container">
+                    <input type="checkbox" id="checkbox1" name="checkboxgroup" value="Admin">
+                    <label for="checkbox1" class="checkbox-label">Admin</label>
                 
+                    <input type="checkbox" id="checkbox2" name="checkboxgroup" value="Manager">
+                    <label for="checkbox2" class="checkbox-label">Manager</label>
                 
-            
+                    <input type="checkbox" id="checkbox3" name="checkboxgroup" value="Interviewer">
+                    <label for="checkbox3" class="checkbox-label">Interviewer</label>
                 
+                    <input type="checkbox" id="checkbox4" name="checkboxgroup" value="Student">
+                    <label for="checkbox4" class="checkbox-label">Student</label>
+                </div>            
             </div>
             <div class="bt">
             <button type="submit">ยืนยันการแก้ไขข้อมูล</button>
         </div>
         </form>
+    </div>
+    <div class="container_display" id="display_popup">
+            <div  class="topic">
+                <h3 >ข้อมูลผู้ใช้</h3>
+                <a href="TemporaryUser">
+                    <i class="fas fa-sign-out-alt"></i> Exit
+                </a>
+            </div>  
+            <div class="input_data">
+                <input type="hidden" name="user_id" id="user_id">
+                <div>
+                    <label >ชื่อ</label>
+                    <input type="text" name="first_name" id="display_first_name" placeholder="" readonly>
+                </div>
+                <div>
+                    <label >นามสกุล</label>
+                    <input type="text" name="last_name" id="display_last_name" placeholder="" readonly>
+                </div>
+                <div>
+                    <label >เลขบัตรประชาชน</label>
+                    <input type="text" name="citizen_id" id="display_citizen_id" placeholder="" readonly>
+                </div>
+                <div>
+                    <label>วัน/เดือน/ปีเกิด</label>
+                    <input type="text" name="birth_date" id="display_birth_date" placeholder="" readonly>
+                </div>
+                <div>
+                    <label >role</label>
+                    <input type="text" name="role" id="display_role" placeholder="" readonly>
+                </div>
+                <div  class="title_role">
+                    <h3 >หน้าที่</h3>
+                </div> 
+                <div class="checkbox-container">
+                    <input type="checkbox" id="checkbox1" name="checkboxgroup" value="Admin">
+                    <label for="checkbox1" class="checkbox-label">Admin</label>
+                
+                    <input type="checkbox" id="checkbox2" name="checkboxgroup" value="Manager">
+                    <label for="checkbox2" class="checkbox-label">Manager</label>
+                
+                    <input type="checkbox" id="checkbox3" name="checkboxgroup" value="Interviewer">
+                    <label for="checkbox3" class="checkbox-label">Interviewer</label>
+                
+                    <input type="checkbox" id="checkbox4" name="checkboxgroup" value="Student">
+                    <label for="checkbox4" class="checkbox-label">Student</label>
+                </div>            
+            </div>
     </div>
 
     
