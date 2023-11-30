@@ -469,3 +469,11 @@ def delete_ScoreTopic(request,id):
 def edit_TemporaryUser(request):
     pass
     return redirect('TemporaryUser')
+
+
+def ajax_load_cities(request):
+    faculty_name = request.GET.get('faculty')  # ใช้ GET เนื่องจากเป็นการดึงข้อมูลจาก URL
+    faculty_object = Faculty.objects.get(faculty=faculty_name)
+    majors = faculty_object.major_set.all()
+    return render(request, 'admin/dropdown-list.html', {"majors": majors})
+

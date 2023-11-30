@@ -1,0 +1,5 @@
+<!-- dropdown-list.html -->
+<option value="">สาขา</option>
+{% for major in majors %}
+    <option value="{{ major.major }}">{{ major.major }}</option>
+{% endfor %}

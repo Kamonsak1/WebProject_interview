@@ -5,7 +5,10 @@ function add_TemporaryUser() {
   } else {
     optionsDiv.style.display = "block";
   }
+
+  
 }
+
 
 function updateMajorOptions() {
   var facultyId = $("#facultySelect").val();
@@ -59,8 +62,35 @@ for (var i = 0; i < role_new[0].length; i++) {
     a2[0] = a2[0].trim();
     role_split.push(a2[0]);
 }
+var checkbox1 = document.getElementById('checkbox1');
+var checkbox2 = document.getElementById('checkbox2');
+var checkbox3 = document.getElementById('checkbox3');
+var checkbox4 = document.getElementById('checkbox4');
+checkbox1.checked = false;
+checkbox2.checked = false;
+checkbox3.checked = false;
+checkbox4.checked = false;
 
-document.getElementById('role').value = role_split.slice(1);
+for (let i = 0 ; i < (role_split.length);i++){
+  if (role_split[i] === 'Admin') {
+    console.log('แอดมิน');
+    checkbox1.checked = true;
+  }
+  if (role_split[i] === 'Manager') {
+    console.log('ผู้จัดการ');
+    checkbox2.checked = true;
+  }
+  if (role_split[i] === 'Interviewer') {
+    console.log('ผู้สัมภาษณ์');
+    checkbox3.checked = true;
+  }
+  if (role_split[i] === 'Student') {
+    console.log('นักเรียน');
+    checkbox4.checked = true;
+  }
+  
+    
+}
 //document.getElementById('faculty').value = faculty_split.slice(1);
 //document.getElementById('major').value = major_split.slice(1);
 
@@ -103,7 +133,33 @@ for (var i = 0; i < role_new[0].length; i++) {
     role_split.push(a2[0]);
 }
 
-document.getElementById('display_role').value = role_split.slice(1);
+var checkbox1 = document.getElementById('checkbox5');
+var checkbox2 = document.getElementById('checkbox6');
+var checkbox3 = document.getElementById('checkbox7');
+var checkbox4 = document.getElementById('checkbox8');
+checkbox1.checked = false;
+checkbox2.checked = false;
+checkbox3.checked = false;
+checkbox4.checked = false;
+
+for (let i = 0 ; i < (role_split.length);i++){
+  if (role_split[i] === 'Admin') {
+    console.log('แอดมิน');
+    checkbox1.checked = true;
+  }
+  if (role_split[i] === 'Manager') {
+    console.log('ผู้จัดการ');
+    checkbox2.checked = true;
+  }
+  if (role_split[i] === 'Interviewer') {
+    console.log('ผู้สัมภาษณ์');
+    checkbox3.checked = true;
+  }
+  if (role_split[i] === 'Student') {
+    console.log('นักเรียน');
+    checkbox4.checked = true;
+  }
+}
 //document.getElementById('faculty').value = faculty_split.slice(1);
 //document.getElementById('major').value = major_split.slice(1);
 
@@ -113,3 +169,5 @@ if (optionsDiv.style.display === "block") {
   optionsDiv.style.display = "block";
 }
 }
+
+

@@ -4,6 +4,7 @@
 {% block css_js %} 
 <link rel="stylesheet" href="{% static 'css/admin_css/TemporaryUser.css' %}" />
 <script src="{% static 'js/admin_page/TemporaryUser.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 {% endblock %} 
 
 
@@ -63,38 +64,34 @@
                 <input type="hidden" name="user_id" id="user_id">
                 <div>
                     <label >ชื่อ</label>
-                    <input type="text" name="first_name" id="first_name" placeholder="">
+                    <input type="text" name="first_name" id="first_name" >
                 </div>
                 <div>
                     <label >นามสกุล</label>
-                    <input type="text" name="last_name" id="last_name" placeholder="">
+                    <input type="text" name="last_name" id="last_name" >
                 </div>
                 <div>
                     <label >เลขบัตรประชาชน</label>
-                    <input type="text" name="citizen_id" id="citizen_id" placeholder="">
+                    <input type="text" name="citizen_id" id="citizen_id" >
                 </div>
                 <div>
                     <label>วัน/เดือน/ปีเกิด</label>
-                    <input type="date" name="birth_date" id="birth_date" placeholder="">
-                </div>
-                <div>
-                    <label >role</label>
-                    <input type="text" name="role" id="role" placeholder="">
+                    <input type="date" name="birth_date" id="birth_date" >
                 </div>
                 <div  class="title_role">
                     <h3 >หน้าที่</h3>
                 </div> 
                 <div class="checkbox-container">
-                    <input type="checkbox" id="checkbox1" name="checkboxgroup" value="Admin">
+                    <input type="checkbox" id="checkbox1" name="checkboxgroup" value="Admin" >
                     <label for="checkbox1" class="checkbox-label">Admin</label>
                 
-                    <input type="checkbox" id="checkbox2" name="checkboxgroup" value="Manager">
+                    <input type="checkbox" id="checkbox2" name="checkboxgroup" value="Manager" >
                     <label for="checkbox2" class="checkbox-label">Manager</label>
                 
                     <input type="checkbox" id="checkbox3" name="checkboxgroup" value="Interviewer">
                     <label for="checkbox3" class="checkbox-label">Interviewer</label>
                 
-                    <input type="checkbox" id="checkbox4" name="checkboxgroup" value="Student">
+                    <input type="checkbox" id="checkbox4" name="checkboxgroup" value="Student" >
                     <label for="checkbox4" class="checkbox-label">Student</label>
                 </div>            
             </div>
@@ -128,24 +125,20 @@
                     <label>วัน/เดือน/ปีเกิด</label>
                     <input type="text" name="birth_date" id="display_birth_date" placeholder="" readonly>
                 </div>
-                <div>
-                    <label >role</label>
-                    <input type="text" name="role" id="display_role" placeholder="" readonly>
-                </div>
                 <div  class="title_role">
                     <h3 >หน้าที่</h3>
                 </div> 
                 <div class="checkbox-container">
-                    <input type="checkbox" id="checkbox1" name="checkboxgroup" value="Admin">
+                    <input type="checkbox" id="checkbox5" name="checkboxgroup" value="Admin">
                     <label for="checkbox1" class="checkbox-label">Admin</label>
                 
-                    <input type="checkbox" id="checkbox2" name="checkboxgroup" value="Manager">
+                    <input type="checkbox" id="checkbox6" name="checkboxgroup" value="Manager">
                     <label for="checkbox2" class="checkbox-label">Manager</label>
                 
-                    <input type="checkbox" id="checkbox3" name="checkboxgroup" value="Interviewer">
+                    <input type="checkbox" id="checkbox7" name="checkboxgroup" value="Interviewer">
                     <label for="checkbox3" class="checkbox-label">Interviewer</label>
                 
-                    <input type="checkbox" id="checkbox4" name="checkboxgroup" value="Student">
+                    <input type="checkbox" id="checkbox8" name="checkboxgroup" value="Student">
                     <label for="checkbox4" class="checkbox-label">Student</label>
                 </div>            
             </div>
@@ -154,7 +147,7 @@
     
 
     <div class="container_add" id="add_TemporaryUser">
-        <form action="{% url 'add_TemporaryUser' %}" method="post">
+        <form action="{% url 'add_TemporaryUser' %}" method="post" data-cities-url="{% url 'ajax_load_cities' %}" id="add_test">
             {% csrf_token %}
             <div  class="topic">
                 <h3 >สร้างผู้ใช้งาน</h3>
@@ -181,20 +174,14 @@
                 </div>
             </div>
             <div class="faculty_major">
-                <select name="faculty">
+                <select name="faculty" id="id_faculty">
                     <option value="">คณะ</option>
                     {% for faculty in faculty_all %}
-                        <option value="{{ faculty }}">{{ faculty }}</option>
+                    <option value="{{faculty}}">{{faculty}}</option>
                     {% endfor %}
                 </select>
-                
-                <select name="major" id="majorSelect">
-                    <option>สาขา</option>
-                    {% for faculty in faculty_all %}
-                        {% for major in faculty.major_set.all %}
-                            <option value="{{ major }}">{{ major }}</option>
-                        {% endfor %}
-                    {% endfor %}
+                <select name="major" id="id_major">
+                    <option value="">สาขา</option>
                 </select>
             </div>
             <div  class="title_role">
@@ -221,7 +208,24 @@
         </form>
 
     </div>
-
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        $("#id_faculty").change(function () {
+            const url = $("#add_test").attr("data-cities-url");  
+            const facultyname = $(this).val(); 
+     
+            $.ajax({                       
+                url: url,                   
+                data: {
+                    'faculty': facultyname      
+                },
+                success: function (data) {   
+                    $("#id_major").html(data); 
+                }
+            });
+     
+        });
+    </script>
 
 
 </div>
