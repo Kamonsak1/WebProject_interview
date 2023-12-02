@@ -20107,7 +20107,7 @@ ul {
 }
 
 .card-title {
-    font-size: 18px
+    font-size: 30px
 }
 
 .card-subtitle {
@@ -20181,4 +20181,13 @@ ul {
 
 .timeline-widget .timeline-item .timeline-badge.badge-primary {
     border: 2px solid #5D87FF
+}
+
+.full-width-underline {
+    display: block;
+    width: calc(99.8%); /* เพิ่มความกว้างเท่ากับ padding ที่ต้องการเลย */
+    margin-left: -20px; /* ใช้ค่าลบเพื่อชดเชย padding */
+    border-bottom: 1px solid #CCCCCC; /* ปรับสีเส้นได้ตามต้องการ */
+    margin-bottom: 20px;
+    overflow: hidden; /* ป้องกันการแสดงผลนอกขอบเขต */
 }

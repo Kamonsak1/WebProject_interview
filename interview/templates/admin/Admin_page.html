@@ -2,28 +2,60 @@
 {% load static %}
 
         {% block topic %}
-        <h1 class="text-3xl text-gray-100 mt-2 text-center">หน้าหลัก</h1>
+        <div class="fs-8 mt-1 text-muted text-center">
+            <span><i class="ti ti-home"></i> หน้าหลัก</span>
+        </div>
         {% endblock %}
         {% block content %}
         <link rel="stylesheet" href="{% static 'css/admin_css/admin_index.css' %}" />
-        <div class="pt-14 px-2">
-            <div class="test">
-                <h2 class="announce">ประกาศ</h2>
-                    <div class="in-box">
-                        <p>รอบที่1</p>
-                        <p>รอบที่2</p>
-                    </div>
+            <div class="container-fluid">
+                <div class="container-fluid">
+                    <div class="card">
+                        <div class="card-body">
+                            <span>
+                            <i class="ti ti-news fs-8"></i>
+                            </span>
+                            <span class="card-title fw-semibold mb-2 text-primary">ประกาศ</span>
+                            <div class="card mb-1">
+                                <div class="card-body p-2">
+                                    <h5>ทดสอบประกาศ 1</h5>
+                                </div>
+                            </div>
+                            <div class="card mb-1">
+                                <div class="card-body p-2">
+                                    <h5>ทดสอบประกาศ 2</h5>
+                                </div>
+                            </div>
 
-            </div>
-            <div class="test">
-                <h2 class="Schedule">กำหนการ</h2>
-                    <div class="in-box">
-                        <p>รอบที่1</p>
-                        <p>รอบที่2</p>
+                        </div>
                     </div>
-
+                </div>
             </div>
-        </div>
+
+            <div class="container-fluid">
+                <div class="container-fluid">
+                    <div class="card">
+                        <div class="card-body">
+                            <span>
+                                <i class="ti ti-calendar-event fs-8"></i>
+                            </span>
+                            <span class="card-title fw-semibold mb-2 text-primary">กำหนดการ</span>
+
+                            <div class="card mb-1">
+                                <div class="card-body p-2">
+                                    <h5>ทดสอบกำหนดการ 1</h5>
+                                </div>
+                            </div>
+                            <div class="card mb-1">
+                                <div class="card-body p-2">
+                                    <h5>ทดสอบกำหนดการ 2</h5>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         {% endblock %}
 </html>
