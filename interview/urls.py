@@ -42,6 +42,8 @@ urlpatterns = [
     path('add_User',add_User, name='add_User'),
     path('add_User_by_file',add_User_by_file, name='add_User_by_file'),
     path('edit_User',edit_User, name='edit_User'),
+    path('search_user',search_user, name='search_user'),
+    path('search_TemporaryUser',search_TemporaryUser, name='search_TemporaryUser'),
 
 
     

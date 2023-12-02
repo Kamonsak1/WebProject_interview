@@ -11,6 +11,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.shortcuts import get_object_or_404
 import pandas as pd
 import random
+from django.db.models import Q
 import string
 from django.contrib.auth.hashers import make_password
 from datetime import datetime
@@ -18,6 +19,8 @@ from django.http import JsonResponse
 from django.core.mail import send_mail
 from django.db.models import Count
 from django.contrib import messages
+from django.http import JsonResponse
+from django.core.serializers.json import DjangoJSONEncoder
 # Create your views here.
 
 def is_admin(user):
@@ -660,7 +663,8 @@ def send_registration_email(email, citizen_id, password):
     from_email = settings.EMAIL_HOST_USER
     recipient_list = [email]
     send_mail(subject, message, from_email, recipient_list)
-
+@login_required
+@user_passes_test(is_admin)
 def add_User_by_file(request):
     if request.method == 'POST':
         data = request.FILES.get('fileInputa')
@@ -763,7 +767,8 @@ def add_User_by_file(request):
 
         print('เจอข้อมูลเดิม',user_old)
     return redirect('User')
-
+@login_required
+@user_passes_test(is_admin)
 def edit_User(request):
     if request.method == "POST":
         user_id = request.POST.get('user_id')
@@ -789,6 +794,53 @@ def edit_User(request):
         edit_user.save()
         
     return redirect('User')
+
+
+def search_user(request):
+    if request.method == "POST":
+        search = request.POST.get('search')
+        faculty = request.POST.get('faculty')
+        major = request.POST.get('major')
+        faculty_all = Faculty.objects.all()
+        
+        users = User.objects.filter(
+            Q(username__icontains=search) |
+            Q(first_name__icontains=search) |
+            Q(last_name__icontains=search) |
+            Q(email__icontains=search) |
+            Q(faculty__faculty__icontains=search) |
+            Q(major__major__icontains=search) )
+        if faculty and major:
+            users_filtered = User.objects.filter(faculty__faculty=faculty, major__major=major,).filter(Q(username__icontains=search) | Q(first_name__icontains=search) | Q(email__icontains=search))
+            return render(request,'admin/form_search/search.html',{'users': users_filtered,'faculty_all':faculty_all})
+        else: 
+            return render(request,'admin/form_search/search.html',{'users': users,'faculty_all':faculty_all})
+            
+
+    return HttpResponse("ไม่พบข้อมูล")
+    
+
+
+def search_TemporaryUser(request):
+    if request.method == "POST":
+        search = request.POST.get('search')
+        faculty = request.POST.get('faculty')
+        major = request.POST.get('major')
+        faculty_all = Faculty.objects.all()
+        
+        users = TemporaryUser.objects.filter(
+            Q(first_name__icontains=search) |
+            Q(last_name__icontains=search) |
+            Q(faculty__faculty__icontains=search) |
+            Q(major__major__icontains=search) )
+        if faculty and major:
+            users_filtered = TemporaryUser.objects.filter(faculty__faculty=faculty, major__major=major,).filter( Q(first_name__icontains=search) )
+            return render(request,'admin/form_search/search_tem.html',{'users': users_filtered,'faculty_all':faculty_all})
+        else: 
+            return render(request,'admin/form_search/search_tem.html',{'users': users,'faculty_all':faculty_all})
+            
+
+    return HttpResponse("ไม่พบข้อมูล")
 
 @login_required
 @user_passes_test(is_admin)

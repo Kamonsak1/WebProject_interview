@@ -213,3 +213,32 @@ input[type="checkbox"]:checked {
     transform: translate(-50%, -50%);
     background-color: white;
 }
+.search {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.search form {
+    display: flex;
+    max-width: 500px; 
+}
+
+.search input[type="text"] {
+    width: 100%;
+    padding: 10px; 
+    border-radius: 9px;
+}
+
+.search button {
+    margin-left: 2px;
+    border-radius: 9px;
+    background-color: #3498db; 
+    color: white; 
+    border: none; 
+    padding: 10px 20px; 
+    cursor: pointer; 
+}
+
+.search button:hover {
+    background-color: #2980b9; 
+}

@@ -18,7 +18,7 @@
         <button onclick="add_User_by_file()">เพิ่มผู้ใช้งานแบบไฟล์</button>
     </div>
     <div  class="search">
-        <form action="{% url 'search_user' %}" method="post">
+        <form action="search_user" method="post">
             {% csrf_token %}
             <input type="search" name="search" id="">
             <button type="submit">ค้นหา</button>
