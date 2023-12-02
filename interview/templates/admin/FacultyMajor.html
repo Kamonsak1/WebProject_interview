@@ -17,32 +17,34 @@
 
 {% block content %}
 <div class="pt-14 px-2">
-  <div class="top-up">
-    <h1>คณะและหลักสูตร</h1>
-    <button onclick="add_Faculty()">เพิ่มคณะ</button>
-</div>
-<div class="faculty-container">
-  {% for i in faculty %}  
-    <div class="faculty"> 
-      <div class="faculty-header">
-        <h2>{{ i.faculty }}</h2>
-        <div class="faculty-buttons">
-          <button  class="add-button" onclick="add_Major('{{ i.faculty }}', '{{ i.id }}')">เพิ่มสาขา</button>
-          <a href="delete_Faculty/{{i.id}}"><button class="delete-button">ลบคณะ</button></a>
-        </div>
-      </div>
-      <div class="major-list">
-        {% for major in i.major_set.all %}
-          <div class="major-item">
-            <p>{{ major.major }}</p>
-            <a href="delete_Major/{{major.id}}"><button class="delete-button">ลบสาขา</button></a>
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-  {% endfor %}
+
+<div class="d-flex justify-content-end mb-2">
+    <button class="btn btn-secondary m-1 fs-5" onclick="add_Faculty()">เพิ่มคณะ</button>
 </div>
 
+{% for i in faculty %} 
+<div class="container-fluid">
+  <div class="container-fluid">
+      <div class="card">
+          <div class="card-body row">
+              <span class="card-title fw-semibold mb-2 col-6">{{ i.faculty }}</span>
+              <div class="d-flex justify-content-end mb-2 col-6">
+                <button class="btn btn-secondary m-1 fs-5" onclick="add_Major('{{ i.faculty }}', '{{ i.id }}')">เพิ่มสาขา</button>
+                <a href="delete_Faculty/{{i.id}}"><button class="fs-5 m-1 btn btn-red p1">ลบคณะ</button></a>
+              </div>
+              {% for major in i.major_set.all %}
+              <div class="card mb-1">
+                <div class="card-body p-2 d-flex justify-content-between">
+                    <h5 class=" mb-0">{{ major.major }}</h5>
+                    <a href="delete_Major/{{major.id}}"><button class="btn btn-red">ลบสาขา</button></a>
+                </div>
+              </div>
+              {% endfor %}
+          </div>
+      </div>
+  </div>
+</div>
+{% endfor %}
 
 
 

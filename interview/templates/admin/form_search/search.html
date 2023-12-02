@@ -9,68 +9,73 @@
 
 
 {% block topic %}
-<h1 class="text-3xl text-gray-100 mt-2 text-center">ผู้ใช้หลัก</h1>
+<div class="fs-8 mt-1 text-muted text-center">
+    <span><i class="ti ti-user-check"></i> ผู้ใช้ทั่วไป</span>
+  </div>
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
-    <div class="button-container">
-        <button onclick="add_User()">เพิ่มผู้ใช้งาน</button>
-        <button onclick="add_User_by_file()">เพิ่มผู้ใช้งานแบบไฟล์</button>
-    </div>
-    <div  class="search">
-        <form action="search_user" method="post">
-            {% csrf_token %}
-            <input type="search" name="search" id="">
-            <button type="submit">ค้นหา</button>
-            <div class="faculty_major">
-                <select name="faculty" id="id_faculty_second">
+    <div class="d-flex justify-content-between mb-2">
+
+        <div class="d-flex flex-row flex-nowrap">
+            <form action="{% url 'search_user' %}" method="post" class="w-100 d-flex flex-row align-items-center">
+                {% csrf_token %}
+                <input class="form-control me-2" type="search" name="search" id="" placeholder="ค้นหา..." style="flex-grow: 1; min-width: 0;">
+                <select class="form-select me-2" name="faculty" id="id_faculty_second" style="width: auto;">
                     <option value="">คณะ</option>
                     {% for faculty in faculty_all %}
                     <option value="{{faculty}}">{{faculty}}</option>
                     {% endfor %}
                 </select>
-                <select name="major" id="id_major_second">
+                <select class="form-select" name="major" id="id_major_second" style="width: auto;">
                     <option value="">สาขา</option>
                 </select>
-            </div>
-        </form>
+                <button class="btn btn-info mx-2" type="submit">ค้นหา</button>
+            </form>
+        </div>
+
+        <div>
+            <button class="btn btn-info " onclick="add_User()">เพิ่มผู้ใช้งาน</button>
+            <button class="btn btn-info " onclick="add_User_by_file()">เพิ่มผู้ใช้งานแบบไฟล์</button>
+        </div>
+
     </div>
-    
-    
-    <div class="table-container">
-        <table class="user">
-            <thead>
-                <tr>
-                    <th>ชื่อ-นามสกุล</th>
-                    <th>email</th>
-                    <th>คณะ</th>
-                    <th>สาขาวิชา</th>
-                    <th>จัดการข้อมูล</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
-                <tr>
-                    <td>{{ user.first_name }} {{ user.last_name }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.faculty_set.all.first.faculty }}</td>
-                    <td>{{ user.major_set.all.first.major }}</td>
-                    <td>
-                        <a href="javascript:void(0);" onclick="display_popup
+
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th class="text-center fs-5 fw-medium">ชื่อ-นามสกุล</th>
+                <th class="text-center fs-5 fw-medium">Email</th>
+                <th class="text-center fs-5 fw-medium">คณะ</th>
+                <th class="text-center fs-5 fw-medium">สาขา</th>
+                <th class="text-center fs-5 fw-medium">จัดการข้อมูล</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.first_name }} {{ user.last_name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.faculty_set.all.first.faculty }}</td>
+                <td>{{ user.major_set.all.first.major }}</td>
+                <td class="d-flex justify-content-center">
+                    <a class="btn btn-primary btn-sm fs-3 mx-1" href="javascript:void(0);" onclick="display_popup
                         ('{{ user.id }}', '{{ user.first_name }}', '{{ user.last_name }}',
                         '{{ user.faculty_set.all }}','{{ user.major_set.all}}','{{ user.citizen_id }}',
-                        '{{user.birth_date}}','{{user.roles.all}}','{{user.email}}')">ดูข้อมูล</a> |
-                        <a href="javascript:void(0);" onclick="edit_popup
+                        '{{user.birth_date}}','{{user.roles.all}}','{{user.email}}')">ดูข้อมูล</a>
+                    <a class="btn btn-secondary btn-sm fs-3 mx-1" href="javascript:void(0);" onclick="edit_popup
                         ('{{ user.id }}', '{{ user.first_name }}', '{{ user.last_name }}',
                         '{{ user.faculty_set.all }}','{{ user.major_set.all}}','{{ user.citizen_id }}',
-                        '{{user.birth_date}}','{{user.roles.all}}','{{user.email}}')">แก้ไข</a> |
-                        <a href="delete_User/{{user.id}}">ลบ</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                        '{{user.birth_date}}','{{user.roles.all}}','{{user.email}}')">แก้ไข</a>
+                    <a class="btn btn-danger btn-sm fs-3 mx-1" href="delete_User/{{user.id}}">ลบ</a>  
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    
+    
     <div class="container_edit" id="edit_popup">
         <form action="{% url 'edit_User' %}" method="post">
             {% csrf_token %}

@@ -20200,3 +20200,13 @@ ul {
 .mini-card {
     margin-top: -15px;
 }
+
+.table td, .table th {
+    padding: 8px; /* หรือค่าอื่นๆ ตามที่คุณต้องการ */
+}
+
+.search-bordered {
+    border-radius: 15px;
+    border-width: 1px;
+    border-color: #CCCCCC;
+}

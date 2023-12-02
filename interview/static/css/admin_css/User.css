@@ -223,12 +223,6 @@ input[type="checkbox"]:checked {
     max-width: 500px; 
 }
 
-.search input[type="text"] {
-    width: 100%;
-    padding: 10px; 
-    border-radius: 9px;
-}
-
 .search button {
     margin-left: 2px;
     border-radius: 9px;
