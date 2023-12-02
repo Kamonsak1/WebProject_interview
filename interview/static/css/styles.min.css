@@ -20202,7 +20202,7 @@ ul {
 }
 
 .table td, .table th {
-    padding: 8px; /* หรือค่าอื่นๆ ตามที่คุณต้องการ */
+    padding: 2px; /* หรือค่าอื่นๆ ตามที่คุณต้องการ */
 }
 
 .search-bordered {

@@ -5,14 +5,16 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="{% static 'css/styles.min.css' %}" />
-        <link rel="stylesheet" href="{% static 'css/admin_css/styles_Faculty.css' %}" />
-        <script src="{% static 'js/toggleiptions.js' %}"></script>
+        {% block css_js %} 
+        {% endblock %} 
       </head>
     <body>
         {% include 'manager/base/n_sidebar.html' %} 
-        <div style="padding-left: 350px;">
+        <div style="padding-left: 300px;">
             {% block topic %} 
             {% endblock %} 
+            <h1 class="full-width-underline"></h1>
+        
         
             {% block content %} 
             {% endblock %} 

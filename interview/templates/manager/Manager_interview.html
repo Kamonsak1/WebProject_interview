@@ -5,6 +5,27 @@
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
-    <!-- ตำแหน่งเนื้อหาของหน้าหลัก -->
+    {% for round in rounds %}
+    <div class="card w-100">
+        <div class="card-body mini-card-body d-flex justify-content-between">
+            <div class="d-flex">
+                <h4 class="fs-5 text-primary mt-auto">{{ round.round_name }} ({{ round.academic_year }})</h4> 
+                <h4 class="fs-5 text-dark ms-2 mt-auto">{{ round.major }} | เอกสารที่จำเป็น :</h4>
+                <h4 class="fs-5 text-warning mt-auto"> {{ round.documents }}</h4>
+            </div>
+            <div class="d-flex">
+                <h4 class="fs-5 fw-bolder text-success mt-auto me-5">{{ round.interview_time }}</h4>
+                <button class="btn btn-secondary btn-sm fs-3 mx-1">แก้ไข</button>
+            <form method="post" action="{% url 'toggle_round_active' round.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="round_id" value="{{ round.id }}">
+                <button class="btn fs-3 {% if round.active %}btn-danger{% else %}btn-success{% endif %}" type="submit">{{ round.active|yesno:"ปิดการลงทะเบียน,เปิดการลงทะเบียน" }}</button>
+            </form>
+            </div>
+        </div>
+    </div>
+    {{ r.round_name }} {{ r.academic_year }}
+    {% endfor %}
+
 </div>
 {% endblock %}

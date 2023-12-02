@@ -134,7 +134,9 @@ def Manager_Announcement(request):
 @login_required
 @user_passes_test(is_Manager)
 def Manager_interview(request):
-    return render(request,'manager/Manager_interview.html')
+    user_rounds = Round.objects.filter(manager=request.user)
+
+    return render(request,'manager/Manager_interview.html',{'rounds': user_rounds})
 @login_required
 @user_passes_test(is_Manager)
 def Manager_Score(request):
@@ -178,7 +180,13 @@ def Student_profile(request):
 @login_required
 @user_passes_test(is_Student)
 def Student_register(request):
-    return render(request,'student/Student_register.html')
+    user_rounds = Round.objects.filter(users=request.user)
+    user_majors = Major.objects.filter(users=request.user)
+    related_rounds = Round.objects.filter(major__in=user_majors)
+    combined_rounds = user_rounds | related_rounds
+    registered_rounds = InterviewStatus.objects.filter(user=request.user).values_list('round', flat=True)
+
+    return render(request,'student/Student_register.html',{'rounds': combined_rounds.distinct(),'registered_rounds': registered_rounds})
 @login_required
 @user_passes_test(is_Student)
 def Student_room(request):
@@ -884,3 +892,22 @@ def ajax_load_cities(request):
     majors = faculty_object.major_set.all()
     return render(request, 'admin/dropdown-list.html', {"majors": majors})
 
+@login_required
+@user_passes_test(is_Manager)
+def toggle_round_active(request, round_id):
+    round = get_object_or_404(Round, id=round_id)
+    round.active = not round.active
+    round.save()
+    return redirect('/Manager_interview')
+
+
+@login_required
+@user_passes_test(is_Student)
+def register_interview(request, round_id):
+    round = get_object_or_404(Round, id=round_id)
+    # สร้างหรืออัปเดต InterviewStatus
+    InterviewStatus.objects.update_or_create(
+        user=request.user, round=round,
+        defaults={'status': 'พร้อมสอบ'}
+    )
+    return redirect('/Student_register')

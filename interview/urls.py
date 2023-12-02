@@ -59,6 +59,7 @@ urlpatterns = [
     path('Manager_Score',Manager_Score, name='Manager_Score'),
     path('Manager_Print_Interview',Manager_Print_Interview, name='Manager_Print_Interview'),
     path('Manager_Status',Manager_Status, name='Manager_Status'),
+    path('toggle_round_active/<int:round_id>/', toggle_round_active, name='toggle_round_active'),
 
 
     #Interviewer
@@ -73,6 +74,7 @@ urlpatterns = [
     path('Student_register',Student_register, name='Student_register'),
     path('Student_room',Student_room, name='Student_room'),
     path('Student_evidence',Student_evidence, name='Student_evidence'),
+    path('register_interview/<int:round_id>/', register_interview, name='register_interview'),
 
     path('confirm_otp',confirm_otp, name='confirm_otp'),
     path('changepassword',changepassword, name='changepassword'),

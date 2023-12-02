@@ -4,6 +4,7 @@ from datetime import datetime
 from django.contrib.auth.models import AbstractUser,UserManager,PermissionsMixin,AbstractBaseUser,BaseUserManager
 from django.utils import timezone
 from django.contrib.auth import get_user_model
+from interview.models import User as User_M
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, username, password=None, google_login_id=None, **extra_fields):
@@ -136,6 +137,9 @@ class Round(models.Model):
     round_name = models.CharField(max_length=20)
     manager = models.ForeignKey(User, on_delete=models.CASCADE)
     users = models.ManyToManyField(User, related_name='rounds_participated')
+    documents = models.CharField(max_length=200, null=True,blank=True)
+    active = models.BooleanField(default=False,null=True,blank=True)
+    interview_time = models.CharField(max_length=50, null=True, blank=True)
 
 class Schedule(models.Model):
     start_date = models.DateField()
@@ -153,16 +157,20 @@ class Announcement(models.Model):
     title = models.CharField(max_length=200)
     announcement_content = models.TextField()
 
+def user_directory_path(instance, filename):
+    # ไฟล์จะถูกอัพโหลดไปยัง MEDIA_ROOT/<id>/<filename>
+    return '{0}/{1}'.format(instance.User_M.id, filename)
 class Document(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     round = models.ForeignKey(Round, on_delete=models.CASCADE)
-    document = models.CharField(max_length=200)
+    document = models.FileField(upload_to=user_directory_path)
 
 class ScoreTopic(models.Model):
     round = models.ForeignKey(Round, on_delete=models.CASCADE)
     pattern_id = models.CharField(max_length=100)
     topic_name = models.CharField(max_length=100)
     max_score = models.PositiveIntegerField()
+    score_detail = models.CharField(max_length=500 , null=True,blank=True)
 
 class Score(models.Model):
     topic = models.ForeignKey(ScoreTopic, on_delete=models.CASCADE)
@@ -173,6 +181,7 @@ class InterviewStatus(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.CharField(max_length=100)
     round = models.ForeignKey(Round, on_delete=models.CASCADE)
+    reg_at = models.DateTimeField(auto_now_add=True,blank=True ,null= True)
 
 class InterviewLink(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -3,26 +3,32 @@
 <link rel="stylesheet" href="{% static 'css/admin_css/admin_style.css' %}">
 <script src="{% static 'js/toggleiptions.js' %}"></script>
 {% block topic %}
-<h1 class="text-3xl text-gray-100 mt-2 text-center">การให้คะแนน</h1>
+<div class="fs-8 mt-1 text-muted text-center">
+  <span><i class="ti ti-clipboard-check"></i> การให้คะแนน</span>
+</div>
 {% endblock %}
 {% block content %}
 
 <div class="pt-14 px-2">
-  <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+  
+  <table class="table table-bordered table-hover">
     <thead>
         <tr>
-            <th style="background-color: #4CAF50; color: white; padding: 10px;">หัวข้อการให้คะแนน</th>
-            <th style="background-color: #4CAF50; color: white; padding: 10px;">ตะแนนเต็ม</th>
-            <th style="background-color: #4CAF50; color: white; padding: 10px; width: 15%;">จัดการ</th>
+            <th class="text-center fs-5 fw-medium">หัวข้อคะแนน</th>
+            <th class="text-center fs-5 fw-medium">คะแนนเต็ม</th>
+            <th class="text-center fs-5 fw-medium">รายละเอียด</th>
+            <th class="text-center fs-5 fw-medium">จัดการ</th>
         </tr>
     </thead>
     <tbody>
         {% for topic in Topics %}
-        <tr style="background-color: {% cycle '#f2f2f2' 'white' %};">
-            <td style="padding: 10px; border-bottom: 1px solid #ddd; width: 50%;"">{{ topic.topic_name }}</td>
-            <td style="padding: 10px; border-bottom: 1px solid #ddd; width: 30%;"">{{ topic.max_score }}</td>
-            <td style="padding: 10px; border-bottom: 1px solid #ddd; width: 15%;">
-                <a style="text-decoration: none; color: #4285F4; padding: 5px 10px; border: 1px solid #4285F4; border-radius: 5px; transition: background-color 0.3s ease;" href="/delete_ScoreTopic/{{topic.id}}">ลบ</a>
+        <tr>
+            <td >{{ topic.topic_name }}</td>
+            <td class="text-center">{{ topic.max_score }}</td>
+            <td >{{ topic.score_detail }}</td>
+            <td class="d-flex justify-content-center">
+                <a class="btn btn-secondary btn-sm fs-3 mx-1" href="#">แก้ไข</a>
+                <a class="btn btn-danger btn-sm fs-3 mx-1" href="/delete_ScoreTopic/{{topic.id}}">ลบ</a>
             </td>
         </tr>
         {% endfor %}

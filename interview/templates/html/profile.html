@@ -1,4 +1,3 @@
-{% extends '../admin/base/n_base.html' %}
 {% load static %}
 {% block css_js %} 
 <link rel="stylesheet" href="{% static 'css/admin_css/admin_profile.css' %}" />
@@ -6,8 +5,9 @@
 {% endblock %} 
 
 {% block topic %}
-<div class="fs-8 mt-1 text-muted text-center">
+<div class="fs-8 text-muted text-center" style="margin-top: -17px;">
     <span><i class="ti ti-user-circle"></i> ข้อมูลส่วนตัว</span>
+    <h1 class="full-width-underline"></h1>
 </div>
 {% endblock %}
 {% block content %}

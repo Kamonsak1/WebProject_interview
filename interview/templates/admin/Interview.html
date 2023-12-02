@@ -1,30 +1,36 @@
 {% extends 'admin/base/n_base.html' %}
 
 {% block topic %}
-<h1 class="fs-8 mt-1 text-muted text-center">รายละเอียดรอบสัมภาษณ์</h1>
+<div class="fs-8 mt-1 text-muted text-center">
+    <span><i class="ti ti-clipboard-text"></i> รายละเอียดรอบสัมภาษณ์</span>
+</div>
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
-  <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+
+  <table class="table table-bordered table-hover">
     <thead>
         <tr>
-            <th style="background-color: #4CAF50; color: white; padding: 10px;">รอบ</th>
-            <th style="background-color: #4CAF50; color: white; padding: 10px;">ปีการศึกษา</th>
-            <th style="background-color: #4CAF50; color: white; padding: 10px;">สาขาวิชา</th>
-            <th style="background-color: #4CAF50; color: white; padding: 10px;">ผู้ดูแล</th>
-            <th style="background-color: #4CAF50; color: white; padding: 10px; width: 15%;">จัดการ</th>
+            <th class="text-center fs-5 fw-medium">รอบ</th>
+            <th class="text-center fs-5 fw-medium">ปีการศึกษา</th>
+            <th class="text-center fs-5 fw-medium">สาขาวิชา</th>
+            <th class="text-center fs-5 fw-medium">ผู้ดูแล</th>
+            <th class="text-center fs-5 fw-medium">เวลา</th>
+            <th class="text-center fs-5 fw-medium">จัดการ</th>
         </tr>
     </thead>
     <tbody>
         {% for i in rounds %}
-        <tr style="background-color: {% cycle '#f2f2f2' 'white' %};">
-            <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ i.round_name }}</td>
-            <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ i.academic_year }}</td>
-            <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ i.major }}</td>
-            <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ i.manager.first_name }} {{ i.manager.last_name }}</td>
-            <td style="padding: 10px; border-bottom: 1px solid #ddd; width: 15%;">
-                <a style="text-decoration: none; color: #4285F4; padding: 5px 10px; border: 1px solid #4285F4; border-radius: 5px; transition: background-color 0.3s ease;" href="#">แก้ไข</a> | 
-                <a style="text-decoration: none; color: #4285F4; padding: 5px 10px; border: 1px solid #4285F4; border-radius: 5px; transition: background-color 0.3s ease;" href="delete_InterviewRound/{{i.id}}">ลบ</a>
+        <tr>
+            <td >{{ i.round_name }}</td>
+            <td class="text-center">{{ i.academic_year }}</td>
+            <td >{{ i.major }}</td>
+            <td >{{ i.manager.first_name }} {{ i.manager.last_name }}</td>
+            <td class="text-center">{{ i.interview_time }}</td>
+            <td class="d-flex justify-content-center">
+                <a class="btn btn-primary btn-sm fs-3 mx-1" href="#">รายละเอียด</a>
+                <a class="btn btn-secondary btn-sm fs-3 mx-1" href="#">แก้ไข</a>
+                <a class="btn btn-danger btn-sm fs-3 mx-1" href="delete_InterviewRound/{{i.id}}">ลบ</a>
             </td>
         </tr>
         {% endfor %}

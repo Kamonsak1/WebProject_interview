@@ -5,6 +5,33 @@
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
-    <!-- asdsad
+    
+    {% for r in rounds %}
+    <div class="card w-100">
+        <div class="card-body mini-card-body d-flex justify-content-between">
+            <div class="d-flex">
+                <h4 class="fs-5 text-primary mt-auto">{{ r.round_name }} ({{ r.academic_year }})</h4> 
+                <h4 class="fs-5 text-dark ms-2 mt-auto"> {{ r.major }} | เอกสารที่จำเป็น :</h4>
+                <h4 class="fs-5 text-warning mt-auto"> {{ r.documents }}</h4>
+            </div>
+            <div class="d-flex">
+                <h4 class="fs-5 fw-bolder text-success mt-auto me-5">{{ r.interview_time }}</h4>
+                <button class="btn btn-secondary btn-sm fs-3 mx-1">อัปโหลดเอกสาร</button>
+            {% if r.active and r.id not in registered_rounds %}
+                <form method="post" action="{% url 'register_interview' r.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="round_id" value="{{ r.id }}">
+                    <button type="submit" class="btn btn-success">ลงทะเบียน</button>
+                </form>
+            {% elif r.id in registered_rounds %}
+                <button class="btn btn-secondary" disabled>ลงทะเบียนแล้ว</button>
+            {% else %}
+                <button class="btn btn-muted" disabled>ลงทะเบียน</button>
+            {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
 </div>
 {% endblock %}
