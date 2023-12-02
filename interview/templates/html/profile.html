@@ -1,5 +1,4 @@
-
-
+{% extends '../admin/base/n_base.html' %}
 {% load static %}
 {% block css_js %} 
 <link rel="stylesheet" href="{% static 'css/admin_css/admin_profile.css' %}" />
@@ -13,30 +12,83 @@
 {% endblock %}
 {% block content %}
 
-<div class="pt-14 px-2">
-    <div class='container_profile'>
-        <div>
-            <label for="">ชื่อผู้ใช้-นามสกุล:</label>
-            <p> {{ user.first_name }} {{ user.last_name }}</p>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-6">
+            <div class="card w-100">
+                <div class="card-body mini-card-body">
+                    <h4>ชื่อ-นามสกุล : {{ user.first_name }} {{ user.last_name }}</h5>
+                </div>
+            </div>
         </div>
-        <div>
-            <label for="">อีเมล:</label>
-            <p> {{ user.email }}</p>
-        </div>    
-        <div>
-            
-            <label for="">รหัสผ่าน:</label>
-            <p class="password"> ********<span class="edit-icon" onclick="changepassword('{{ user.id }}')">✎</span></p>
-        </div>
-        <div>
-            <label for="">คณะ</label>
-            <p>{{ user.faculty_set.all.first.faculty }} </p>
-        </div>
-        <div>
-            <label for="">สาขาวิชา</label>
-            <p>{{ user.major_set.all.first.major }}</p>
+        <div class="col-6">
+            <div class="card w-100">
+                <div class="card-body d-flex justify-content-between mini-card-body">
+                    <h5>รหัสผ่าน : ******</h5>
+                    <span class="text-primary fs-6 edit-icon" onclick="changepassword('{{ user.id }}')">✎</span>
+                </div>
+            </div>
         </div>
     </div>
+
+    <div class="d-flex">
+        <div class="card w-100 mini-card">
+            <div class="card-body mini-card-body">
+                <h4>Email : {{ user.email }}</h5>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-6">
+            <div class="card w-100 mini-card">
+                <div class="card-body mini-card-body">
+                    <h4>คณะ : {{ user.faculty_set.all.first.faculty }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="card w-100 mini-card">
+                <div class="card-body mini-card-body">
+                    <h5>หลักสูตร : {{ user.major_set.all.first.major }}</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-6">
+            <div class="card w-100 mini-card">
+                <div class="card-body mini-card-body">
+                    <h4>เลขประจำตัวประชาชน : {{ user.citizen_id }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="card w-100 mini-card">
+                <div class="card-body mini-card-body">
+                    <h5>เบอร์โทร : {{ user.phone_number }}</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex">
+        <div class="card w-100 mini-card">
+            <div class="card-body mini-card-body">
+                <h4>ที่อยู่ : {{ user.address }} {{ user.postcode }}</h5>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex">
+        <div class="card w-100 mini-card">
+            <div class="card-body mini-card-body">
+                <h4>วันเกิด : {{ user.birth_date }}</h5>
+            </div>
+        </div>
+    </div>
+
 <div class="changepassword" id="changepassword">
     <div  class="topic">
         <h3 >แก้ไขรหัสผ่าน</h3>

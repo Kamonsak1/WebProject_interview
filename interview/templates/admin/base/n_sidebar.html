@@ -15,7 +15,7 @@
     <div>
         {% if user.is_authenticated %}
         <a href="{% url 'log_out' %}">
-            <i class="ti ti-logout fs-8 text-danger"style="display: block; text-align: center;"></i>
+            <i class="ti ti-logout fs-8 text-danger mt-3"style="display: block; text-align: center;"></i>
         </a>
         <p class="text-center pt-3 fw-bolder fs-6 text-muted">{{ user.first_name }} {{ user.last_name }}</p>
         <p class="text-center fw-bolder fs-6 text-muted">{{ user.citizen_id|slice:":4" }}****{{ user.citizen_id|slice:"-3:" }}</p>
@@ -72,9 +72,9 @@
           <li class="sidebar-item">
             <a class="sidebar-link" href="{% url 'Announcement'%}" aria-expanded="false">
               <span>
-                <i class="ti ti-book"></i>
+                <i class="ti ti-news"></i>
               </span>
-              <span class="hide-menu fs-4">จัดการปรกาศและกำหนดการ</span>
+              <span class="hide-menu fs-4">จัดการประกาศและกำหนดการ</span>
             </a>
           </li>
 

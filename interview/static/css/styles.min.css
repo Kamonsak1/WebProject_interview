@@ -20191,3 +20191,12 @@ ul {
     margin-bottom: 20px;
     overflow: hidden; /* ป้องกันการแสดงผลนอกขอบเขต */
 }
+
+.mini-card-body {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.mini-card {
+    margin-top: -15px;
+}
