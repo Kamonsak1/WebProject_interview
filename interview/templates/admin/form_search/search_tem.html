@@ -23,13 +23,13 @@
             <input type="search" name="search" id="">
             <button type="submit">ค้นหา</button>
             <div class="faculty_major">
-                <select name="faculty" id="id_faculty">
+                <select name="faculty" id="id_faculty_second">
                     <option value="">คณะ</option>
                     {% for faculty in faculty_all %}
                     <option value="{{faculty}}">{{faculty}}</option>
                     {% endfor %}
                 </select>
-                <select name="major" id="id_major">
+                <select name="major" id="id_major_second">
                     <option value="">สาขา</option>
                 </select>
             </div>
@@ -249,7 +249,7 @@
         $("#id_faculty").change(function () {
             const url = $("#add_test").attr("data-cities-url");  
             const facultyname = $(this).val(); 
-     
+    
             $.ajax({                       
                 url: url,                   
                 data: {
@@ -259,7 +259,21 @@
                     $("#id_major").html(data); 
                 }
             });
-     
+        });
+    
+        $("#id_faculty_second").change(function () {
+            const url = $("#add_test").attr("data-cities-url");  
+            const facultyname = $(this).val(); 
+    
+            $.ajax({                       
+                url: url,                   
+                data: {
+                    'faculty': facultyname      
+                },
+                success: function (data) {   
+                    $("#id_major_second").html(data); 
+                }
+            });
         });
     </script>
 

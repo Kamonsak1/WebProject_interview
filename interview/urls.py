@@ -44,6 +44,7 @@ urlpatterns = [
     path('edit_User',edit_User, name='edit_User'),
     path('search_user',search_user, name='search_user'),
     path('search_TemporaryUser',search_TemporaryUser, name='search_TemporaryUser'),
+    path('edit_password_in_profile',edit_password_in_profile, name='edit_password_in_profile'),
 
 
     

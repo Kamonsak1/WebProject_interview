@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {% load static %}
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{% static 'css/styles.min.css' %}" />
+      </head>
+<body>
+    <!-- Sidebar Start -->
+<aside class="left-sidebar position-fixed">
+
+    <!-- Sidebar scroll-->
+    <div>
+        {% if user.is_authenticated %}
+        <a href="{% url 'log_out' %}">
+            <i class="ti ti-logout fs-8 text-danger"style="display: block; text-align: center;"></i>
+        </a>
+        <p class="text-center pt-3 fw-bolder fs-6 text-muted">{{ user.first_name }} {{ user.last_name }}</p>
+        <p class="text-center fw-bolder fs-6 text-muted">{{ user.citizen_id }}</p>
+        <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
+          <i class="ti ti-x fs-8"></i>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Sidebar navigation-->
+      <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
+        <ul id="sidebarnav">
+
+          <li class="sidebar-item mt-3">
+            <a class="sidebar-link" href="{% url 'Student_page'%}" aria-expanded="false">
+              <span>
+                <i class="ti ti-home"></i>
+              </span>
+              <span class="hide-menu fs-4">หน้าหลัก</span>
+            </a>
+          </li>
+
+          <li class="sidebar-item">
+            <a class="sidebar-link" href="{% url 'Student_profile'%}" aria-expanded="false">
+              <span>
+                <i class="ti ti-user-circle"></i>
+              </span>
+              <span class="hide-menu fs-4">ข้อมูลส่วนตัว</span>
+            </a>
+          </li>
+
+          <li class="sidebar-item">
+            <a class="sidebar-link" href="{% url 'Student_register'%}" aria-expanded="false">
+              <span>
+                <i class="ti ti-book"></i>
+              </span>
+              <span class="hide-menu fs-4">ลงทะเบียนสัมภาษณ์</span>
+            </a>
+          </li>
+
+          <li class="sidebar-item">
+            <a class="sidebar-link" href="{% url 'Student_room'%}" aria-expanded="false">
+              <span>
+                <i class="ti ti-book"></i>
+              </span>
+              <span class="hide-menu fs-4">ห้องสัมภาษณ์</span>
+            </a>
+          </li>
+
+          <li class="sidebar-item">
+            <a class="sidebar-link" href="{% url 'Student_evidence'%}" aria-expanded="false">
+              <span>
+                <i class="ti ti-book"></i>
+              </span>
+              <span class="hide-menu fs-4">จัดการหลักฐาน</span>
+            </a>
+          </li>
+
+        </ul>
+      </nav>
+      <!-- End Sidebar navigation -->
+    </div>
+    <!-- End Sidebar scroll-->
+  </aside>
+  <!--  Sidebar End -->
+  
+</body>
+</html>

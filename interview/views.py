@@ -11,6 +11,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.shortcuts import get_object_or_404
 import pandas as pd
 import random
+from django.contrib.auth import update_session_auth_hash
 from django.db.models import Q
 import string
 from django.contrib.auth.hashers import make_password
@@ -21,6 +22,7 @@ from django.db.models import Count
 from django.contrib import messages
 from django.http import JsonResponse
 from django.core.serializers.json import DjangoJSONEncoder
+from django.contrib.auth.hashers import check_password
 # Create your views here.
 
 def is_admin(user):
@@ -813,6 +815,9 @@ def search_user(request):
         if faculty and major:
             users_filtered = User.objects.filter(faculty__faculty=faculty, major__major=major,).filter(Q(username__icontains=search) | Q(first_name__icontains=search) | Q(email__icontains=search))
             return render(request,'admin/form_search/search.html',{'users': users_filtered,'faculty_all':faculty_all})
+        elif faculty:
+            users_filtered = User.objects.filter(faculty__faculty=faculty).filter(Q(username__icontains=search) | Q(first_name__icontains=search) | Q(email__icontains=search))
+            return render(request,'admin/form_search/search.html',{'users': users_filtered,'faculty_all':faculty_all})
         else: 
             return render(request,'admin/form_search/search.html',{'users': users,'faculty_all':faculty_all})
             
@@ -820,7 +825,7 @@ def search_user(request):
     return HttpResponse("ไม่พบข้อมูล")
     
 
-
+    
 def search_TemporaryUser(request):
     if request.method == "POST":
         search = request.POST.get('search')
@@ -836,11 +841,40 @@ def search_TemporaryUser(request):
         if faculty and major:
             users_filtered = TemporaryUser.objects.filter(faculty__faculty=faculty, major__major=major,).filter( Q(first_name__icontains=search) )
             return render(request,'admin/form_search/search_tem.html',{'users': users_filtered,'faculty_all':faculty_all})
+        elif faculty:
+            users_filtered = TemporaryUser.objects.filter(faculty__faculty=faculty).filter( Q(first_name__icontains=search) )
+            return render(request,'admin/form_search/search_tem.html',{'users': users_filtered,'faculty_all':faculty_all})
+
         else: 
             return render(request,'admin/form_search/search_tem.html',{'users': users,'faculty_all':faculty_all})
             
 
     return HttpResponse("ไม่พบข้อมูล")
+    
+@login_required
+def edit_password_in_profile(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        old_password = request.POST.get('old_password')
+        new_password = request.POST.get('new_password')
+        new_password2 = request.POST.get('new_password2')
+
+        user = User.objects.get(pk=user_id)
+        if check_password(old_password, user.password):
+            if new_password == new_password2:
+                user.set_password(new_password)
+                user.save()
+            else:
+                return HttpResponse('รหัสผ่านใหม่ไม่เหมือนกัน')
+        else:
+            return HttpResponse('รหัสยืนยันไม่ถูกต้อง')
+
+
+        #update_session_auth_hash(request, user)  
+
+    return redirect('index')
+    
+    #return render(request,'admin/admin_profile.html')
 
 @login_required
 @user_passes_test(is_admin)

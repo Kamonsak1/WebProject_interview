@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {% load static %}
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{% static 'css/styles.min.css' %}" />
+        <link rel="stylesheet" href="{% static 'css/admin_css/styles_Faculty.css' %}" />
+        <script src="{% static 'js/toggleiptions.js' %}"></script>
+      </head>
+    <body>
+        {% include 'student/base/n_sidebar.html' %} 
+        <div style="padding-left: 350px;">
+            {% block topic %} 
+            {% endblock %} 
+        
+            {% block content %} 
+            {% endblock %} 
+        </div>
+    </body>
+</html>
