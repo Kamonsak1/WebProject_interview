@@ -5,8 +5,14 @@ function add_TemporaryUser() {
   } else {
     optionsDiv.style.display = "block";
   }
-
-  
+}
+function add_TemporaryUser_by_file() {
+  var optionsDiv = document.getElementById("add_TemporaryUser_by_file");
+  if (optionsDiv.style.display === "block") {
+    optionsDiv.style.display = "none";
+  } else {
+    optionsDiv.style.display = "block";
+  }
 }
 
 
@@ -37,7 +43,60 @@ document.getElementById('user_id').value = user_id;
 document.getElementById('first_name').value = first_name;
 document.getElementById('last_name').value = last_name;
 document.getElementById('citizen_id').value = citizen_id;
-document.getElementById('birth_date').value = birth_date;
+var birth_date_split =  birth_date.split(' ');
+var hbd_day =  birth_date_split[1].split(',')[0];
+var new_HBD;
+if (birth_date_split[0] == 'Jan.'){
+  new_HBD = hbd_day+'/01/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'Feb.'){
+  new_HBD = hbd_day+'/02/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'March'){
+  new_HBD = hbd_day+'/03/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'April'){
+  new_HBD = hbd_day+'/04/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'May'){
+  new_HBD = hbd_day+'/05/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'June'){
+  new_HBD = hbd_day+'/06/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'July'){
+  new_HBD = hbd_day+'/07/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'Aug.'){
+  new_HBD = hbd_day+'/08/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'Sept.'){
+  new_HBD = hbd_day+'/09/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'Oct.'){
+  new_HBD = hbd_day+'/10/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'Nov.'){
+  new_HBD = hbd_day+'/11/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'Dec.'){
+  new_HBD = hbd_day+'/12/'+birth_date_split[2];
+  
+}
+document.getElementById('birth_date').value = new_HBD;
+
+//document.getElementById('birth_date').value = birth_date;
 var faculty_new = [];
 faculty_new.push(faculty.split(':'));
 var faculty_split = [];
@@ -73,19 +132,15 @@ checkbox4.checked = false;
 
 for (let i = 0 ; i < (role_split.length);i++){
   if (role_split[i] === 'Admin') {
-    console.log('แอดมิน');
     checkbox1.checked = true;
   }
   if (role_split[i] === 'Manager') {
-    console.log('ผู้จัดการ');
     checkbox2.checked = true;
   }
   if (role_split[i] === 'Interviewer') {
-    console.log('ผู้สัมภาษณ์');
     checkbox3.checked = true;
   }
   if (role_split[i] === 'Student') {
-    console.log('นักเรียน');
     checkbox4.checked = true;
   }
   
@@ -107,7 +162,58 @@ document.getElementById('user_id').value = user_id;
 document.getElementById('display_first_name').value = first_name;
 document.getElementById('display_last_name').value = last_name;
 document.getElementById('display_citizen_id').value = citizen_id;
-document.getElementById('display_birth_date').value = birth_date;
+var birth_date_split =  birth_date.split(' ');
+var hbd_day =  birth_date_split[1].split(',')[0];
+var new_HBD;
+if (birth_date_split[0] == 'Jan.'){
+  new_HBD = hbd_day+'/01/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'Feb.'){
+  new_HBD = hbd_day+'/02/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'March'){
+  new_HBD = hbd_day+'/03/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'April'){
+  new_HBD = hbd_day+'/04/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'May.'){
+  new_HBD = hbd_day+'/05/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'June'){
+  new_HBD = hbd_day+'/06/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'July'){
+  new_HBD = hbd_day+'/07/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'Aug.'){
+  new_HBD = hbd_day+'/08/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'Sept.'){
+  new_HBD = hbd_day+'/09/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'Oct.'){
+  new_HBD = hbd_day+'/10/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'Nov.'){
+  new_HBD = hbd_day+'/11/'+birth_date_split[2];
+  
+}
+if (birth_date_split[0] == 'Dec.'){
+  new_HBD = hbd_day+'/12/'+birth_date_split[2];
+  
+}
+document.getElementById('display_birth_date').value = new_HBD;
 var faculty_new = [];
 faculty_new.push(faculty.split(':'));
 var faculty_split = [];
@@ -144,19 +250,15 @@ checkbox4.checked = false;
 
 for (let i = 0 ; i < (role_split.length);i++){
   if (role_split[i] === 'Admin') {
-    console.log('แอดมิน');
     checkbox1.checked = true;
   }
   if (role_split[i] === 'Manager') {
-    console.log('ผู้จัดการ');
     checkbox2.checked = true;
   }
   if (role_split[i] === 'Interviewer') {
-    console.log('ผู้สัมภาษณ์');
     checkbox3.checked = true;
   }
   if (role_split[i] === 'Student') {
-    console.log('นักเรียน');
     checkbox4.checked = true;
   }
 }

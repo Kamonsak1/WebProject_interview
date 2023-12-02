@@ -57,7 +57,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     address = models.CharField(max_length=400)
     postcode = models.CharField(max_length=20)
     phone_number = models.CharField(max_length=10)
-    citizen_id = models.CharField(max_length=13)
+    citizen_id = models.CharField(max_length=13,unique=True)
     birth_date = models.DateField(blank=True,null=True)
     date_joined = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
@@ -113,7 +113,7 @@ class Major(models.Model):
     major = models.CharField(max_length=100)
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
     default_manager = models.ManyToManyField(User, blank=True,related_name='manager')
-    users = models.ManyToManyField(User,blank=True,related_name='user')
+    users = models.ManyToManyField(User,blank=True)
     TemporaryUser = models.ManyToManyField(TemporaryUser , blank=True)
 
     def __str__(self) -> str:

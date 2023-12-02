@@ -30,6 +30,7 @@ urlpatterns = [
     path('delete_Major/<int:id>',delete_Major ,name='delete_Major'),
     path('add_TemporaryUser',add_TemporaryUser, name='add_TemporaryUser'),
     path('delete_TemporaryUser/<int:id>',delete_TemporaryUser,name='delete_TemporaryUser'),
+    path('delete_User/<int:id>',delete_User,name='delete_User'),
     path('add_InterviewRound',add_InterviewRound, name='add_InterviewRound'),
     path('delete_InterviewRound/<int:id>',delete_InterviewRound, name='delete_InterviewRound'),
     path('add_ScoreTopic',add_ScoreTopic, name='add_ScoreTopic'),
@@ -37,6 +38,11 @@ urlpatterns = [
     path('View_ScoreTemplate/<int:id>',View_ScoreTopic, name='View_ScoreTopic'),
     path('edit_TemporaryUser',edit_TemporaryUser, name='edit_TemporaryUser'),
     path('ajax_load_cities',ajax_load_cities, name='ajax_load_cities'),
+    path('add_TemporaryUser_by_file',add_TemporaryUser_by_file, name='add_TemporaryUser_by_file'),
+    path('add_User',add_User, name='add_User'),
+    path('add_User_by_file',add_User_by_file, name='add_User_by_file'),
+    path('edit_User',edit_User, name='edit_User'),
+
 
     
 

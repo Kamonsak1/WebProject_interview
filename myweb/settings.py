@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'social_django',
  
 ]
+
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': [

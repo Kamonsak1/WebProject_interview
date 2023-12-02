@@ -15,7 +15,9 @@
 <div class="pt-14 px-2">
     <div class="button-container">
         <button onclick="add_TemporaryUser()">เพิ่มผู้ใช้งาน</button>
+        <button onclick="add_TemporaryUser_by_file()">เพิ่มผู้ใช้งานแบบไฟล์</button>
     </div>
+    
     
     <div class="table-container">
         <table class="user">
@@ -76,7 +78,7 @@
                 </div>
                 <div>
                     <label>วัน/เดือน/ปีเกิด</label>
-                    <input type="date" name="birth_date" id="birth_date" >
+                    <input type="text" name="birth_date" id="birth_date" >
                 </div>
                 <div  class="title_role">
                     <h3 >หน้าที่</h3>
@@ -129,23 +131,20 @@
                     <h3 >หน้าที่</h3>
                 </div> 
                 <div class="checkbox-container">
-                    <input type="checkbox" id="checkbox5" name="checkboxgroup" value="Admin">
+                    <input type="checkbox" id="checkbox5" name="checkboxgroup" value="Admin" disabled>
                     <label for="checkbox1" class="checkbox-label">Admin</label>
                 
-                    <input type="checkbox" id="checkbox6" name="checkboxgroup" value="Manager">
+                    <input type="checkbox" id="checkbox6" name="checkboxgroup" value="Manager" disabled>
                     <label for="checkbox2" class="checkbox-label">Manager</label>
                 
-                    <input type="checkbox" id="checkbox7" name="checkboxgroup" value="Interviewer">
+                    <input type="checkbox" id="checkbox7" name="checkboxgroup" value="Interviewer" disabled>
                     <label for="checkbox3" class="checkbox-label">Interviewer</label>
                 
-                    <input type="checkbox" id="checkbox8" name="checkboxgroup" value="Student">
+                    <input type="checkbox" id="checkbox8" name="checkboxgroup" value="Student" disabled>
                     <label for="checkbox4" class="checkbox-label">Student</label>
                 </div>            
             </div>
     </div>
-
-    
-
     <div class="container_add" id="add_TemporaryUser">
         <form action="{% url 'add_TemporaryUser' %}" method="post" data-cities-url="{% url 'ajax_load_cities' %}" id="add_test">
             {% csrf_token %}
@@ -170,7 +169,7 @@
                 </div>
                 <div>
                     <label for="birth_date">วัน/เดือน/ปี</label>
-                    <input type="date" name="birth_date" id="birth_date" onchange="convertToBuddhistEra(this.value)">
+                    <input type="text" name="birth_date" id="birth_date" placeholder="วว/ดด/ปป">
                 </div>
             </div>
             <div class="faculty_major">
@@ -208,6 +207,25 @@
         </form>
 
     </div>
+    <div class="container_add_byfile" id="add_TemporaryUser_by_file" >
+        <form action="add_TemporaryUser_by_file" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div  class="topic">
+                <h3 >สร้างผู้ใช้งานด้วยไฟล์</h3>
+                <a href="TemporaryUser">
+                    <i class="fas fa-sign-out-alt"></i> X
+                </a>
+            </div>   
+            <input type="file" name="fileInputa">
+            <div class="bt">
+                <button  type="submit">สร้างบัญชีผู้ใช้</button>
+            </div>
+            
+        </form>
+    </div>
+
+
+
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script>
         $("#id_faculty").change(function () {
