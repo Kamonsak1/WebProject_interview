@@ -56,7 +56,7 @@
                 {% for user in users %}
                 <tr>
                     <td>{{ user.first_name }} {{ user.last_name }}</td>
-                    <td>{{ user.id }}</td>
+                    <td>{{ user.citizen_id }}</td>
                     <td>{{ user.faculty_set.all.first.faculty }}</td>
                     <td>{{ user.major_set.all.first.major }}</td>
                     <td class="d-flex justify-content-center">
