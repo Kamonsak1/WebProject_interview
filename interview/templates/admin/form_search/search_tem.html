@@ -36,8 +36,8 @@
             </div>
     
             <div>
-                <button class="btn btn-info " onclick="add_User()">เพิ่มผู้ใช้งาน</button>
-                <button class="btn btn-info " onclick="add_User_by_file()">เพิ่มผู้ใช้งานแบบไฟล์</button>
+                <button class="btn btn-info " onclick="add_TemporaryUser()">เพิ่มผู้ใช้งาน</button>
+                <button class="btn btn-info " onclick="add_TemporaryUser_by_file()">เพิ่มผู้ใช้งานแบบไฟล์</button>
             </div>
     
         </div>
@@ -56,7 +56,7 @@
                 {% for user in users %}
                 <tr>
                     <td>{{ user.first_name }} {{ user.last_name }}</td>
-                    <td>{{ user.email }}</td>
+                    <td>{{ user.id }}</td>
                     <td>{{ user.faculty_set.all.first.faculty }}</td>
                     <td>{{ user.major_set.all.first.major }}</td>
                     <td class="d-flex justify-content-center">
@@ -68,7 +68,7 @@
                             ('{{ user.id }}', '{{ user.first_name }}', '{{ user.last_name }}',
                             '{{ user.faculty_set.all }}','{{ user.major_set.all}}','{{ user.citizen_id }}',
                             '{{user.birth_date}}','{{user.roles.all}}','{{user.email}}')">แก้ไข</a>
-                        <a class="btn btn-danger btn-sm fs-3 mx-1" href="delete_User/{{user.id}}">ลบ</a>  
+                        <a class="btn btn-danger btn-sm fs-3 mx-1" href="delete_TemporaryUser/{{user.id}}">ลบ</a>  
                     </td>
                 </tr>
                 {% endfor %}
