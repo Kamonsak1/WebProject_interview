@@ -33,6 +33,7 @@ urlpatterns = [
     path('delete_User/<int:id>',delete_User,name='delete_User'),
     path('add_InterviewRound',add_InterviewRound, name='add_InterviewRound'),
     path('delete_InterviewRound/<int:id>',delete_InterviewRound, name='delete_InterviewRound'),
+    path('edit_InterviewRound',edit_InterviewRound, name='edit_InterviewRound'),
     path('add_ScoreTopic',add_ScoreTopic, name='add_ScoreTopic'),
     path('delete_ScoreTopic/<int:id>',delete_ScoreTopic, name='delete_ScoreTopic'),
     path('edit_ScoreTopic',edit_ScoreTopic, name='edit_ScoreTopic'),

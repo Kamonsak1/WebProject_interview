@@ -539,6 +539,32 @@ def edit_ScoreTopic(request):
 
 @login_required
 @user_passes_test(is_admin)
+def edit_InterviewRound(request):
+    if request.method == "POST":
+        id = request.POST.get('round_id')
+        name = request.POST.get('round_name')
+        year = request.POST.get('academic_year')
+        docs = request.POST.get('documets')
+        time = request.POST.get('interview_time')
+        major_name = request.POST.get('major')
+        manager_name = request.POST.get('manager_name')
+        major = Major.objects.get(major=major_name)
+
+        r_mn = Role.objects.get(name="Manager")
+        manager = r_mn.users.get(first_name=manager_name)
+        round_edited = Round.objects.get(pk=id)
+        round_edited.najor=major
+        round_edited.academic_year=year
+        round_edited.round_name=name
+        round_edited.manager=manager
+        round_edited.documents=docs
+        round_edited.interview_time=time
+        round_edited.save()
+        
+    return redirect('/Interview')
+
+@login_required
+@user_passes_test(is_admin)
 def add_TemporaryUser_by_file(request):
     if request.method == 'POST':
         data = request.FILES.get('fileInputa')

@@ -1,5 +1,10 @@
 {% extends 'admin/base/n_base.html' %}
+{% load static %}
 
+{% block css_js %} 
+<link rel="stylesheet" href="{% static 'css/admin_css/Round.css' %}" />
+<script src="{% static 'js/admin_page/Round.js' %}"></script>
+{% endblock %} 
 {% block topic %}
 <div class="fs-8 mt-1 text-muted text-center">
     <span><i class="ti ti-clipboard-text"></i> รายละเอียดรอบสัมภาษณ์</span>
@@ -7,14 +12,17 @@
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
-
-  <table class="table table-bordered table-hover">
+    <div class="d-flex mb-2 justify-content-end">
+        <button class="btn btn-info fs-4 fw-semibold " onclick="add_Round()">เพิ่มรอบ</button>
+      </div>
+  <table class=" table table-bordered table-hover">
     <thead>
         <tr>
             <th class="text-center fs-5 fw-medium">รอบ</th>
             <th class="text-center fs-5 fw-medium">ปีการศึกษา</th>
             <th class="text-center fs-5 fw-medium">สาขาวิชา</th>
             <th class="text-center fs-5 fw-medium">ผู้ดูแล</th>
+            <th class="text-center fs-5 fw-medium">เอกสาร</th>
             <th class="text-center fs-5 fw-medium">เวลา</th>
             <th class="text-center fs-5 fw-medium">จัดการ</th>
         </tr>
@@ -26,10 +34,11 @@
             <td class="text-center">{{ i.academic_year }}</td>
             <td >{{ i.major }}</td>
             <td >{{ i.manager.first_name }} {{ i.manager.last_name }}</td>
+            <td >{{ i.documents }}</td>
             <td class="text-center">{{ i.interview_time }}</td>
             <td class="d-flex justify-content-center">
-                <a class="btn btn-primary btn-sm fs-3 mx-1" href="#">รายละเอียด</a>
-                <a class="btn btn-secondary btn-sm fs-3 mx-1" href="#">แก้ไข</a>
+                <a class="btn btn-info btn-sm" href="javascript:void(0);" onclick="edit_popup
+                    ('{{ i.id }}', '{{ i.round_name }}', '{{ i.academic_year }}', '{{ i.major }}', '{{ managers.first_name }} {{ managers.last_name }}', '{{ i.documents }}', '{{ i.interview_time }}')">แก้ไข</a>
                 <a class="btn btn-danger btn-sm fs-3 mx-1" href="delete_InterviewRound/{{i.id}}">ลบ</a>
             </td>
         </tr>
@@ -37,40 +46,117 @@
     </tbody>
 </table>
 
+<div class="container_Scoreadd" id="add_RoundForm">
+    <div class="text-end">
+        <a href="/Interview">
+          <i class="fs-6 ti ti-x text-danger"></i>
+        </a>
+        <h1 class="text-center fs-6 fw-semibold text-primary">เพิ่มรอบสัมภาษณ์</h1>
+        </div>
+        <form action="/add_InterviewRound" method="post" class="container mt-4">
+          {% csrf_token %}
+            <div class="row mb-3">
+                <div class="col">
+                    <input class="form-control" type="text" name="round_name" id="round_name" placeholder="ชื่อรอบ">
+                </div>
+                <div class="col">
+                    <input class="form-control" type="text" name="academic_year" id="academic_year" placeholder="ปีการศึกษา" >
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <input class="form-control" type="text" name="documets" id="documets" placeholder="เอกสาร (ปพ1,PortFolio)">
+                </div>
+                <div class="col">
+                    <input class="form-control" type="text" name="interview_time" id="interview_time" placeholder="เวลา (12/12/2564 09:00-12:00)" >
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <select name="faculty" class="form-control" >
+                        <option value="">คณะ</option>
+                        {% for faculty in faculty_all %}
+                            <option value="{{ faculty }}">{{ faculty }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col">
+                    <select name="major" id="majorSelect" class="form-control">
+                        <option>สาขา</option>
+                        {% for faculty in faculty_all %}
+                            {% for major in faculty.major_set.all %}
+                                <option value="{{ major }}">{{ major }}</option>
+                            {% endfor %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <select name="manager_name" id="manager_name" class="form-control">
+                        <option>ผู้ดูแล</option>
+                        {% for managers in Manager %}
+                            <option value="{{ managers.first_name }}">{{ managers.first_name }} {{ managers.last_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-info btn-lg">เพิ่มรอบ</button>
+            </div>
+      </form>
+    </div>
 
-<form action="/add_InterviewRound" method="post" style="background-color: #f2f2f2; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 20px;">
-  {% csrf_token %}
-  
-  <div style="display: flex; justify-content: space-between;">
-    <input type="text" name="round_name" id="round_name" placeholder="ชื่อรอบ" style="width: 48%; padding: 12px 20px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-    <input type="text" name="academic_year" id="academic_year" placeholder="ปีการศึกษา" style="width: 48%; padding: 12px 20px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-  </div>
-
-  <div style="display: flex; justify-content: space-between;">
-    <select name="faculty" style="width: 30%; padding: 12px 20px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-        <option value="">คณะ</option>
-        {% for faculty in faculty_all %}
-            <option value="{{ faculty }}">{{ faculty }}</option>
-        {% endfor %}
-    </select>
-
-    <select name="major" id="majorSelect" style="width: 30%; padding: 12px 20px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-        <option>สาขา</option>
-        {% for faculty in faculty_all %}
-            {% for major in faculty.major_set.all %}
-                <option value="{{ major }}">{{ major }}</option>
-            {% endfor %}
-        {% endfor %}
-    </select>
-
-    <select name="manager_name" id="manager_name" style="width: 30%; padding: 12px 20px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-        <option>ผู้ดูแล</option>
-        {% for managers in Manager %}
-            <option value="{{ managers.first_name }}">{{ managers.first_name }} {{ managers.last_name }}</option>
-        {% endfor %}
-    </select>
-  </div>
-
-  <button type="submit" style="background-color: #4CAF50; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border: none; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition-duration: 0.4s;">เพิ่มรอบ</button>
-</form>
-{% endblock %}
+    <div class="container_Scoreadd" id="edit_popup">
+        <div class="text-end">
+            <a href="/Interview">
+              <i class="fs-6 ti ti-x text-danger"></i>
+            </a>
+            <h1 class="text-center fs-6 fw-semibold text-primary">แก้ไขรอบสัมภาษณ์</h1>
+            </div>
+            <form action="/edit_InterviewRound" method="post" class="container mt-4">
+              {% csrf_token %}
+              <input type="hidden" name="round_id" id="round_id">
+                <div class="row mb-3">
+                    <div class="col">
+                        <input class="form-control" type="text" name="round_name" id="round_name_e" placeholder="ชื่อรอบ">
+                    </div>
+                    <div class="col">
+                        <input class="form-control" type="text" name="academic_year" id="academic_year_e" placeholder="ปีการศึกษา" >
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <input class="form-control" type="text" name="documets" id="documets_e" placeholder="เอกสาร (ปพ1,PortFolio)">
+                    </div>
+                    <div class="col">
+                        <input class="form-control" type="text" name="interview_time" id="interview_time_e" placeholder="เวลา (12/12/2564 09:00-12:00)" >
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <select name="major" id="majorSelect_e" class="form-control">
+                            <option>สาขา</option>
+                            {% for faculty in faculty_all %}
+                                {% for major in faculty.major_set.all %}
+                                    <option value="{{ major }}">{{ major }}</option>
+                                {% endfor %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col">
+                        <select name="manager_name" id="manager_name_e" class="form-control">
+                            <option>ผู้ดูแล</option>
+                            {% for managers in Manager %}
+                                <option value="{{ managers.first_name }}">{{ managers.first_name }} {{ managers.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-info btn-lg">แก้ไข</button>
+                </div>
+          </form>
+    </div>
+    {% endblock %}
+</div>
