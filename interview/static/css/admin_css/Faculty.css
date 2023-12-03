@@ -115,6 +115,19 @@ input {
     transform: translate(-50%, -50%);
     background-color: white;
 }
+.container3 {
+    width: 500px;
+    margin: 0 auto;
+    display: none;
+    z-index: 999;
+    border: 3px solid black;
+    border-radius: 9px;
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+}
 .faculty-container {
     display: flex;
     flex-direction: column;

@@ -47,7 +47,8 @@ urlpatterns = [
     path('search_user',search_user, name='search_user'),
     path('search_TemporaryUser',search_TemporaryUser, name='search_TemporaryUser'),
     path('edit_password_in_profile',edit_password_in_profile, name='edit_password_in_profile'),
-
+    path('add_Major_manager',add_Major_manager, name='add_Major_manager'),
+    path('delete_manage_in_major',delete_manage_in_major, name='delete_manage_in_major'),
 
     
 
@@ -62,6 +63,7 @@ urlpatterns = [
     path('Manager_Print_Interview',Manager_Print_Interview, name='Manager_Print_Interview'),
     path('Manager_Status',Manager_Status, name='Manager_Status'),
     path('toggle_round_active/<int:round_id>/', toggle_round_active, name='toggle_round_active'),
+     path('chang_major', chang_major, name='chang_major'),
 
 
     #Interviewer

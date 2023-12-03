@@ -35,10 +35,31 @@
               {% for major in i.major_set.all %}
               <div class="card mb-1">
                 <div class="card-body p-2 d-flex justify-content-between">
-                    <h5 class=" mb-0">{{ major.major }}</h5>
-                    <a href="delete_Major/{{major.id}}"><button class="btn btn-red">ลบสาขา</button></a>
+                    <h5 class=" mb-0">{{ major.major }} </h5>
+                    <div class="d-flex justify-content-end mb-2 col-6">
+                      <button class="btn btn-secondary m-1 fs-2" onclick="add_Major_manager('{{ major.major }}', '{{ major.id }}')">เพิ่มผู้ดูแล</button>
+                      <a href="delete_Major/{{i.id}}"><button class="fs-2 m-1 btn btn-red p1">ลบสาขา</button></a>
+                    </div>       
                 </div>
+                <div>
+                  {% for manager in major.default_manager.all %}
+                    <form action="delete_manage_in_major" method="post" style="display: inline-block;">
+                      {% csrf_token %}
+                      <div style="display: inline-block;">
+                        <input type="text" hidden name="major_id" value="{{major.id}}">
+                        <input type="text" hidden name="manager_id" value="{{manager.id}}">
+                        <h6 style="display: inline-block; margin-right: 5px;">{{ manager.first_name }} {{ manager.last_name }}</h6>
+                        <button type="submit" class="fs-1 btn btn-red" style="padding: 5px;">ลบ</button>
+
+                      </div>
+                    </form>
+                    <br>
+                  {% endfor %}
+                </div>
+                
+                
               </div>
+
               {% endfor %}
           </div>
       </div>
@@ -81,6 +102,50 @@
       </div>
     </form> 
   </div>
+  <div  id="add_Major_manager" class="container3 ">
+    <form  method="post" action="{% url 'add_Major_manager' %}">
+      {% csrf_token %}
+      <div  class="topic">
+        <h3 >เพิ่มผู้ดูแลสาขา</h3>
+        <a href="FacultyMajor">
+            <i class="fas fa-sign-out-alt"></i> Exit
+        </a>
+    </div> 
+      <div class="input_data">
+        <p></p>
+        <select class="form-select" name="major_user"  style="width: 100%;">
+          <option value="">เลือกผู้ดูแลสาขา</option>
+          {% for user in users %}
+            <option value="{{user.id}}">{{user.first_name}}  {{user.last_name}}</option>
+          {%  endfor %}
+        </select>
+        <input type="hidden" name="major_id" id="major_id">
+        <button class="bt_submit" type="submit">เพิ่ม</button>
+      </div>
+    </form> 
+  </div>
+
+  <script>
+    function filterOptions(input) {
+      // Get the select element
+      var select = document.querySelector('select[name="major"]');
+    
+      // Get all the option elements
+      var options = select.getElementsByTagName('option');
+    
+      // Loop through each option
+      for (var i = 0; i < options.length; i++) {
+        // Check if the option's text contains the input text
+        if (options[i].text.toLowerCase().includes(input.toLowerCase())) {
+          // If yes, display the option
+          options[i].style.display = '';
+        } else {
+          // If not, hide the option
+          options[i].style.display = 'none';
+        }
+      }
+    }
+    </script>
 
 </div>
 {% endblock %}

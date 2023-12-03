@@ -66,9 +66,9 @@ def Announcement(request):
 @user_passes_test(is_admin)
 def FacultyMajor(request):
     faculty_all = Faculty.objects.all()
-    
+    users = User.objects.filter(roles__name='Manager')
 
-    return render(request,'admin/FacultyMajor.html',{"faculty":faculty_all})
+    return render(request,'admin/FacultyMajor.html',{"faculty":faculty_all,'users':users})
 @login_required
 @user_passes_test(is_admin)
 def Interview(request):
@@ -125,7 +125,14 @@ def admin_profile(request):
 @login_required
 @user_passes_test(is_Manager)
 def manager_page(request):
-    return render(request,'manager/Manager_page.html')
+    users = TemporaryUser.objects.all()
+    faculty_all = Faculty.objects.all()
+    major_all = Major.objects.all()
+    faculty_from_session = request.session.get('faculty')
+    major_from_session = request.session.get('major')
+    if faculty_from_session  and  major_from_session:
+        return render(request,'manager/Manager_page.html',{'users': users,'s_faculty':faculty_from_session,"s_major":major_from_session,'faculty_all':faculty_all})
+    return render(request,'manager/Manager_page.html',{'users': users,'faculty_all':faculty_all})
 @login_required
 @user_passes_test(is_Manager)
 def manage_profile(request):
@@ -133,11 +140,25 @@ def manage_profile(request):
 @login_required
 @user_passes_test(is_Manager)
 def Manage_personnel(request):
-    return render(request,'manager/Manage_personnel.html')
+    faculty_all = Faculty.objects.all()
+    faculty_from_session = request.session.get('faculty')
+    major_from_session = request.session.get('major')
+    if faculty_from_session  and  major_from_session:
+        users = User.objects.filter(roles__name='Manager')
+        return render(request,'manager/Manage_personnel.html',{'users': users,'s_faculty':faculty_from_session,"s_major":major_from_session,'faculty_all':faculty_all})
+    return render(request,'manager/Manage_personnel.html',{'faculty_all':faculty_all})
 @login_required
 @user_passes_test(is_Manager)
 def Manager_Announcement(request):
-    return render(request,'manager/Manager_Announcement.html')
+    users = TemporaryUser.objects.all()
+    faculty_all = Faculty.objects.all()
+    faculty_from_session = request.session.get('faculty')
+    major_from_session = request.session.get('major')
+    if faculty_from_session  and  major_from_session:
+
+
+        return render(request,'manager/Manager_Announcement.html',{'users': users,'s_faculty':faculty_from_session,"s_major":major_from_session,'faculty_all':faculty_all})
+    return render(request,'manager/Manager_Announcement.html',{'users': users,'faculty_all':faculty_all})
 @login_required
 @user_passes_test(is_Manager)
 def Manager_interview(request):
@@ -895,13 +916,14 @@ def search_TemporaryUser(request):
         users = TemporaryUser.objects.filter(
             Q(first_name__icontains=search) |
             Q(last_name__icontains=search) |
+            Q(citizen_id__icontains=search) |
             Q(faculty__faculty__icontains=search) |
             Q(major__major__icontains=search) )
         if faculty and major:
-            users_filtered = TemporaryUser.objects.filter(faculty__faculty=faculty, major__major=major,).filter( Q(first_name__icontains=search) )
+            users_filtered = TemporaryUser.objects.filter(faculty__faculty=faculty, major__major=major,).filter( Q(first_name__icontains=search)|Q(citizen_id__icontains=search) |Q(last_name__icontains=search)  )
             return render(request,'admin/form_search/search_tem.html',{'users': users_filtered,'faculty_all':faculty_all})
         elif faculty:
-            users_filtered = TemporaryUser.objects.filter(faculty__faculty=faculty).filter( Q(first_name__icontains=search) )
+            users_filtered = TemporaryUser.objects.filter(faculty__faculty=faculty).filter( Q(first_name__icontains=search)|Q(citizen_id__icontains=search) |Q(last_name__icontains=search)  )
             return render(request,'admin/form_search/search_tem.html',{'users': users_filtered,'faculty_all':faculty_all})
 
         else: 
@@ -962,3 +984,27 @@ def register_interview(request, round_id):
         defaults={'status': 'พร้อมสอบ'}
     )
     return redirect('/Student_register')
+
+def add_Major_manager(request):
+    if request.method =='POST':
+        major_id = request.POST.get('major_id')
+        user_id = request.POST.get('major_user')
+        serach_major = Major.objects.get(pk=major_id)
+        serach_major.default_manager.add(user_id)
+        return redirect('FacultyMajor')
+    
+def delete_manage_in_major(request):
+    if request.method =='POST':
+        major_id = request.POST.get('major_id')
+        user_id = request.POST.get('manager_id')
+        serach_major = Major.objects.get(pk=major_id)
+        serach_major.default_manager.remove(user_id)
+        return redirect('FacultyMajor')
+    
+def chang_major(request):
+    if request.method =="POST":
+        fa = request.POST.get('faculty')
+        ma = request.POST.get('major')
+        request.session['faculty'] = fa
+        request.session['major'] = ma
+        return redirect('Manager_page')

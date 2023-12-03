@@ -5,6 +5,28 @@
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
-    <!-- ตำแหน่งเนื้อหาของหน้าหลัก -->
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th class="text-center fs-5 fw-medium">ชื่อ-นามสกุล</th>
+                <th class="text-center fs-5 fw-medium">Email</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.first_name }} {{ user.last_name }}</td>
+                <td style="text-align: left;">{{ user.citizen_id }}</td>
+                <td style="text-align: right; display: flex;
+                justify-content: space-between;">
+                    <a href="#">+</a>
+                    <a href="#">-</a>
+                </td>
+                
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}

@@ -18,6 +18,10 @@
         </a>
         <p class="text-center pt-3 fw-bolder fs-6 text-muted">{{ user.first_name }} {{ user.last_name }}</p>
         <p class="text-center fw-bolder fs-6 text-muted">{{ user.citizen_id|slice:":4" }}****{{ user.citizen_id|slice:"-3:" }}</p>
+        {% if s_faculty %}
+          {{ s_faculty }} __{{ s_major }}
+        {% endif %}
+      
         <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
           <i class="ti ti-x fs-8"></i>
         </div>
@@ -112,15 +116,48 @@
               <span class="hide-menu fs-4">สถานะการสัมภาษณ์</span>
             </a>
           </li>
-
+          <form action="{% url 'chang_major' %}" method="post" data-cities-url="{% url 'ajax_load_cities' %}" id="add_test">
+            {% csrf_token %}
+            <div class="faculty_major">
+                <select name="faculty" id="id_faculty_selection" style="width: 100%;">
+                    <option value="">คณะ</option>
+                    {% for faculty in faculty_all %}
+                    <option value="{{faculty}}">{{faculty}}</option>
+                    {% endfor %}
+                </select>
+                <br>
+                <select name="major" id="id_major_selection" style="width: 100%;">
+                    <option value="">สาขา</option>
+                </select>
+                <br>
+                <button type="submit" style="width: 100%;">เปลี่ยนสาขา</button>
+            </div>
+       
+        </form>
 
         </ul>
       </nav>
-      <!-- End Sidebar navigation -->
     </div>
     <!-- End Sidebar scroll-->
   </aside>
   <!--  Sidebar End -->
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script>
+      $("#id_faculty_selection").change(function () {
+          const url = $("#add_test").attr("data-cities-url");  
+          const facultyname = $(this).val(); 
   
+          $.ajax({                       
+              url: url,                   
+              data: {
+                  'faculty': facultyname      
+              },
+              success: function (data) {   
+                  $("#id_major_selection").html(data); 
+              }
+          });
+      });
+
+  </script>
 </body>
 </html>
