@@ -23,6 +23,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.hashers import check_password
+from collections import defaultdict
 # Create your views here.
 
 def is_admin(user):
@@ -83,10 +84,16 @@ def Interview(request):
 @user_passes_test(is_admin)
 def Score(request):
     Round_all = Round.objects.all()
-    template_all = ScoreTopic.objects.values('pattern_id').annotate(Count('id')).distinct()
+
+    score_topics = ScoreTopic.objects.all()
+    grouped_topics = defaultdict(list)
+    for topic in ScoreTopic.objects.select_related('round').all():
+        key = (topic.pattern_id, f'{topic.round.round_name} ({topic.round.academic_year})')
+        grouped_topics[key].append(topic)
+    grouped_topics = dict(grouped_topics)
     context ={
         "Round" : Round_all,
-        "Template" : template_all
+        'grouped_topics': grouped_topics,
     }
     return render(request,'admin/Score.html', context)
 @login_required
@@ -460,13 +467,15 @@ def add_ScoreTopic(request):
             topic_name = request.POST.get('topic_name')
             max_score = request.POST.get('max_score')
             round_name = request.POST.get('round_name')
+            score_detail = request.POST.get('score_detail')
             round = Round.objects.get(round_name=round_name)
             score_topic, _ = ScoreTopic.objects.get_or_create(round=round,
                                                                 pattern_id=template_num,
                                                                 topic_name=topic_name,
-                                                                max_score=max_score)
+                                                                max_score=max_score,
+                                                                score_detail=score_detail)
             score_topic.save()
-            return redirect(f"View_ScoreTemplate/{template_num}")
+            return redirect(f"/Score")
 
 @login_required
 @user_passes_test(is_admin)
@@ -484,7 +493,7 @@ def delete_ScoreTopic(request,id):
     object = ScoreTopic.objects.get(pk=id)
     pattern = object.pattern_id
     object.delete()
-    return redirect(f"/View_ScoreTemplate/{pattern}")
+    return redirect(f"/Score")
 
 @login_required
 @user_passes_test(is_admin)
@@ -511,6 +520,22 @@ def edit_TemporaryUser(request):
         tem_user.save()
         
     return redirect('TemporaryUser')
+
+@login_required
+@user_passes_test(is_admin)
+def edit_ScoreTopic(request):
+    if request.method == "POST":
+        topic_id = request.POST.get('topic_id')
+        topic = request.POST.get('topic_name')
+        max_score = request.POST.get('max_score')
+        detail = request.POST.get('score_detail')
+        score_topic = ScoreTopic.objects.get(pk=topic_id)
+        score_topic.topic_name=topic
+        score_topic.max_score=max_score
+        score_topic.score_detail=detail
+        score_topic.save()
+        
+    return redirect('/Score')
 
 @login_required
 @user_passes_test(is_admin)

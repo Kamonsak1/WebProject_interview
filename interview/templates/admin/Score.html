@@ -1,46 +1,126 @@
 {% extends 'admin/base/n_base.html' %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/admin_css/admin_style.css' %}">
-<script src="{% static 'js/toggleiptions.js' %}"></script>
+
+{% block css_js %} 
+<link rel="stylesheet" href="{% static 'css/admin_css/Score.css' %}" />
+<script src="{% static 'js/admin_page/Score.js' %}"></script>
+{% endblock %} 
 {% block topic %}
 <div class="fs-8 mt-1 text-muted text-center">
   <span><i class="ti ti-clipboard-check"></i> การให้คะแนน</span>
 </div>
 {% endblock %}
 {% block content %}
+<div class="pt-14 px-2">
+  <div class="d-flex justify-content-end">
+    <button class="btn btn-info fs-4 fw-semibold " onclick="add_Score()">เพิ่มหัวข้อ</button>
+  </div>
 
-
-<form action="/add_ScoreTopic" method="post" >
-    {% csrf_token %}
-      <select name="Template_ID" style="width: 20%; padding: 12px 20px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-          <option value="">หมายเลขเทมเพลต</option>
-          {% for t in Template %}
-              <option value="{{ t.pattern_id }}">{{ t.pattern_id }}</option>
-          {% endfor %}
-      </select>
-    <button type="submit" style="background-color: #4CAF50; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border: none; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition-duration: 0.4s;">ดูเทมเพลต</button>
-  </form>
-
-<form action="/add_ScoreTopic" method="post" style="background-color: #f2f2f2; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 20px;">
-    {% csrf_token %}
-    
-    <div style="display: flex; justify-content: space-between;">
-      <input type="text" name="template_num" id="template_num" placeholder="เลขเทมเพลต" style="width: 10%; padding: 12px 20px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-      <input type="text" name="topic_name" id="topic_name" placeholder="หัวข้อการให้คะแนน" style="width: 88%; padding: 12px 20px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+  <div class="container">
+    <div class="row">
+      {% for key, topics in grouped_topics.items %}
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex">
+                <h2 class="fs-6 card-title">Pattern: </h2>
+                <h2 class="fs-6 text-primary card-title">{{ key.0 }}</h2>
+              </div>
+              <div class="d-flex">
+                <h2 class="fs-6 card-title">Round: </h2>
+                <h2 class="fs-6 text-success card-title">{{ key.1 }}</h2>
+              </div>
+              <ul class="list-group list-group-flush">
+                {% for topic in topics %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  {{ topic.topic_name }} : {{ topic.max_score }}
+                  <div>
+                    <a class="btn btn-info btn-sm" href="javascript:void(0);" onclick="edit_popup
+                    ('{{ topic.id }}', '{{ topic.topic_name }}', '{{ topic.max_score }}', '{{ topic.score_detail }}')">แก้ไข</a>
+                    <a class="btn btn-danger btn-sm" href="/delete_ScoreTopic/{{topic.id}}">ลบ</a>
+                  </div>
+              </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+        {% if forloop.counter|divisibleby:3 and not forloop.last %}
+          </div><div class="row">
+        {% endif %}
+      {% endfor %}
     </div>
-  
-    <div style="display: flex; justify-content: space-between;">
-        <input type="text" name="max_score" id="max_score" placeholder="คะแนนเต็ม" style="width: 20%; padding: 12px 20px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-      <select name="round_name" style="width: 78%; padding: 12px 20px; margin: 8px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-          <option value="">รอบ</option>
-          {% for r in Round %}
-              <option value="{{ r.round_name }}">{{ r.round_name }} {{ r.academic_year }}</option>
-          {% endfor %}
-      </select>
+  </div>
 
+  <div class="container_Scoreadd" id="add_ScoreTopic">
+    <div class="text-end">
+    <a href="/Score">
+      <i class="fs-6 ti ti-x text-danger"></i>
+    </a>
+    <h1 class="text-center fs-6 fw-semibold text-primary">เพิ่มหัวข้อคะแนน</h1>
     </div>
-  
-    <button type="submit" style="background-color: #4CAF50; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border: none; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition-duration: 0.4s;">เพิ่มหัวข้อ</button>
+    <form action="/add_ScoreTopic" method="post" class="container mt-4">
+      {% csrf_token %}
+      <div class="row mb-3">
+          <div class="col">
+              <input type="text" name="template_num" id="template_num" placeholder="เลขเทมเพลต" class="form-control">
+          </div>
+          <div class="col">
+            <select name="round_name" class="form-control">
+                <option value="">รอบ</option>
+                {% for r in Round %}
+                    <option value="{{ r.round_name }}">{{ r.round_name }} {{ r.academic_year }}</option>
+                {% endfor %}
+            </select>
+        </div>
+      </div>
+      <div class="row mb-3">
+            <div class="col">
+              <input type="text" name="topic_name" id="topic_name" placeholder="หัวข้อการให้คะแนน" class="form-control">
+          </div>
+          <div class="col">
+              <input type="text" name="max_score" id="max_score" placeholder="คะแนนเต็ม" class="form-control">
+          </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col">
+          <input type="text" name="score_detail" id="score_detail" placeholder="รายละเอียดของหัวข้อคะแนน" class="form-control">
+      </div>
+      </div>
+      <div class="text-center">
+          <button type="submit" class="btn btn-info btn-lg">เพิ่มหัวข้อ</button>
+      </div>
   </form>
+  </div>
 
-{% endblock %}
+  <div class="container_Scoreadd" id="edit_popup">
+      <div class="text-end">
+      <a href="/Score">
+        <i class="fs-6 ti ti-x text-danger"></i>
+      </a>
+      <h1 class="text-center fs-6 fw-semibold text-primary">แก้ไขหัวข้อคะแนน</h1>
+      </div>
+      <form action="/edit_ScoreTopic" method="post" class="container mt-4">
+        {% csrf_token %}
+        <input type="hidden" name="topic_id" id="topic_id">
+        <div class="row mb-3">
+              <div class="col">
+                <input type="text" name="topic_name" id="topic_name_edit" placeholder="หัวข้อการให้คะแนน" class="form-control">
+            </div>
+            <div class="col">
+                <input type="text" name="max_score" id="max_score_edit" placeholder="คะแนนเต็ม" class="form-control">
+            </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col">
+            <input type="text" name="score_detail" id="score_detail_edit" placeholder="รายละเอียดของหัวข้อคะแนน" class="form-control">
+        </div>
+        </div>
+        <div class="text-center">
+            <button type="submit" class="btn btn-info btn-lg">แก้ไข</button>
+        </div>
+    </form>
+  </div>
+
+  {% endblock %}
+</div>
