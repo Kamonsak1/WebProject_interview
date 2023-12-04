@@ -271,7 +271,8 @@ def confirm_email(request):
         password = request.session.get('password')
         confirmation_code = request.session.get('confirmation_code')
         email = request.session.get('email')
-        
+        temporary_user_id = request.session.get('temporary_user_id')
+
         if username is not None and password is not None:
             try:
                 temporary_user = TemporaryUser.objects.get(citizen_id=username, password=password)
@@ -282,15 +283,23 @@ def confirm_email(request):
                             return HttpResponse("อีเมลถูกใช้งานไปแล้ว")
                         else:
                             user, created = User.objects.get_or_create(username=username)
+                            tem_user = TemporaryUser.objects.get(pk=temporary_user_id)
+                            faculty_TemporaryUser = list(temporary_user.faculty_set.all())
+                            major_TemporaryUser = list(temporary_user.major_set.all())
                             if created:
                                 # กำหนดรหัสผ่านโดยตรง
                                 user.set_password(password)
                                 user.email = email
-                                user.phone_number = temporary_user.phone_number
                                 user.first_name = temporary_user.first_name
                                 user.last_name = temporary_user.last_name
                                 user.birth_date = temporary_user.birth_date
                                 user.citizen_id = temporary_user.citizen_id
+                                role_model = Role.objects.get(name='Student')
+                                role_model.users.add(user)
+                                for faculty in faculty_TemporaryUser:
+                                    faculty.users.add(user)
+                                for  major in major_TemporaryUser:
+                                     major.users.add(user)
                                 user.save()
                                 return redirect('changepassword')
                             else:
@@ -374,9 +383,12 @@ def first_login(request):
             if temporary_user is not None:
                 request.session['username'] = username
                 request.session['password'] = password
+                request.session['temporary_user_id'] = temporary_user.id
+    
                 return redirect('confirm_email')
         except TemporaryUser.DoesNotExist:
             pass
+
 
     return render(request, 'html/first_login.html')
 

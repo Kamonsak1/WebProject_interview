@@ -1,23 +1,48 @@
-{% load static %}
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'css/login_css/confirm_email.css' %}">
-    <title>ยืนยันรหัส 7 หลัก</title>
+  {% load static %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>เข้าสู่ระบบครั้งแรก</title>
+  <link rel="stylesheet" href="{% static 'css/styles.min.css' %}" />
 </head>
-<body>
-        <div class="container">
-        <form method="post" action=" {% url 'confirm_email' %}">
-            {% csrf_token %} 
-            <div class="login-box2">
-                <label>ยืนยันรหัส</label>
-                <input class="user-label" type="text" name="passemail" placeholder=" รหัส 7 หลัก">
-                <button type="submit" class="user-confirm_email">ยืนยันรหัสผ่าน</button>
+
+<body style="background-image: url('/static/img/login-1800x1200.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+  <!--  Body Wrapper -->
+  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+    data-sidebar-position="fixed" data-header-position="fixed">
+    <div
+      class="position-relative overflow-hidden radial-gradient min-vh-100 d-flex align-items-center justify-content-center">
+      <div class="d-flex align-items-center justify-content-center w-100">
+        <div class="row justify-content-center w-100">
+          <div class="col-md-8 col-lg-6 col-xxl-3">
+            <div class="card mb-0">
+              <div class="card-body">
+                <a href="/login" class="text-primary">
+                  <img src="{% static 'images/logos/arrow_left.svg' %}" alt="back">
+                </a>
+                <h1 class="text-center pb-sm-6">ยืนยันรหัส 7 หลัก</h1>
+                <form method="post" action=" {% url 'confirm_email' %}">
+                    {% csrf_token %}  
+                    <div class="mb-3">
+                        <div  class="mb-4"></div>
+                        <label for="exampleInputEmail1" class="form-label">ยืนยันรหัส</label>
+                        <input type="text" class="form-control" name="passemail"  aria-describedby="emailHelp" placeholder="รหัส 7 หลัก">
+                    </div>
+                        <div  class="mb-4">
+                        <button type="submit" class="btn btn-success w-100 py-8 fs-4 mb-4 rounded-2">ยืนยันรหัสผ่าน </button>
+                    </div>
+                    </div>
+                </form>
+              </div>
             </div>
-        </form>
+          </div>
         </div>
-    
+      </div>
+    </div>
+  </div>
 </body>
+
 </html>
