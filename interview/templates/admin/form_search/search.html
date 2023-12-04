@@ -46,8 +46,6 @@
             <tr>
                 <th class="text-center fs-5 fw-medium">ชื่อ-นามสกุล</th>
                 <th class="text-center fs-5 fw-medium">Email</th>
-                <th class="text-center fs-5 fw-medium">คณะ</th>
-                <th class="text-center fs-5 fw-medium">สาขา</th>
                 <th class="text-center fs-5 fw-medium">จัดการข้อมูล</th>
             </tr>
         </thead>
@@ -56,8 +54,6 @@
             <tr>
                 <td>{{ user.first_name }} {{ user.last_name }}</td>
                 <td>{{ user.email }}</td>
-                <td>{{ user.faculty_set.all.first.faculty }}</td>
-                <td>{{ user.major_set.all.first.major }}</td>
                 <td class="d-flex justify-content-center">
                     <a class="btn btn-primary btn-sm fs-3 mx-1" href="javascript:void(0);" onclick="display_popup
                         ('{{ user.id }}', '{{ user.first_name }}', '{{ user.last_name }}',
@@ -158,6 +154,20 @@
                     <label>วัน/เดือน/ปีเกิด</label>
                     <input type="text" name="birth_date" id="display_birth_date"readonly>
                 </div>
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th class="text-center fs-5 fw-medium">คณะ</th>
+                            <th class="text-center fs-5 fw-medium">สาขา</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="fa"></td>
+                            <td id="ma"></td>
+                        </tr>
+                    </tbody>
+                </table>
                 <div  class="title_role">
                     <h3 >หน้าที่</h3>
                 </div> 

@@ -20,6 +20,16 @@ function add_Major_manager(Major_manager,id_Major_manager) {
         optionsDiv.style.display = "block";
       }
     }
+
+    function display_manager(majorId) {
+      var managerDiv = document.getElementById('display_manager_' + majorId);
+      if (managerDiv.style.display === 'none') {
+          managerDiv.style.display = 'block';
+      } else {
+          managerDiv.style.display = 'none';
+      }
+  }
+
     function add_Major(facultyName,id_faculty) {
       var addMajorDiv = document.getElementById("add_Major");
       var facultyParagraph = addMajorDiv.querySelector('p');

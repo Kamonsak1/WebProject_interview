@@ -232,6 +232,11 @@ function add_User() {
       a2[0] = a2[0].trim();
       major_split.push(a2[0]);
   }
+
+  var faElement = document.getElementById('fa');
+  faElement.innerHTML = faculty_split.slice(1).join('<br>');
+  var maElement = document.getElementById('ma');
+  maElement.innerHTML = major_split.slice(1).join('<br>');
   var role_new = [];
   role_new.push(role.split(':'));
   var role_split = [];

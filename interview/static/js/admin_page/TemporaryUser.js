@@ -162,6 +162,7 @@ document.getElementById('user_id').value = user_id;
 document.getElementById('display_first_name').value = first_name;
 document.getElementById('display_last_name').value = last_name;
 document.getElementById('display_citizen_id').value = citizen_id;
+
 var birth_date_split =  birth_date.split(' ');
 var hbd_day =  birth_date_split[1].split(',')[0];
 var new_HBD;
@@ -230,6 +231,12 @@ for (var i = 0; i < major_new[0].length; i++) {
     a2[0] = a2[0].trim();
     major_split.push(a2[0]);
 }
+var faElement = document.getElementById('fa');
+faElement.innerHTML = faculty_split.slice(1).join('<br>');
+var maElement = document.getElementById('ma');
+maElement.innerHTML = major_split.slice(1).join('<br>');
+
+
 var role_new = [];
 role_new.push(role.split(':'));
 var role_split = [];
@@ -262,8 +269,7 @@ for (let i = 0 ; i < (role_split.length);i++){
     checkbox4.checked = true;
   }
 }
-//document.getElementById('faculty').value = faculty_split.slice(1);
-//document.getElementById('major').value = major_split.slice(1);
+
 
 if (optionsDiv.style.display === "block") {
   optionsDiv.style.display = "none";
