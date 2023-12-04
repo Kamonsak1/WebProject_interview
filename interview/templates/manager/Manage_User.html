@@ -1,0 +1,321 @@
+{% extends 'manager/base/n_base.html' %}
+{% load static %}
+{% block css_js %} 
+<link rel="stylesheet" href="{% static 'css/manager_css/Manage_User.css' %}" />
+<script src="{% static 'js/manager/Manage_User.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+{% endblock %} 
+{% block topic %}
+<h1 class="text-3xl text-gray-100 mt-2 text-center">จัดการสมาชิก</h1>
+{% endblock %}
+{% block content %}
+<div class="pt-14 px-2">
+
+    <div class="d-flex justify-content-between mb-2">
+
+        <div class="d-flex flex-row flex-nowrap">
+            <form action="{% url 'search_user' %}" method="post" class="w-100 d-flex flex-row align-items-center">
+                {% csrf_token %}
+                <input class="form-control me-2" type="search" name="search" id="" placeholder="ค้นหา..." style="flex-grow: 1; min-width: 0;">
+                <select class="form-select me-2" name="faculty" id="id_faculty_second" style="width: auto;">
+                    <option value="">คณะ</option>
+                    {% for faculty in faculty_all %}
+                    <option value="{{faculty}}">{{faculty}}</option>
+                    {% endfor %}
+                </select>
+                <select class="form-select" name="major" id="id_major_second" style="width: auto;">
+                    <option value="">สาขา</option>
+                </select>
+                <button class="btn btn-info mx-2" type="submit">ค้นหา</button>
+            </form>
+        </div>
+
+        <div>
+            <button class="btn btn-info " onclick="add_User()">เพิ่มผู้ใช้งาน</button>
+            <button class="btn btn-info " onclick="add_User_by_file()">เพิ่มผู้ใช้งานแบบไฟล์</button>
+        </div>
+
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th class="text-center fs-5 fw-medium">ชื่อ-นามสกุล</th>
+                <th class="text-center fs-5 fw-medium">Email</th>
+                <th class="text-center fs-5 fw-medium">จัดการข้อมูล</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.first_name }} {{ user.last_name }}</td>
+                <td>{{ user.email }}</td>
+                <td class="d-flex justify-content-center">
+                    <a class="btn btn-primary btn-sm fs-3 mx-1" href="javascript:void(0);" onclick="display_popup
+                        ('{{ user.id }}', '{{ user.first_name }}', '{{ user.last_name }}',
+                        '{{ user.faculty_set.all }}','{{ user.major_set.all}}','{{ user.citizen_id }}',
+                        '{{user.birth_date}}','{{user.roles.all}}','{{user.email}}')">ดูข้อมูล</a>
+                    <a class="btn btn-secondary btn-sm fs-3 mx-1" href="javascript:void(0);" onclick="edit_popup
+                        ('{{ user.id }}', '{{ user.first_name }}', '{{ user.last_name }}',
+                        '{{ user.faculty_set.all }}','{{ user.major_set.all}}','{{ user.citizen_id }}',
+                        '{{user.birth_date}}','{{user.roles.all}}','{{user.email}}')">แก้ไข</a>
+                    <a class="btn btn-danger btn-sm fs-3 mx-1" href="delete_User/{{user.id}}">ลบ</a>  
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    
+    
+    <div class="container_edit" id="edit_popup">
+        <form action="{% url 'edit_User' %}" method="post">
+            {% csrf_token %}
+            <div  class="topic">
+                <h3 >แก้ไขข้อมูล</h3>
+                <a href="User">
+                    <i class="fas fa-sign-out-alt"></i> Exit
+                </a>
+            </div>  
+            <div class="input_data">
+                <input type="hidden" name="user_id" id="user_id">
+                <div>
+                    <label >ชื่อ</label>
+                    <input type="text" name="first_name" id="first_name" >
+                </div>
+                <div>
+                    <label >นามสกุล</label>
+                    <input type="text" name="last_name" id="last_name" >
+                </div>
+                <div>
+                    <label >เลขบัตรประชาชน</label>
+                    <input type="text" name="citizen_id" id="citizen_id" >
+                </div>
+                <div>
+                    <label >email</label>
+                    <input type="text" name="email" id="email" >
+                </div>
+                <div>
+                    <label>วัน/เดือน/ปีเกิด</label>
+                    <input type="text" name="birth_date" id="birth_date" >
+                </div>
+                <div  class="title_role">
+                    <h3 >หน้าที่</h3>
+                </div> 
+                <div class="checkbox-container">
+                    <input type="checkbox" id="checkbox1" name="checkboxgroup" value="Admin" >
+                    <label for="checkbox1" class="checkbox-label">Admin</label>
+                
+                    <input type="checkbox" id="checkbox2" name="checkboxgroup" value="Manager" >
+                    <label for="checkbox2" class="checkbox-label">Manager</label>
+                
+                    <input type="checkbox" id="checkbox3" name="checkboxgroup" value="Interviewer">
+                    <label for="checkbox3" class="checkbox-label">Interviewer</label>
+                
+                    <input type="checkbox" id="checkbox4" name="checkboxgroup" value="Student" >
+                    <label for="checkbox4" class="checkbox-label">Student</label>
+                </div>            
+            </div>
+            <div class="bt">
+            <button type="submit">ยืนยันการแก้ไขข้อมูล</button>
+        </div>
+        </form>
+    </div>
+    <div class="container_display" id="display_popup">
+            <div  class="topic">
+                <h3 >ข้อมูลผู้ใช้</h3>
+                <a href="User">
+                    <i class="fas fa-sign-out-alt"></i> Exit
+                </a>
+            </div>  
+            <div class="input_data">
+                <input type="hidden" name="user_id" id="user_id">
+                <div>
+                    <label >ชื่อ</label>
+                    <input type="text" name="first_name" id="display_first_name"readonly>
+                </div>
+                <div>
+                    <label >นามสกุล</label>
+                    <input type="text" name="last_name" id="display_last_name"readonly>
+                </div>
+                <div>
+                    <label >เลขบัตรประชาชน</label>
+                    <input type="text" name="citizen_id" id="display_citizen_id"readonly>
+                </div>
+                <div>
+                    <label >email</label>
+                    <input type="text" name="email" id="display_email" readonly>
+                </div>
+                <div>
+                    <label>วัน/เดือน/ปีเกิด</label>
+                    <input type="text" name="birth_date" id="display_birth_date"readonly>
+                </div>
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th class="text-center fs-5 fw-medium">คณะ</th>
+                            <th class="text-center fs-5 fw-medium">สาขา</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="fa"></td>
+                            <td id="ma"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div  class="title_role">
+                    <h3 >หน้าที่</h3>
+                </div> 
+                <div class="checkbox-container">
+                    <input type="checkbox" id="checkbox5" name="checkboxgroup" value="Admin" disabled>
+                    <label for="checkbox1" class="checkbox-label">Admin</label>
+                
+                    <input type="checkbox" id="checkbox6" name="checkboxgroup" value="Manager" disabled>
+                    <label for="checkbox2" class="checkbox-label">Manager</label>
+                
+                    <input type="checkbox" id="checkbox7" name="checkboxgroup" value="Interviewer" disabled>
+                    <label for="checkbox3" class="checkbox-label">Interviewer</label>
+                
+                    <input type="checkbox" id="checkbox8" name="checkboxgroup" value="Student" disabled>
+                    <label for="checkbox4" class="checkbox-label">Student</label>
+                </div>            
+            </div>
+    </div>
+    <div class="container_add" id="add_User">
+        <form action="{% url 'add_User' %}" method="post" data-cities-url="{% url 'ajax_load_cities' %}" id="add_test">
+            {% csrf_token %}
+            <div  class="topic">
+                <h3 >สร้างผู้ใช้งาน</h3>
+                <a href="User">
+                    <i class="fas fa-sign-out-alt"></i> Exit
+                </a>
+            </div>       
+            <div class="input_data">
+                <div >
+                    <label for="first_name">ชื่อ</label>
+                    <input type="text" name="first_name" id="first_name">
+                </div>
+                <div>
+                    <label for="last_name">นามสกุล</label>
+                    <input type="text" name="last_name" id="last_name">
+                </div>
+                <div>
+                    <label for="citizen_id">เลขบัตรประชาชน</label>
+                    <input type="text" name="citizen_id" id="citizen_id">
+                </div>
+                <div >
+                    <label for="first_name">E-mail</label>
+                    <input type="text" name="email" id="email">
+                </div>
+                <div>
+                    <label for="birth_date">วัน/เดือน/ปี</label>
+                    <input type="text" name="birth_date" id="birth_date" placeholder="วว/ดด/ปป">
+                </div>
+            </div>
+            <div class="faculty_major">
+                <select name="faculty" id="id_faculty">
+                    <option value="">คณะ</option>
+                    {% for faculty in faculty_all %}
+                    <option value="{{faculty}}">{{faculty}}</option>
+                    {% endfor %}
+                </select>
+                <select name="major" id="id_major">
+                    <option value="">สาขา</option>
+                </select>
+            </div>
+            <div  class="title_role">
+                <h3 >หน้าที่</h3>
+            </div> 
+            <div class="radio">
+                <input type="checkbox" id="checkbox1" name="checkboxgroup" value="Admin">
+                <label for="checkbox1">Admin</label>
+            
+                <input type="checkbox" id="checkbox2" name="checkboxgroup" value="Manager">
+                <label for="checkbox2">Manager</label>
+            
+                <input type="checkbox" id="checkbox3" name="checkboxgroup" value="Interviewer">
+                <label for="checkbox3">Interviewer</label>
+            
+                <input type="checkbox" id="checkbox4" name="checkboxgroup" value="Student">
+                <label for="checkbox4">Student</label>
+            </div>
+            <br>
+            <div class="bt">
+                <button  type="submit">สร้างบัญชีผู้ใช้</button>
+            </div>
+            
+        </form>
+
+    </div>
+    <div class="container_add_byfile" id="add_User_by_file" >
+        <form action="add_User_by_file" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div  class="topic">
+                <h3 >สร้างผู้ใช้งานด้วยไฟล์</h3>
+                <a href="User">
+                    <i class="fas fa-sign-out-alt"></i> X
+                </a>
+            </div>   
+            <input type="file" name="fileInputa">
+            <div  class="title_role">
+                <h3 >หน้าที่</h3>
+            </div> 
+            <div class="radio">
+                <input type="checkbox" id="checkbox1" name="checkboxgroup" value="Admin">
+                <label for="checkbox1">Admin</label>
+            
+                <input type="checkbox" id="checkbox2" name="checkboxgroup" value="Manager">
+                <label for="checkbox2">Manager</label>
+            
+                <input type="checkbox" id="checkbox3" name="checkboxgroup" value="Interviewer">
+                <label for="checkbox3">Interviewer</label>
+            
+                <input type="checkbox" id="checkbox4" name="checkboxgroup" value="Student">
+                <label for="checkbox4">Student</label>
+            </div>
+            <div class="bt">
+                <button  type="submit">สร้างบัญชีผู้ใช้</button>
+            </div>
+            
+        </form>
+    </div>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        $("#id_faculty").change(function () {
+            const url = $("#add_test").attr("data-cities-url");  
+            const facultyname = $(this).val(); 
+    
+            $.ajax({                       
+                url: url,                   
+                data: {
+                    'faculty': facultyname      
+                },
+                success: function (data) {   
+                    $("#id_major").html(data); 
+                }
+            });
+        });
+    
+        $("#id_faculty_second").change(function () {
+            const url = $("#add_test").attr("data-cities-url");  
+            const facultyname = $(this).val(); 
+    
+            $.ajax({                       
+                url: url,                   
+                data: {
+                    'faculty': facultyname      
+                },
+                success: function (data) {   
+                    $("#id_major_second").html(data); 
+                }
+            });
+        });
+    </script>
+
+
+</div>
+{% endblock %}

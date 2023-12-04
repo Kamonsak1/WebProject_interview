@@ -124,15 +124,18 @@ def admin_profile(request):
 #Manager
 @login_required
 @user_passes_test(is_Manager)
-def manager_page(request):
+def manager_page(request,id):
     users = TemporaryUser.objects.all()
-    faculty_all = Faculty.objects.all()
-    major_all = Major.objects.all()
-    faculty_from_session = request.session.get('faculty')
+    faculty_all = Faculty.objects.filter(users=id)
+    majors = Major.objects.filter(default_manager=id)
+    request.session['myuser_id'] = id
     major_from_session = request.session.get('major')
-    if faculty_from_session  and  major_from_session:
-        return render(request,'manager/Manager_page.html',{'users': users,'s_faculty':faculty_from_session,"s_major":major_from_session,'faculty_all':faculty_all})
-    return render(request,'manager/Manager_page.html',{'users': users,'faculty_all':faculty_all})
+    if  major_from_session:
+        
+
+
+        return render(request,'manager/Manager_page.html',{'users': users,"s_major":major_from_session,'faculty_all':faculty_all,'majors':majors})
+    return render(request,'manager/Manager_page.html',{'users': users,'faculty_all':faculty_all,'majors':majors})
 @login_required
 @user_passes_test(is_Manager)
 def manage_profile(request):
@@ -140,13 +143,29 @@ def manage_profile(request):
 @login_required
 @user_passes_test(is_Manager)
 def Manage_personnel(request):
-    faculty_all = Faculty.objects.all()
-    faculty_from_session = request.session.get('faculty')
+    myuser_id = request.session.get('myuser_id')
+    users = TemporaryUser.objects.all()
+    faculty_all = Faculty.objects.filter(users=myuser_id)
+    majors = Major.objects.filter(default_manager=myuser_id)
     major_from_session = request.session.get('major')
-    if faculty_from_session  and  major_from_session:
+    if  major_from_session:
         users = User.objects.filter(roles__name='Manager')
-        return render(request,'manager/Manage_personnel.html',{'users': users,'s_faculty':faculty_from_session,"s_major":major_from_session,'faculty_all':faculty_all})
-    return render(request,'manager/Manage_personnel.html',{'faculty_all':faculty_all})
+        return render(request,'manager/Manage_personnel.html',{'users': users,"s_major":major_from_session,'faculty_all':faculty_all,'majors':majors})
+    return render(request,'manager/Manage_personnel.html',{'users': users,'faculty_all':faculty_all,'majors':majors})
+
+@login_required
+@user_passes_test(is_Manager)
+def Manage_User(request):
+    myuser_id = request.session.get('myuser_id')
+    users = TemporaryUser.objects.all()
+    faculty_all = Faculty.objects.filter(users=myuser_id)
+    majors = Major.objects.filter(default_manager=myuser_id)
+    major_from_session = request.session.get('major')
+    if  major_from_session:
+        users = User.objects.filter(roles__name='Student',major__major=major_from_session)
+        return render(request,'manager/Manage_User.html',{'users': users,"s_major":major_from_session,'faculty_all':faculty_all,'majors':majors})
+    return render(request,'manager/Manage_User.html',{'users': users,'faculty_all':faculty_all,'majors':majors})
+
 @login_required
 @user_passes_test(is_Manager)
 def Manager_Announcement(request):
@@ -990,6 +1009,12 @@ def ajax_load_cities(request):
     faculty_object = Faculty.objects.get(faculty=faculty_name)
     majors = faculty_object.major_set.all()
     return render(request, 'admin/dropdown-list.html', {"majors": majors})
+def ajax_load_major(request):
+    #faculty_name = request.GET.get('faculty')  
+    #faculty_object = Faculty.objects.get(faculty=faculty_name)
+    myuser_id = request.session.get('myuser_id')
+    majors = Major.objects.filter(default_manager=myuser_id)
+    return render(request, 'admin/dropdown-list.html', {"majors": majors})
 
 @login_required
 @user_passes_test(is_Manager)
@@ -1028,9 +1053,10 @@ def delete_manage_in_major(request):
         return redirect('FacultyMajor')
     
 def chang_major(request):
+    myuser_id = request.session.get('myuser_id')
     if request.method =="POST":
-        fa = request.POST.get('faculty')
         ma = request.POST.get('major')
-        request.session['faculty'] = fa
         request.session['major'] = ma
-        return redirect('Manager_page')
+        return redirect('Manager_page',id=myuser_id)
+    
+    return render(request, 'manager/Manager_page.html')

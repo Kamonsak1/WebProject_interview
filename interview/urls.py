@@ -8,6 +8,8 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')), 
     path('auth/', include('social_django.urls', namespace='social')),
     path('test',test, name='test'),
+    path('ajax_load_major',ajax_load_major, name='ajax_load_major'),
+    path('ajax_load_cities',ajax_load_cities, name='ajax_load_cities'),
 
 
     #Siteuser
@@ -39,7 +41,6 @@ urlpatterns = [
     path('edit_ScoreTopic',edit_ScoreTopic, name='edit_ScoreTopic'),
     path('View_ScoreTemplate/<int:id>',View_ScoreTopic, name='View_ScoreTopic'),
     path('edit_TemporaryUser',edit_TemporaryUser, name='edit_TemporaryUser'),
-    path('ajax_load_cities',ajax_load_cities, name='ajax_load_cities'),
     path('add_TemporaryUser_by_file',add_TemporaryUser_by_file, name='add_TemporaryUser_by_file'),
     path('add_User',add_User, name='add_User'),
     path('add_User_by_file',add_User_by_file, name='add_User_by_file'),
@@ -54,7 +55,7 @@ urlpatterns = [
 
 
     #manage
-    path('Manager_page',manager_page, name='Manager_page'),
+    path('Manager_page/<int:id>/',manager_page, name='Manager_page'),
     path('manage_profile',manage_profile, name='manage_profile'),
     path('Manage_personnel',Manage_personnel, name='Manage_personnel'),
     path('Manager_Announcement',Manager_Announcement, name='Manager_Announcement'),
@@ -63,8 +64,8 @@ urlpatterns = [
     path('Manager_Print_Interview',Manager_Print_Interview, name='Manager_Print_Interview'),
     path('Manager_Status',Manager_Status, name='Manager_Status'),
     path('toggle_round_active/<int:round_id>/', toggle_round_active, name='toggle_round_active'),
-     path('chang_major', chang_major, name='chang_major'),
-
+    path('chang_major', chang_major, name='chang_major'),
+    path('Manage_User', Manage_User, name='Manage_User'),
 
     #Interviewer
     path('Interviewer_page',interviewer_page, name='Interviewer_page'),

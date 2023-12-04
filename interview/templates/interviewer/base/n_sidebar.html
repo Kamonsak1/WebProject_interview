@@ -27,7 +27,7 @@
                 <a href="{% url 'Admin_page' %}" class="btn btn-primary fs-2 fw-semibold lh-sm">Admin</a>
                 {% endif %}
                 {% if role.name == 'Manager' %}
-                <a href="{% url 'Manager_page' %}" class="btn btn-primary fs-2 fw-semibold lh-sm">Manager</a>
+                <a href="{% url 'Manager_page' id=user.id %}" class="btn btn-primary fs-2 fw-semibold lh-sm">Manager</a>
                 {% endif %}
                 {% if role.name == 'Interviewer' %}
                 <a href="{% url 'Interviewer_page' %}" class="btn btn-primary fs-2 fw-semibold lh-sm">Interviewer</a>

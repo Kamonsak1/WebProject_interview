@@ -18,8 +18,15 @@
         </a>
         <p class="text-center pt-3 fw-bolder fs-6 text-muted">{{ user.first_name }} {{ user.last_name }}</p>
         <p class="text-center fw-bolder fs-6 text-muted">{{ user.citizen_id|slice:":4" }}****{{ user.citizen_id|slice:"-3:" }}</p>
-        {% if s_faculty %}
-          {{ s_faculty }} __{{ s_major }}
+                
+        {% for major in user.default_manager.all %}
+          สาขา {{ major.major }}
+        {% endfor %}
+      
+
+
+        {% if s_major %}
+           {{ s_major }}
         {% endif %}
       
         <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
@@ -31,13 +38,14 @@
                 <a href="{% url 'Admin_page' %}" class="btn btn-primary fs-2 fw-semibold lh-sm">Admin</a>
                 {% endif %}
                 {% if role.name == 'Manager' %}
-                <a href="{% url 'Manager_page' %}" class="btn btn-primary fs-2 fw-semibold lh-sm">Manager</a>
+                <a href="{% url 'Manager_page' id=user.id %}" class="btn btn-primary fs-2 fw-semibold lh-sm">Manager</a>
                 {% endif %}
                 {% if role.name == 'Interviewer' %}
                 <a href="{% url 'Interviewer_page' %}" class="btn btn-primary fs-2 fw-semibold lh-sm">Interviewer</a>
                 {% endif %}
             {% endfor %}
         </div>
+        
         {% endif %}
       </div>
 
@@ -46,7 +54,7 @@
         <ul id="sidebarnav">
 
           <li class="sidebar-item mt-3">
-            <a class="sidebar-link" href="{% url 'Manager_page'%}" aria-expanded="false">
+            <a class="sidebar-link" href="{% url 'Manager_page' id=user.id %}" aria-expanded="false">
               <span>
                 <i class="ti ti-home"></i>
               </span>
@@ -69,6 +77,15 @@
                 <i class="ti ti-book"></i>
               </span>
               <span class="hide-menu fs-4">จัดการบุคลากร</span>
+            </a>
+          </li>
+
+          <li class="sidebar-item">
+            <a class="sidebar-link" href="{% url 'Manage_User'%}" aria-expanded="false">
+              <span>
+                <i class="ti ti-book"></i>
+              </span>
+              <span class="hide-menu fs-4">จัดการสมาชิก</span>
             </a>
           </li>
 
@@ -116,20 +133,15 @@
               <span class="hide-menu fs-4">สถานะการสัมภาษณ์</span>
             </a>
           </li>
-          <form action="{% url 'chang_major' %}" method="post" data-cities-url="{% url 'ajax_load_cities' %}" id="add_test">
+          <form action="{% url 'chang_major' %}" method="post" >
             {% csrf_token %}
             <div class="faculty_major">
-                <select name="faculty" id="id_faculty_selection" style="width: 100%;">
-                    <option value="">คณะ</option>
-                    {% for faculty in faculty_all %}
-                    <option value="{{faculty}}">{{faculty}}</option>
+                <select name="major" id="id_faculty_selection" style="width: 100%;">
+                    <option value="">สาขา</option>
+                    {% for major in majors %}
+                    <option value="{{major}}">{{major.major}}</option>
                     {% endfor %}
                 </select>
-                <br>
-                <select name="major" id="id_major_selection" style="width: 100%;">
-                    <option value="">สาขา</option>
-                </select>
-                <br>
                 <button type="submit" style="width: 100%;">เปลี่ยนสาขา</button>
             </div>
        
