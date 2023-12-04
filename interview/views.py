@@ -444,33 +444,35 @@ def add_TemporaryUser(request):
         checkboxgroup = request.POST.getlist('checkboxgroup')
         faculty = Faculty.objects.get(faculty=faculty_name)
         major= Major.objects.get(major=major_name, faculty=faculty)
-        check_user = TemporaryUser.objects.get(citizen_id=citizen_id)
-        if check_user:
-            check_user.first_name=first_name
-            check_user.last_name=last_name
-            check_user.citizen_id=citizen_id
-            check_user.birth_date=birth_date
-            faculty.TemporaryUser.add(check_user)
-            major.TemporaryUser.add(check_user)
+
+        try:
+            check_user = User.objects.get(citizen_id=citizen_id)
+            faculty.users.add(check_user)
+            major.users.add(check_user)
+            return redirect('TemporaryUser') 
+        except User.DoesNotExist:
+            pass
+
+        try:
+            check_temporary_user = TemporaryUser.objects.get(citizen_id=citizen_id)
+            faculty.TemporaryUser.add(check_temporary_user)
+            major.TemporaryUser.add(check_temporary_user)
+            return redirect('TemporaryUser') 
+        except TemporaryUser.DoesNotExist:
+            check_temporary_user = TemporaryUser.objects.create(
+                citizen_id=citizen_id,
+                first_name=first_name,
+                last_name=last_name,
+                birth_date=birth_date,
+            )
+            faculty.TemporaryUser.add(check_temporary_user)
+            major.TemporaryUser.add(check_temporary_user)
             for role_name in checkboxgroup:
                 role_model, _ = Role.objects.get_or_create(name=role_name)
-                role_model.TemporaryUser.add(check_user)
-            check_user.save()
-        else:
-            add_user, _ = User.objects.create(citizen_id=citizen_id,
+                role_model.TemporaryUser.add(check_temporary_user)
+            check_temporary_user.save()
             
-                defaults={
-                            'first_name': first_name,
-                            'last_name': last_name,
-                            'birth_date': birth_date,
-                            })
-            faculty.TemporaryUser.add(add_user)
-            major.TemporaryUser.add(add_user)
-            for role_name in checkboxgroup:
-                role_model, _ = Role.objects.get_or_create(name=role_name)
-                role_model.TemporaryUser.add(add_user)
-            add_user.save()
-        
+            return redirect('TemporaryUser')    
             
     return redirect("TemporaryUser")
     
@@ -652,9 +654,10 @@ def add_TemporaryUser_by_file(request):
         
         for i in range(len(data)):
             try:
-                citizen_id=(data.iloc[i]['เลขบัตรประชาชน'].strip())
+                citizen_id = str(data.iloc[i]['เลขบัตรประชาชน']).strip()
             except Exception as e:
-                return HttpResponse('เลขบัตรประชาชนไม่ถูกต้อง')
+                citizen_id = str(data.iloc[i]['เลขบัตรประชาชน']).strip()
+                return HttpResponse('เลขบัตรประชาชนไม่ถูกต้อง',citizen_id)
             try:
                 faculty = 'คณะ'+(data.iloc[i]['คณะ'].strip())
             except Exception as e:
@@ -750,38 +753,30 @@ def add_User(request):
         checkboxgroup = request.POST.getlist('checkboxgroup')
         faculty = Faculty.objects.get(faculty=faculty_name)
         major= Major.objects.get(major=major_name, faculty=faculty)
-        check_user = User.objects.get(citizen_id=citizen_id,email=email)
-        if check_user:
-            check_user.first_name=first_name
-            check_user.last_name=last_name
-            check_user.citizen_id=citizen_id
-            check_user.email=email
-            check_user.birth_date=birth_date
+        try:
+            check_user = User.objects.get(citizen_id=citizen_id,email=email)
             faculty.users.add(check_user)
             major.users.add(check_user)
+            return redirect('User')
+        except User.DoesNotExist:
+
+            new_user = User.objects.create(citizen_id=citizen_id,
+                                           first_name= first_name,
+                                           last_name= last_name,
+                                           birth_date= birth_date,
+                                           email= email ,
+                                           username=citizen_id,
+                                           password= make_password(password))
+            faculty.users.add(new_user)
+            major.users.add(new_user)
+            faculty.users.add(new_user)
+            major.users.add(new_user)
             for role_name in checkboxgroup:
                 role_model, _ = Role.objects.get_or_create(name=role_name)
-                role_model.users.add(check_user)
-            check_user.save()
-        else:
-            add_user, _ = User.objects.create(citizen_id=citizen_id,
-            
-                defaults={
-                            'first_name': first_name,
-                            'last_name': last_name,
-                            'birth_date': birth_date,
-                            'email' : email ,
-                            'username':citizen_id,
-                            'password': make_password(password)
-                            })
-            faculty.users.add(add_user)
-            major.users.add(add_user)
-            for role_name in checkboxgroup:
-                role_model, _ = Role.objects.get_or_create(name=role_name)
-                role_model.users.add(add_user)
-            add_user.save()
+                role_model.users.add(new_user)
             send_registration_email(email, citizen_id, password)
-            
+            return redirect('User')
+        
     return redirect("User")
 
 def send_registration_email(email, citizen_id, password):
@@ -826,7 +821,7 @@ def add_User_by_file(request):
         
         for i in range(len(data)):
             try:
-                citizen_id=(data.iloc[i]['เลขบัตรประชาชน'].strip())
+                citizen_id = str(data.iloc[i]['เลขบัตรประชาชน']).strip()
             except Exception as e:
                 return HttpResponse('เลขบัตรประชาชนไม่ถูกต้อง')
             try:
