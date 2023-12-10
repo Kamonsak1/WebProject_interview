@@ -22,13 +22,9 @@
         <div class="col-md-4">
           <div class="card">
             <div class="card-body">
-              <div class="d-flex">
+              <div class="d-flex justify-content-center">
                 <h2 class="fs-6 card-title">Pattern: </h2>
-                <h2 class="fs-6 text-primary card-title">{{ key.0 }}</h2>
-              </div>
-              <div class="d-flex">
-                <h2 class="fs-6 card-title">Round: </h2>
-                <h2 class="fs-6 text-success card-title">{{ key.1 }}</h2>
+                <h2 class="fs-6 text-primary card-title fw-bolder">{{ key }}</h2>
               </div>
               <ul class="list-group list-group-flush">
                 {% for topic in topics %}
@@ -62,24 +58,16 @@
     <form action="/add_ScoreTopic" method="post" class="container mt-4">
       {% csrf_token %}
       <div class="row mb-3">
-          <div class="col">
-              <input type="text" name="template_num" id="template_num" placeholder="เลขเทมเพลต" class="form-control">
-          </div>
-          <div class="col">
-            <select name="round_name" class="form-control">
-                <option value="">รอบ</option>
-                {% for r in Round %}
-                    <option value="{{ r.round_name }}">{{ r.round_name }} {{ r.academic_year }}</option>
-                {% endfor %}
-            </select>
-        </div>
-      </div>
-      <div class="row mb-3">
             <div class="col">
               <input type="text" name="topic_name" id="topic_name" placeholder="หัวข้อการให้คะแนน" class="form-control">
           </div>
+      </div>
+      <div class="row mb-3">
           <div class="col">
-              <input type="text" name="max_score" id="max_score" placeholder="คะแนนเต็ม" class="form-control">
+            <input type="text" name="template_num" id="template_num" placeholder="เลขเทมเพลต (ตัวเลขเท่านั้น)" class="form-control">
+          </div>
+          <div class="col">
+              <input type="text" name="max_score" id="max_score" placeholder="คะแนนเต็ม (ตัวเลขเท่านั้น)" class="form-control">
           </div>
       </div>
       <div class="row mb-3">

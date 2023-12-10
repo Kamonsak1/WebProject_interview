@@ -166,7 +166,7 @@ class Document(models.Model):
     document = models.FileField(upload_to=user_directory_path)
 
 class ScoreTopic(models.Model):
-    round = models.ForeignKey(Round, on_delete=models.CASCADE)
+    #round = models.ForeignKey(Round, on_delete=models.CASCADE)
     pattern_id = models.CharField(max_length=100)
     topic_name = models.CharField(max_length=100)
     max_score = models.PositiveIntegerField()
@@ -186,3 +186,8 @@ class InterviewStatus(models.Model):
 class InterviewLink(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     link = models.CharField(max_length=300)
+
+
+class RoundScore(models.Model):
+    topic = models.ForeignKey(ScoreTopic, on_delete=models.CASCADE)
+    Round = models.ForeignKey(Round, on_delete=models.CASCADE)

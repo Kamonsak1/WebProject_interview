@@ -24,6 +24,7 @@ from django.http import JsonResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.hashers import check_password
 from collections import defaultdict
+import re
 # Create your views here.
 
 def is_admin(user):
@@ -83,19 +84,18 @@ def Interview(request):
 @login_required
 @user_passes_test(is_admin)
 def Score(request):
-    Round_all = Round.objects.all()
-
     score_topics = ScoreTopic.objects.all()
     grouped_topics = defaultdict(list)
-    for topic in ScoreTopic.objects.select_related('round').all():
-        key = (topic.pattern_id, f'{topic.round.round_name} ({topic.round.academic_year})')
-        grouped_topics[key].append(topic)
-    grouped_topics = dict(grouped_topics)
-    context ={
-        "Round" : Round_all,
-        'grouped_topics': grouped_topics,
+    for topic in score_topics:
+        if re.match('^\d+$', topic.pattern_id):
+            grouped_topics[topic.pattern_id].append(topic)
+
+    sorted_grouped_topics = dict(sorted(grouped_topics.items()))
+
+    context = {
+        'grouped_topics': sorted_grouped_topics,
     }
-    return render(request,'admin/Score.html', context)
+    return render(request, 'admin/Score.html', context)
 @login_required
 @user_passes_test(is_admin)
 def TemporaryUser_path(request):
@@ -187,7 +187,8 @@ def Manager_interview(request):
 @login_required
 @user_passes_test(is_Manager)
 def Manager_Score(request):
-    return render(request,'manager/Manager_Score.html')
+    user_rounds = Round.objects.filter(manager=request.user)
+    return render(request,'manager/Manager_Score.html',{'rounds': user_rounds})
 @login_required
 @user_passes_test(is_Manager)
 def Manager_Print_Interview(request):
@@ -533,11 +534,8 @@ def add_ScoreTopic(request):
             template_num = request.POST.get('template_num')
             topic_name = request.POST.get('topic_name')
             max_score = request.POST.get('max_score')
-            round_name = request.POST.get('round_name')
             score_detail = request.POST.get('score_detail')
-            round = Round.objects.get(round_name=round_name)
-            score_topic, _ = ScoreTopic.objects.get_or_create(round=round,
-                                                                pattern_id=template_num,
+            score_topic, _ = ScoreTopic.objects.get_or_create( pattern_id=template_num,
                                                                 topic_name=topic_name,
                                                                 max_score=max_score,
                                                                 score_detail=score_detail)
