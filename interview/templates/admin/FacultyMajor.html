@@ -5,6 +5,8 @@
 {% block css_js %} 
 <link rel="stylesheet" href="{% static 'css/admin_css/Faculty.css' %}" />
 <script src="{% static 'js/admin_page/Faculty.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
 {% endblock %} 
 
 
@@ -99,50 +101,59 @@
       </div>
     </form> 
   </div>
-  <div  id="add_Major_manager" class="container3 ">
-    <form  method="post" action="{% url 'add_Major_manager' %}">
+  <div id="add_Major_manager" class="container3">
+    <form method="post" action="{% url 'add_Major_manager' %}">
       {% csrf_token %}
-      <div  class="topic">
-        <h3 >เพิ่มผู้ดูแลสาขา</h3>
+      <div class="topic">
+        <h3>เพิ่มผู้ดูแลสาขา</h3>
         <a href="FacultyMajor">
-            <i class="fas fa-sign-out-alt"></i> Exit
+          <i class="fas fa-sign-out-alt"></i> Exit
         </a>
-    </div> 
+      </div>
+  
       <div class="input_data">
         <p></p>
-        <select class="form-select" name="major_user"  style="width: 100%;">
-          <option value="">เลือกผู้ดูแลสาขา</option>
-          {% for user in users %}
-            <option value="{{user.id}}">{{user.first_name}}  {{user.last_name}}</option>
-          {%  endfor %}
-        </select>
+        <input type="search" name="search" id="search" placeholder="Search...">
+        <div class="group" id="show_list"></div>
         <input type="hidden" name="major_id" id="major_id">
+        <input type="hidden" name="user_id" id="user_id">
         <button class="bt_submit" type="submit">เพิ่ม</button>
-      </div>
-    </form> 
+    </form>
+    
   </div>
 
-  <script>
-    function filterOptions(input) {
-      // Get the select element
-      var select = document.querySelector('select[name="major"]');
-    
-      // Get all the option elements
-      var options = select.getElementsByTagName('option');
-    
-      // Loop through each option
-      for (var i = 0; i < options.length; i++) {
-        // Check if the option's text contains the input text
-        if (options[i].text.toLowerCase().includes(input.toLowerCase())) {
-          // If yes, display the option
-          options[i].style.display = '';
-        } else {
-          // If not, hide the option
-          options[i].style.display = 'none';
+<script>
+  $(document).ready(function(){
+    $("#search").keyup(function(){
+    const ajaxUrl = "{% url 'ajax_searchText' %}";
+    let searchText = $(this).val();
+    if (searchText != ""){
+      $.ajax({
+        url: ajaxUrl,
+        method : "POST",
+        data:{
+            query:searchText,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function(response){
+          $("#show_list").html(response);
+          $("#show_list").css("border", "1px solid #ccc");
+          $("#show_list").show();
         }
-      }
+      })
+    } else{
+      $("#show_list").html("");
+      $("#show_list").hide();
     }
-    </script>
+  })
 
+  $(document).on('click','a',function(){
+    var userId = $(this).data('user-id');
+    $("#search").val($(this).text())
+    $("#user_id").val(userId);
+    $("#show_list").html("");
+  })
+})
+</script>
 </div>
 {% endblock %}

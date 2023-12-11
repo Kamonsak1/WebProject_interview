@@ -44,8 +44,5 @@ function add_Major_manager(Major_manager,id_Major_manager) {
       }
     }
   
-
-
-  
   
   

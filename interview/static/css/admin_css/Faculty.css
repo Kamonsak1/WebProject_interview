@@ -67,6 +67,7 @@ body {
     padding: 20px;
     border-radius: 8px;
     text-align: center;
+    position: relative;
 }
 
 .input_data  p{
@@ -209,6 +210,15 @@ input {
     background-color: #0056b3; 
 }
   
-  
+.group{
+    position: absolute;
+    width: 90%;
+    background-color: #fff;
+}
+.group a{
+    text-align: left;
+
+    color: #000000;
+}
   
 

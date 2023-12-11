@@ -10,7 +10,7 @@ urlpatterns = [
     path('test',test, name='test'),
     path('ajax_load_major',ajax_load_major, name='ajax_load_major'),
     path('ajax_load_cities',ajax_load_cities, name='ajax_load_cities'),
-
+    path('ajax_searchText',ajax_searchText, name='ajax_searchText'),
 
     #Siteuser
     

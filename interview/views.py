@@ -1044,7 +1044,7 @@ def register_interview(request, round_id):
 def add_Major_manager(request):
     if request.method =='POST':
         major_id = request.POST.get('major_id')
-        user_id = request.POST.get('major_user')
+        user_id = request.POST.get('user_id')
         serach_major = Major.objects.get(pk=major_id)
         serach_major.default_manager.add(user_id)
         return redirect('FacultyMajor')
@@ -1065,3 +1065,9 @@ def chang_major(request):
         return redirect('Manager_page',id=myuser_id)
     
     return render(request, 'manager/Manager_page.html')
+
+def ajax_searchText(request):
+    if request.method == 'POST':
+        inputText = request.POST.get('query')
+        users = User.objects.filter(Q(first_name__icontains=inputText))
+        return render(request, 'admin/form_search/searchinputtext.html', {"listusers": users})
