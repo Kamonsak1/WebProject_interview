@@ -182,13 +182,13 @@ class Score(models.Model):
     score = models.PositiveIntegerField()
 
 class InterviewStatus(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='interview_status')
     status = models.CharField(max_length=100)
     round = models.ForeignKey(Round, on_delete=models.CASCADE)
     reg_at = models.DateTimeField(auto_now_add=True,blank=True ,null= True)
 
 class InterviewLink(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='interview_link')
     link = models.CharField(max_length=300)
 
 

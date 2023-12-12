@@ -34,7 +34,7 @@
                 {% endif %}
             {% endfor %}
         </div>
-        {% endif %}
+    
       </div>
 
       <!-- Sidebar navigation-->
@@ -68,16 +68,23 @@
             </a>
           </li>
 
-          
-
 
         </ul>
+        <div class="justify-content-center">        
+          <form action="/add_meetlink" method="post">
+            {% csrf_token %}
+            {% for link in user.interview_link.all %}
+            <input class="search-bordered fs-4" type="text" name="link" id="link" value="{{ link.link }}">
+            {% endfor %}
+            <button class="search-bordered btn btn-secondary px-1 py-1" type="submit"><i class="ti fs-6 ti-device-floppy"></i></button>
+          </form>
+        </div>
       </nav>
       <!-- End Sidebar navigation -->
     </div>
     <!-- End Sidebar scroll-->
   </aside>
   <!--  Sidebar End -->
-  
+  {% endif %}
 </body>
 </html>

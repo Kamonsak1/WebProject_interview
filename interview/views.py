@@ -1047,3 +1047,21 @@ def ajax_searchText(request):
         inputText = request.POST.get('query')
         users = User.objects.filter(Q(first_name__icontains=inputText))
         return render(request, 'admin/form_search/searchinputtext.html', {"listusers": users})
+
+@login_required
+@user_passes_test(is_Interviewer)
+def add_meetlink(request):
+    if request.method == "POST":
+        link = request.POST.get("link")
+        user = request.user
+        if InterviewLink(user=user):
+            change_link = InterviewLink.objects.get(user=user)
+            change_link.link = link
+            change_link.save()
+        else:
+            add_link = InterviewLink(user=user,link=link)
+            add_link.save()
+        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+
+    return redirect('/Interviewer_page')
+
