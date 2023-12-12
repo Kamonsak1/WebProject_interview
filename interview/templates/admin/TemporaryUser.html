@@ -45,7 +45,6 @@
         <thead class="thead-dark">
             <tr>
                 <th class="text-center fs-5 fw-medium">ชื่อ-นามสกุล</th>
-                <th class="text-center fs-5 fw-medium">เลขบัตรประชาชน</th>
                 <th class="text-center fs-5 fw-medium">จัดการข้อมูล</th>
             </tr>
         </thead>
@@ -53,12 +52,18 @@
             {% for user in users %}
             <tr>
                 <td>{{ user.first_name }} {{ user.last_name }}</td>
-                <td>{{ user.citizen_id }}</td>
+
                 <td class="d-flex justify-content-center">
                     <a class="btn btn-primary btn-sm fs-3 mx-1" href="javascript:void(0);" onclick="display_popup
-                        ('{{ user.id }}', '{{ user.first_name }}', '{{ user.last_name }}',
-                        '{{ user.faculty_set.all }}','{{ user.major_set.all}}','{{ user.citizen_id }}',
-                        '{{user.birth_date}}','{{user.roles.all}}')">ดูข้อมูล</a>
+                        ('{{ user.id }}',
+                        '{{ user.first_name }}',
+                        '{{ user.last_name }}',
+                        '{{ user.citizen_id }}',
+                        '{{user.birth_date}}',
+                        '{{user.roles.all}}',
+                        '{% for round in user.rounds_participated.all %}{{ round.major }}{% if not forloop.last %}, {% endif %}{% endfor %}',
+                        '{% for round in user.rounds_participated.all %}{{ round.major.faculty.faculty }}{% if not forloop.last %}, {% endif %}{% endfor %}',
+                        '{{ user.rounds_participated.all|join:',' }}')">ดูข้อมูล</a>
                     <a class="btn btn-secondary btn-sm fs-3 mx-1" href="javascript:void(0);" onclick="edit_popup
                         ('{{ user.id }}', '{{ user.first_name }}', '{{ user.last_name }}',
                         '{{ user.faculty_set.all }}','{{ user.major_set.all}}','{{ user.citizen_id }}',
@@ -66,6 +71,7 @@
                     <a class="btn btn-danger btn-sm fs-3 mx-1" href="delete_TemporaryUser/{{user.id}}">ลบ</a>  
                 </td>
             </tr>
+                
             {% endfor %}
         </tbody>
     </table>
@@ -147,12 +153,14 @@
                 <table class="table table-bordered table-hover">
                     <thead class="thead-dark">
                         <tr>
+                            <th class="text-center fs-5 fw-medium">รอบ</th>
                             <th class="text-center fs-5 fw-medium">คณะ</th>
                             <th class="text-center fs-5 fw-medium">สาขา</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
+                            <td id="rou"></td>
                             <td id="fa"></td>
                             <td id="ma"></td>
                         </tr>
@@ -203,15 +211,12 @@
                     <input type="text" name="birth_date" id="birth_date" placeholder="วว/ดด/ปป">
                 </div>
             </div>
-            <div class="faculty_major">
-                <select name="faculty" id="id_faculty">
-                    <option value="">คณะ</option>
-                    {% for faculty in faculty_all %}
-                    <option value="{{faculty}}">{{faculty}}</option>
+            <div  class="faculty_major">
+                <select name="round" id="round">
+                    <option value="">รอบที่สมัคร</option>
+                    {% for round in round_active %}
+                    <option value="{{round.id}}">{{round.round_name}} {{round.academic_year}}</option>
                     {% endfor %}
-                </select>
-                <select name="major" id="id_major">
-                    <option value="">สาขา</option>
                 </select>
             </div>
             <div  class="title_role">
@@ -248,6 +253,7 @@
                 </a>
             </div>   
             <input type="file" name="fileInputa">
+            
             <div class="bt">
                 <button  type="submit">สร้างบัญชีผู้ใช้</button>
             </div>

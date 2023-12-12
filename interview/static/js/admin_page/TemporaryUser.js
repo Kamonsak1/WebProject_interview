@@ -156,12 +156,18 @@ if (optionsDiv.style.display === "block") {
 }
 }
 
-function display_popup(user_id, first_name, last_name, faculty, major,citizen_id,birth_date,role) {
+function display_popup(user_id, first_name, last_name,citizen_id,birth_date,role,major,faculty,round) {
 var optionsDiv = document.getElementById("display_popup");
 document.getElementById('user_id').value = user_id;
 document.getElementById('display_first_name').value = first_name;
 document.getElementById('display_last_name').value = last_name;
 document.getElementById('display_citizen_id').value = citizen_id;
+var formattedround = round.replace(',', "<br>");
+document.getElementById('rou').innerHTML = formattedround;
+var formattedfaculty = faculty.replace(',', "<br>");
+document.getElementById('fa').innerHTML = formattedfaculty;
+var formattedmajor = major.replace(',', "<br>");
+document.getElementById('ma').innerHTML = formattedmajor;
 
 var birth_date_split =  birth_date.split(' ');
 var hbd_day =  birth_date_split[1].split(',')[0];
@@ -215,28 +221,6 @@ if (birth_date_split[0] == 'Dec.'){
   
 }
 document.getElementById('display_birth_date').value = new_HBD;
-var faculty_new = [];
-faculty_new.push(faculty.split(':'));
-var faculty_split = [];
-for (var i = 0; i < faculty_new[0].length; i++) {
-    var a2 = faculty_new[0][i].split(">");
-    a2[0] = a2[0].trim();
-    faculty_split.push(a2[0]);
-}
-var major_new = [];
-major_new.push(major.split(':'));
-var major_split = [];
-for (var i = 0; i < major_new[0].length; i++) {
-    var a2 = major_new[0][i].split(">");
-    a2[0] = a2[0].trim();
-    major_split.push(a2[0]);
-}
-var faElement = document.getElementById('fa');
-faElement.innerHTML = faculty_split.slice(1).join('<br>');
-var maElement = document.getElementById('ma');
-maElement.innerHTML = major_split.slice(1).join('<br>');
-
-
 var role_new = [];
 role_new.push(role.split(':'));
 var role_split = [];

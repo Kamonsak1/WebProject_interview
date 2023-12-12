@@ -52,7 +52,10 @@ def index(request):
     return render(request,"html/index.html")
 
 def test(request):
-    return render(request,"html/test.html")
+    user = User.objects.get(username='1')
+    rounds_participated = user.rounds_participated.all()
+    majors_participated = [round_obj.major for round_obj in rounds_participated]
+    return render(request,"html/test.html",{'user':user,'rounds_participated':rounds_participated,'majors_participated':majors_participated})
 
 #Admin_path
 @login_required
@@ -102,14 +105,17 @@ def TemporaryUser_path(request):
     users = TemporaryUser.objects.all()
     faculty_all = Faculty.objects.all()
     major_all = Major.objects.all()
-    return render(request,'admin/TemporaryUser.html', {'users': users,'faculty_all':faculty_all,"major_all":major_all})
+    round_active = Round.objects.filter(active='True')
+
+    return render(request,'admin/TemporaryUser.html', {'users': users,'faculty_all':faculty_all,"major_all":major_all,'round_active':round_active})
 @login_required
 @user_passes_test(is_admin)
 def User_path(request):
     users = User.objects.all()
     faculty_all = Faculty.objects.all()
     major_all = Major.objects.all()
-    return render(request,'admin/User.html', {'users': users,'faculty_all':faculty_all,"major_all":major_all})
+    round_active = Round.objects.filter(active='True')
+    return render(request,'admin/User.html', {'users': users,'faculty_all':faculty_all,"major_all":major_all,'round_active':round_active})
 
 # @login_required
 # @user_passes_test(is_admin)
@@ -285,8 +291,8 @@ def confirm_email(request):
                         else:
                             user, created = User.objects.get_or_create(username=username)
                             tem_user = TemporaryUser.objects.get(pk=temporary_user_id)
-                            faculty_TemporaryUser = list(temporary_user.faculty_set.all())
-                            major_TemporaryUser = list(temporary_user.major_set.all())
+                            #faculty_TemporaryUser = list(temporary_user.faculty_set.all())
+                            #major_TemporaryUser = list(temporary_user.major_set.all())
                             if created:
                                 # กำหนดรหัสผ่านโดยตรง
                                 user.set_password(password)
@@ -297,10 +303,20 @@ def confirm_email(request):
                                 user.citizen_id = temporary_user.citizen_id
                                 role_model = Role.objects.get(name='Student')
                                 role_model.users.add(user)
-                                for faculty in faculty_TemporaryUser:
-                                    faculty.users.add(user)
-                                for  major in major_TemporaryUser:
-                                     major.users.add(user)
+                                round_names = []
+                                major_names = []
+                                for round_obj in tem_user.rounds_participated.all():
+                                    round_names.append(round_obj.round_name)
+                                    major_names.append(round_obj.major.major)  
+                                    round_obj.users.add(user)
+                                for major_name in major_names:
+                                    major_instance = Major.objects.get(major=major_name)
+                                    major_instance.users.add(user)
+ 
+                                # for faculty in faculty_TemporaryUser:
+                                #     faculty.users.add(user)
+                                # for  major in major_TemporaryUser:
+                                #      major.users.add(user)
                                 user.save()
                                 return redirect('changepassword')
                             else:
@@ -451,25 +467,20 @@ def add_TemporaryUser(request):
         last_name = request.POST.get('last_name')
         citizen_id = request.POST.get('citizen_id')
         birth_date_str = request.POST.get('birth_date')
-        birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date()
-        faculty_name = request.POST.get('faculty')  
-        major_name = request.POST.get('major')  
+        birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date() 
+        round_sel = request.POST.get('round') 
         checkboxgroup = request.POST.getlist('checkboxgroup')
-        faculty = Faculty.objects.get(faculty=faculty_name)
-        major= Major.objects.get(major=major_name, faculty=faculty)
+        round = Round.objects.get(pk=round_sel)
 
         try:
             check_user = User.objects.get(citizen_id=citizen_id)
-            faculty.users.add(check_user)
-            major.users.add(check_user)
             return redirect('TemporaryUser') 
         except User.DoesNotExist:
             pass
 
         try:
             check_temporary_user = TemporaryUser.objects.get(citizen_id=citizen_id)
-            faculty.TemporaryUser.add(check_temporary_user)
-            major.TemporaryUser.add(check_temporary_user)
+            round.TemporaryUser.add(check_temporary_user)
             return redirect('TemporaryUser') 
         except TemporaryUser.DoesNotExist:
             check_temporary_user = TemporaryUser.objects.create(
@@ -478,8 +489,7 @@ def add_TemporaryUser(request):
                 last_name=last_name,
                 birth_date=birth_date,
             )
-            faculty.TemporaryUser.add(check_temporary_user)
-            major.TemporaryUser.add(check_temporary_user)
+            round.TemporaryUser.add(check_temporary_user)
             for role_name in checkboxgroup:
                 role_model, _ = Role.objects.get_or_create(name=role_name)
                 role_model.TemporaryUser.add(check_temporary_user)
@@ -640,7 +650,7 @@ def add_TemporaryUser_by_file(request):
         else:
             pass
         try:
-            data = df[['เลขบัตรประชาชน','ชื่อ','วว/ดด/ปป','คณะ','สาขา']]
+            data = df[['เลขบัตรประชาชน','ชื่อ','วว/ดด/ปป','รอบที่สมัคร']]
         except Exception as e:
             return HttpResponse('คอลัมไม่ตรงตามที่ต้องการ')
         try:
@@ -669,17 +679,13 @@ def add_TemporaryUser_by_file(request):
                 citizen_id = str(data.iloc[i]['เลขบัตรประชาชน']).strip()
                 return HttpResponse('เลขบัตรประชาชนไม่ถูกต้อง',citizen_id)
             try:
-                faculty = 'คณะ'+(data.iloc[i]['คณะ'].strip())
-            except Exception as e:
-                return HttpResponse('ชื่อคณะไม่ถูกต้อง')
-            try:
-                major = (data.iloc[i]['สาขา'].strip())
-            except Exception as e:
-                return HttpResponse('ชื่อสาขาไม่ถูกต้อง')
-            try:
                 first_name=(data.iloc[i]['first_name'].strip())
             except Exception as e:
                 return HttpResponse('first_name ไม่ถูกต้อง')
+            try:
+                round=(data.iloc[i]['รอบที่สมัคร'].strip())
+            except Exception as e:
+                return HttpResponse('round ไม่ถูกต้อง')
             try:
                 last_name=(data.iloc[i]['นามสกุล'].strip())
             except Exception as e:
@@ -697,44 +703,28 @@ def add_TemporaryUser_by_file(request):
                     Temporary_User = TemporaryUser.objects.create(citizen_id=citizen_id,first_name=first_name,last_name=last_name,birth_date=birth_date)
                     role=Role.objects.filter(name='Student').first()
                     role.TemporaryUser.add(Temporary_User)
-                    Faculty_add = Faculty.objects.filter(faculty=faculty).first()
-                    Faculty_add.TemporaryUser.add(Temporary_User)
-                    Major_add = Major.objects.filter(major=major).first()
-                    Major_add.TemporaryUser.add(Temporary_User)
+                    Round_db = Round.objects.filter(round_name=round).first()
+                    Round_db.TemporaryUser.add(Temporary_User)    
                 else:
                     TemporaryUser_old.append(data.iloc[i]['ชื่อ'])
                     user_id = checkTemporaryUser.first().id
-                    checkFaculty = Faculty.objects.filter(faculty=faculty,TemporaryUser=user_id)
-                    if not checkFaculty.exists():
-                        faculty_db = Faculty.objects.filter(faculty=faculty).first()
-                        faculty_db.TemporaryUser.add(user_id)                    
+                    checkRound = Round.objects.filter(round_name=round,TemporaryUser=user_id)
+                    if not checkRound.exists():
+                        Round_db = Round.objects.filter(round_name=round).first()
+                        Round_db.TemporaryUser.add(user_id)                    
                     else:
                         pass
                         #return HttpResponse(usernames[0]+'อยู่ใน' + faculty + 'แล้ว')
-                    checkMajor = Major.objects.filter(major=major,TemporaryUser=user_id)
-                    if not checkMajor.exists():
-                        faculty_db = Major.objects.filter(major=major).first()
-                        faculty_db.TemporaryUser.add(user_id)                    
-                    else:
-                        pass
             else:
                 user_old.append(data.iloc[i]['ชื่อ'])
                 user_id = checkuser.first().id
-                checkFaculty = Faculty.objects.filter(faculty=faculty,users=user_id)
-                if not checkFaculty.exists():
-                     faculty_db = Faculty.objects.filter(faculty=faculty).first()
-                     faculty_db.users.add(user_id)                    
+                checkRound = Round.objects.filter(round_name=round,users=user_id)
+                if not checkRound.exists():
+                     Round_db = Round.objects.filter(round_name=round).first()
+                     Round_db.users.add(user_id)                    
                 else:
                     pass
                     #return HttpResponse(usernames[0]+'อยู่ใน' + faculty + 'แล้ว')
-                
-                checkMajor = Major.objects.filter(major=major,users=user_id)
-                if not checkMajor.exists():
-                    faculty_db = Major.objects.filter(major=major).first()
-                    faculty_db.users.add(user_id)                    
-                else:
-                    pass
-                    #return HttpResponse(usernames[0]+'อยู่ใน' + major + 'แล้ว')
 
         print('เจอข้อมูลเดิม',user_old)
         print('เจอข้อมูลเดิม',TemporaryUser_old)
@@ -789,9 +779,9 @@ def add_User(request):
         
     return redirect("User")
 
-def send_registration_email(email, citizen_id, password):
+def send_registration_email(email):
     subject = 'รหัสผ่านของเว็บจัดคิวสัมภาษณ์',email
-    message = f'สามารถเข้าสู่ระบบด้วยรหัส: ชื่อผู้ใช้: {citizen_id}  รหัสผ่าน: {password}  หรือเข้าด้วยทาง google ด้วย email: {email}'
+    message = f'สามารถเข้าสู่ระบบทาง google ด้วย email: {email}'
     from_email = settings.EMAIL_HOST_USER
     recipient_list = [email]
     send_mail(subject, message, from_email, recipient_list)
@@ -808,7 +798,7 @@ def add_User_by_file(request):
         else:
             pass
         try:
-            data = df[['เลขบัตรประชาชน','ชื่อ','วว/ดด/ปป','คณะ','สาขา','email']]
+            data = df[['ชื่อ','คณะ','สาขา','email']]
         except Exception as e:
             return HttpResponse('คอลัมไม่ตรงตามที่ต้องการ')
         try:
@@ -831,10 +821,6 @@ def add_User_by_file(request):
         
         for i in range(len(data)):
             try:
-                citizen_id = str(data.iloc[i]['เลขบัตรประชาชน']).strip()
-            except Exception as e:
-                return HttpResponse('เลขบัตรประชาชนไม่ถูกต้อง')
-            try:
                 faculty = 'คณะ'+(data.iloc[i]['คณะ'].strip())
             except Exception as e:
                 return HttpResponse('ชื่อคณะไม่ถูกต้อง')
@@ -853,32 +839,22 @@ def add_User_by_file(request):
             try:
                 email=(data.iloc[i]['email'].strip())
             except Exception as e:
-                return HttpResponse('email ไม่ถูกต้อง')
-            try:
-                birth_date_str=(data.iloc[i]['วว/ดด/ปป'].strip())
-                birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date()
-            except Exception as e:
-                return HttpResponse('วว/ดด/ปป ไม่ถูกต้อง')   
+                return HttpResponse('email ไม่ถูกต้อง') 
                     
             checkuser = User.objects.filter(email=email)
             if not checkuser.exists():
-                password = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
-                checkid = User.objects.filter(citizen_id=citizen_id)
-                if not checkid.exists():
-                    create_User = User.objects.create(citizen_id=citizen_id,first_name=first_name,last_name=last_name,birth_date=birth_date,email=email)
-                    create_User.username = citizen_id
-                    create_User.password =  make_password(password)
-                    create_User.save()
-                    send_registration_email(email,citizen_id,password)
-                    Faculty_add = Faculty.objects.filter(faculty=faculty).first()
-                    Faculty_add.users.add(create_User)
-                    Major_add = Major.objects.filter(major=major).first()
-                    Major_add.users.add(create_User)
-                    for role_name in checkboxgroup:
-                        role_model, _ = Role.objects.get_or_create(name=role_name)
-                        role_model.users.add(create_User)
-                else:
-                        pass
+                #password = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
+                create_User = User.objects.create(first_name=first_name,last_name=last_name,email=email)
+                create_User.username = email
+                create_User.save()
+                #send_registration_email(email)
+                Faculty_add = Faculty.objects.filter(faculty=faculty).first()
+                Faculty_add.users.add(create_User)
+                Major_add = Major.objects.filter(major=major).first()
+                Major_add.users.add(create_User)
+                for role_name in checkboxgroup:
+                    role_model, _ = Role.objects.get_or_create(name=role_name)
+                    role_model.users.add(create_User)
             else:
                 user_old.append(data.iloc[i]['ชื่อ'])
                 user_id = checkuser.first().id

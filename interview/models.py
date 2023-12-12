@@ -58,19 +58,17 @@ class User(AbstractBaseUser, PermissionsMixin):
     address = models.CharField(max_length=400)
     postcode = models.CharField(max_length=20)
     phone_number = models.CharField(max_length=10)
-    citizen_id = models.CharField(max_length=13,unique=True)
+    citizen_id = models.CharField(max_length=13)
     birth_date = models.DateField(blank=True,null=True)
     date_joined = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
-
-
     objects = CustomUserManager()
 
-    USERNAME_FIELD = 'username'  # แก้ให้ USERNAME_FIELD เป็น 'email' แทน
-    EMAIL_FIELD = 'email'  # แก้ให้ EMAIL_FIELD เป็น 'email' แทน
-    REQUIRED_FIELDS = ['email']  # ไม่ต้องระบุใน REQUIRED_FIELDS แล้ว
+    USERNAME_FIELD = 'username'  
+    EMAIL_FIELD = 'email' 
+    REQUIRED_FIELDS = ['email']  
 
     def __str__(self):
         return f"ชื่อผู้ใช้: {self.username}"
@@ -94,7 +92,9 @@ class TemporaryUser(models.Model):
     password = models.CharField(max_length=128, blank=True)
 
     def save(self, *args, **kwargs):
-        self.password = (self.birth_date)
+        birth_year = self.birth_date.year
+        password = f"{self.birth_date.day:02d}{self.birth_date.month:02d}{birth_year}"
+        self.password = password
         super(TemporaryUser, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -137,9 +137,13 @@ class Round(models.Model):
     round_name = models.CharField(max_length=20)
     manager = models.ForeignKey(User, on_delete=models.CASCADE)
     users = models.ManyToManyField(User, related_name='rounds_participated')
+    TemporaryUser = models.ManyToManyField(TemporaryUser,related_name='rounds_participated')
     documents = models.CharField(max_length=200, null=True,blank=True)
     active = models.BooleanField(default=False,null=True,blank=True)
     interview_time = models.CharField(max_length=50, null=True, blank=True)
+
+    def __str__(self):
+        return self.round_name
 
 class Schedule(models.Model):
     start_date = models.DateField()

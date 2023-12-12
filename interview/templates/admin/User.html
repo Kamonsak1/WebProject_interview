@@ -57,9 +57,15 @@
                 <td>{{ user.email }}</td>
                 <td class="d-flex justify-content-center">
                     <a class="btn btn-primary btn-sm fs-3 mx-1" href="javascript:void(0);" onclick="display_popup
-                        ('{{ user.id }}', '{{ user.first_name }}', '{{ user.last_name }}',
-                        '{{ user.faculty_set.all }}','{{ user.major_set.all}}','{{ user.citizen_id }}',
-                        '{{user.birth_date}}','{{user.roles.all}}','{{user.email}}')">ดูข้อมูล</a>
+                        ('{{ user.id }}',
+                        '{{ user.first_name }}', 
+                        '{{ user.last_name }}',
+                        '{{ user.citizen_id }}',
+                        '{{user.birth_date}}',
+                        '{{user.roles.all}}',
+                        '{{user.email}}','{% for round in user.rounds_participated.all %}{{ round.major }}{% if not forloop.last %}, {% endif %}{% endfor %}',
+                        '{% for round in user.rounds_participated.all %}{{ round.major.faculty.faculty }}{% if not forloop.last %}, {% endif %}{% endfor %}',
+                        '{{ user.rounds_participated.all|join:',' }}')">ดูข้อมูล</a>
                     <a class="btn btn-secondary btn-sm fs-3 mx-1" href="javascript:void(0);" onclick="edit_popup
                         ('{{ user.id }}', '{{ user.first_name }}', '{{ user.last_name }}',
                         '{{ user.faculty_set.all }}','{{ user.major_set.all}}','{{ user.citizen_id }}',
@@ -158,12 +164,14 @@
                 <table class="table table-bordered table-hover">
                     <thead class="thead-dark">
                         <tr>
+                            <th class="text-center fs-5 fw-medium">รอบ</th>
                             <th class="text-center fs-5 fw-medium">คณะ</th>
                             <th class="text-center fs-5 fw-medium">สาขา</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
+                            <td id="rou"></td>
                             <td id="fa"></td>
                             <td id="ma"></td>
                         </tr>
@@ -205,18 +213,11 @@
                     <label for="last_name">นามสกุล</label>
                     <input type="text" name="last_name" id="last_name">
                 </div>
-                <div>
-                    <label for="citizen_id">เลขบัตรประชาชน</label>
-                    <input type="text" name="citizen_id" id="citizen_id">
-                </div>
                 <div >
                     <label for="first_name">E-mail</label>
                     <input type="text" name="email" id="email">
                 </div>
-                <div>
-                    <label for="birth_date">วัน/เดือน/ปี</label>
-                    <input type="text" name="birth_date" id="birth_date" placeholder="วว/ดด/ปป">
-                </div>
+
             </div>
             <div class="faculty_major">
                 <select name="faculty" id="id_faculty">
