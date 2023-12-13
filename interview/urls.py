@@ -13,7 +13,13 @@ urlpatterns = [
     path('ajax_searchText',ajax_searchText, name='ajax_searchText'),
 
     #Siteuser
-    
+    path('profile_changname',profile_changname, name='profile_changname'),
+    path('profile_changemail',profile_changemail, name='profile_changemail'),
+    path('profile_changecitizen_id',profile_changecitizen_id, name='profile_changecitizen_id'),
+    path('profile_changephone_number',profile_changephone_number, name='profile_changephone_number'),
+    path('profile_changeaddress',profile_changeaddress, name='profile_changeaddress'),
+    path('profile_send_otp',profile_send_otp, name='profile_send_otp'),
+    path('profile_hbd',profile_hbd, name='profile_hbd'),
 
 
     #Admin
@@ -25,7 +31,7 @@ urlpatterns = [
     path('TemporaryUser',TemporaryUser_path, name='TemporaryUser'),
     path('User',User_path, name='User'),
     #path('form_interview',form_interview, name='form_interview'),
-    path('profile',admin_profile, name='profile'),
+    path('profile',admin_profile, name='admin_profile'),
     path('add_Faculty',add_Faculty, name='add_Faculty'),
     path('delete_Faculty/<int:id>',delete_Faculty ,name='delete_Faculty'),
     path('add_Major',add_Major, name='add_Major'),

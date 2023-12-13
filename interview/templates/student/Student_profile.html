@@ -1,5 +1,7 @@
 {% extends 'student/base/n_base.html' %}
 
 {% block content %}
-    {% include '../html/profile.html' %}
+{% with source_page="Student" %}
+{% include '../html/profile.html' %}
+{% endwith %}
 {% endblock %}

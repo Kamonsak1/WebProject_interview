@@ -14,80 +14,197 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-6">
+            <div class="display_name">
+                <div id="edit_name" class="card w-100" style="display: none;">
+                    <div class="card-body mini-card-body ">
+                        <form action="{% url 'profile_changname' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="user_id" id="user_id" value="{{ user.id }}">
+                            <input type="hidden" name="page" id="page_id" value="{{source_page}}">
+                            <div style="display: flex; flex-direction: row; align-items: center;">
+                                <label for="first_name">ชื่อ</label>
+                                <input type="text" name="first_name" id="first_name" value="{{ user.first_name }}">
+                                
+                                <label for="last_name">นามสกุล</label>
+                                <input type="text" name="last_name" id="last_name" value="{{ user.last_name }}">
+                                
+                                <button type="submit" onclick="changename('{{ user.id }}')">ยืนยัน</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
             <div class="card w-100">
-                <div class="card-body mini-card-body">
+                <div class="card-body mini-card-body d-flex justify-content-between" style="display: block;" id="show_name" >
                     <h4>ชื่อ-นามสกุล : {{ user.first_name }} {{ user.last_name }}</h5>
+                    <span class="text-primary fs-6 edit-icon" onclick="changename('{{ user.id }}')">✎</span>
                 </div>
             </div>
-        </div>
-        <div class="col-6">
-            <div class="card w-100">
-                <div class="card-body d-flex justify-content-between mini-card-body">
-                    <h5>รหัสผ่าน: </h5>
-                    <span class="text-primary fs-6 edit-icon" onclick="changepassword('{{ user.id }}')">✎</span>
+    </div>
+    
+    <div class="card w-100 mini-card" style="display: none;" id="edit_email">
+        <div class="card-body mini-card-body">
+            <form action="{% url 'profile_send_otp' %}" method="post">
+                {% csrf_token %}
+                <div style="display: flex; flex-direction: row; align-items: center;">
+                    <label for="Email">Email</label>
+                    <input type="hidden" name="page" id="page_id" value="{{ source_page }}">
+                    <input type="text" name="email" id="meail_done" value="{{ user.email }}">
+                    <button type="submit">ตรวจสอบอีเมล</button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
-
+    {% if email %}
+    <div class="card w-100 mini-card" >
+        <div class="card-body mini-card-body">
+            <form action="{% url 'profile_changemail' %}" method="post">
+                {% csrf_token %}
+                <input type="text" name="email" id="meail_done" value="{{ email }}">
+                <div style="display: flex; flex-direction: row; align-items: center;">
+                    <input type="hidden" name="user_id" id="user_id" value="{{ user.id }}">
+                    <input type="hidden" name="page" id="page_id" value="{{ source_page }}">
+                </div>
+                <div id="check_hide">
+                    <label for="confirmemail">ยืนยันรหัส  7 หลักที่ถูกส่งไปในเมลล์</label>
+                    <input type="text" name="confirmemail" id="">
+                    <button type="submit" onclick="changeemail('{{ user.id }}')">ยืนยัน</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+    {% if email is none %}
     <div class="d-flex">
-        <div class="card w-100 mini-card">
-            <div class="card-body mini-card-body">
-                <h4>Email : {{ user.email }}</h5>
+        <div class="card w-100 mini-card"  style="display: block;" id="show_email">
+            <div class="card-body mini-card-body d-flex justify-content-between">
+                <h4>Email : {{ user.email }}</h4>
+                <span class="text-primary fs-6 edit-icon" onclick="changeemail('{{ user.id }}')">✎</span>
             </div>
         </div>
     </div>
+    {% endif %}
 
     <div class="row">
-        <div class="col-6">
+        <div class="col-6" style="display: none;" id="edit_citizen_id">
             <div class="card w-100 mini-card">
                 <div class="card-body mini-card-body">
-                    <h4>คณะ : {{ user.faculty_set.all.first.faculty }}</h5>
+                    <form action="{% url 'profile_changecitizen_id' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" id="user_id" value="{{ user.id }}">
+                        <input type="hidden" name="page" id="page_id" value="{{source_page}}">
+                        <div style="display: flex; flex-direction: row; align-items: center;">
+                        <label for="citizen_id">เลขประจำตัวประชาชน</label>
+                        <input type="text" name="citizen_id" id="" value="{{ user.citizen_id }}">
+                        <button type="submit" onclick="changecitizen_id('{{ user.id }}')">ยืนยัน</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-        <div class="col-6">
+        <div class="col-6"  style="display: block;" id="show_citizen_id">
             <div class="card w-100 mini-card">
-                <div class="card-body mini-card-body">
-                    <h5>หลักสูตร : {{ user.major_set.all.first.major }}</h5>
+                <div class="card-body mini-card-body d-flex justify-content-between">
+                    <h4>เลขประจำตัวประชาชน : {{ user.citizen_id }}</h4>
+                    <span class="text-primary fs-6 edit-icon" onclick="changecitizen_id('{{ user.id }}')">✎</span>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="row">
-        <div class="col-6">
-            <div class="card w-100 mini-card">
-                <div class="card-body mini-card-body">
-                    <h4>เลขประจำตัวประชาชน : {{ user.citizen_id }}</h5>
+        <div class="col-6" style="display: none;" id="edit_phone_number">
+            <div class="card w-100 mini-card" >
+                <div class="card-body mini-card-body d-flex justify-content-between">
+                    <form action="{% url 'profile_changephone_number' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" id="user_id" value="{{ user.id }}">
+                        <input type="hidden" name="page" id="page_id" value="{{source_page}}">
+                        <div style="display: flex; flex-direction: row; align-items: center;">
+                        <label for="phone_number">เบอร์โทร</label>
+                        <input type="text" name="phone_number" id="" value="{{ user.phone_number }}">
+                        <button type="submit" onclick="changephone_number('{{ user.id }}')">ยืนยัน</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-        <div class="col-6">
+        <div class="col-6" style="display: block;" id="show_phone_number">
             <div class="card w-100 mini-card">
-                <div class="card-body mini-card-body">
+                <div class="card-body mini-card-body d-flex justify-content-between">
                     <h5>เบอร์โทร : {{ user.phone_number }}</h5>
+                    <span class="text-primary fs-6 edit-icon" onclick="changephone_number('{{ user.id }}')">✎</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="d-flex">
-        <div class="card w-100 mini-card">
+
+        <div class="card w-100 mini-card" style="display: none;" id="edit_address" >
             <div class="card-body mini-card-body">
-                <h4>ที่อยู่ : {{ user.address }} {{ user.postcode }}</h5>
+                <form action="{% url 'profile_changeaddress' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_id" id="user_id" value="{{ user.id }}">
+                    <input type="hidden" name="page" id="page_id" value="{{source_page}}">
+                    <div style="display: flex; flex-direction: row; align-items: center;">
+                    <label for="address">ที่อยู่</label>
+                    <input type="area" name="address" id="" value="{{ user.address }}">
+                    <label for="postcode">รหัสไปรษณีย์</label>
+                    <input type="text" name="postcode" id="" value="{{ user.postcode }}">
+                    <button type="submit" onclick="changeaddress('{{ user.id }}')">ยืนยัน</button>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
+        <div class="card w-100 mini-card" style="display: block;" id="show_address">
+            <div class="card-body mini-card-body d-flex justify-content-between">
+                <h4>ที่อยู่ : {{ user.address }} {{ user.postcode }}</h5>
+                <span class="text-primary fs-6 edit-icon" onclick="changeaddress('{{ user.id }}')">✎</span>
+            </div>
+        </div>
+
 
     <div class="d-flex">
-        <div class="card w-100 mini-card">
-            <div class="card-body mini-card-body">
-                <h4>วันเกิด : {{ user.birth_date }}</h5>
+        <div class="card w-100 mini-card" style="display: none;" id="edit_hbd">
+            <div class="card-body mini-card-body"  >
+                <form action="{% url 'profile_hbd' %}" method="post">
+                    {% csrf_token %}
+                    <div style="display: flex; flex-direction: row; align-items: center;">
+                    <input type="hidden" name="user_id" id="user_id" value="{{ user.id }}">
+                    <input type="hidden" name="page" id="page_id" value="{{source_page}}">
+                    <input type="text" name="birth_date" id="edit_birth_date" placeholder="วว/ดด/ปป">   
+                    <button type="submit"onclick="changehbd('{{ user.id }}')">ยืนยัน</button>
+                    </div>
+                </form>               
+            </div>
+        </div>
+        <div class="card w-100 mini-card"style="display: block;" id="show_hbd" >
+            <div class="card-body mini-card-body d-flex justify-content-between" >
+                <h4 id="text_birth_date" style="display: none;">{{ user.birth_date }}</h5>
+                <h4 id="display_birth_date" ></h4>     
+                <span class="text-primary fs-6 edit-icon" onclick="changehbd('{{ user.id }}')">✎</span>              
             </div>
         </div>
     </div>
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th class="text-center fs-5 fw-medium">รอบ</th>
+                <th class="text-center fs-5 fw-medium">คณะ</th>
+                <th class="text-center fs-5 fw-medium">สาขา</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                {% if user.rounds_participated.all %}
+                    {% for round in user.rounds_participated.all %}
+                    <td style="text-align: center;">{{ round.round_name }}</td>
+                    <td style="text-align: center;">{{ round.major.faculty.faculty }}</td>
+                    <td style="text-align: center;">{{ round.major.major }}</td>
+                    {% endfor %}
+                {% endif %}     
+            </tr>
+        </tbody>
+    </table>
+
+
 
 <div class="changepassword" id="changepassword">
     <div  class="topic">
@@ -117,8 +234,49 @@
                         <button type="submit">เปลี่ยนรหัสผ่าน</button>
                     </div>
             </form>
-        </div> 
+        </div>     
 </div>
+    
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    var birthDateElement = document.getElementById('text_birth_date');
+    if (birthDateElement) {
+        var birthDate = birthDateElement.textContent.trim();
+        display_hbd(birthDate);
+    } else {
+        console.error("Element with id 'text_birth_date' not found");
+    }
+});
+
+function display_hbd(birth_date) {
+    console.log(birth_date);
+
+    var months = {
+        'Jan.': '01',
+        'Feb.': '02',
+        'March': '03',
+        'April': '04',
+        'May.': '05',
+        'June': '06',
+        'July': '07',
+        'Aug.': '08',
+        'Sept.': '09',
+        'Oct.': '10',
+        'Nov.': '11',
+        'Dec.': '12'
+    };
+    var birth_date_split = birth_date.split(' ');
+    var hbd_day = birth_date_split[1].split(',')[0];
+    var new_HBD = hbd_day + '/' + months[birth_date_split[0]] + '/' + birth_date_split[2];
+
+    document.getElementById('display_birth_date').innerText = 'เกิดวันที่ :' + new_HBD;
+    document.getElementById('edit_birth_date').value = new_HBD;
+}
+
+</script>
 
 </div>
 

@@ -745,8 +745,8 @@ def add_User(request):
         last_name = request.POST.get('last_name')
         citizen_id = request.POST.get('citizen_id')
         email =  request.POST.get('email')
-        birth_date_str = request.POST.get('birth_date')
-        birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date()
+        #birth_date_str = request.POST.get('birth_date')
+        #birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date()
         faculty_name = request.POST.get('faculty')  
         major_name = request.POST.get('major')  
         password = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
@@ -754,18 +754,17 @@ def add_User(request):
         faculty = Faculty.objects.get(faculty=faculty_name)
         major= Major.objects.get(major=major_name, faculty=faculty)
         try:
-            check_user = User.objects.get(citizen_id=citizen_id,email=email)
+            check_user = User.objects.get(email=email)
             faculty.users.add(check_user)
             major.users.add(check_user)
             return redirect('User')
         except User.DoesNotExist:
 
-            new_user = User.objects.create(citizen_id=citizen_id,
+            new_user = User.objects.create(
                                            first_name= first_name,
                                            last_name= last_name,
-                                           birth_date= birth_date,
                                            email= email ,
-                                           username=citizen_id,
+                                           username=email,
                                            password= make_password(password))
             faculty.users.add(new_user)
             major.users.add(new_user)
@@ -1088,3 +1087,139 @@ def Manager_ScoreTopic(request,id):
     }
     
     return render(request,"manager/Manager_ScoreTopic.html",context)
+
+
+def profile_changname(request):
+    if request.method == 'POST':
+        user_id   = request.POST.get('user_id')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        source_page = request.POST.get('page')
+        user = User.objects.get(pk=user_id)
+        user.first_name = first_name
+        user.last_name = last_name
+        user.save()
+        if source_page == 'Admin':
+            return redirect('admin_profile')
+        if source_page == 'Manager':
+            return redirect('manage_profile')
+        if source_page == 'Interviewer':
+            return redirect('Interviewer_Profile')
+        if source_page == 'Student':
+            return redirect('Student_profile')
+        
+
+
+def profile_send_otp(request):
+    if request.method == 'POST':
+        email_profile = request.POST.get('email')
+        confirmation_code_profile = ''.join(random.choices(string.digits, k=7))
+        source_page = request.POST.get('page')
+        request.session['confirmation_code_profile'] = confirmation_code_profile
+        request.session['email_profile'] = email_profile
+        subject = 'ยืนยันอีเมลของคุณ ',email_profile
+        message = f'โปรดใช้รหัสนี้เพื่อยืนยันอีเมลของคุณ: {confirmation_code_profile} '
+        from_email = settings.EMAIL_HOST_USER
+        recipient_list = [email_profile]
+        send_mail(subject, message, from_email, recipient_list)
+        if source_page == 'Admin':
+            return render(request, 'admin/admin_profile.html', {'email': email_profile})
+        if source_page == 'Manager':
+            return render(request, 'manager/manage_profile.html', {'email': email_profile})
+        if source_page == 'Interviewer':
+            return render(request, 'interviewer/Interviewer_Profile.html', {'email': email_profile})
+        if source_page == 'Student':
+            return render(request, 'student/Student_profile.html', {'email': email_profile})
+        
+
+def profile_changemail(request):
+    if request.method == 'POST':
+        user_id   = request.POST.get('user_id')
+        email = request.POST.get('email')
+        confirmemail  = request.POST.get('confirmemail')
+        otp = request.session.get('confirmation_code_profile')
+        source_page = request.POST.get('page')
+        if  confirmemail ==  otp:
+            user = User.objects.get(pk=user_id)
+            user.email = email
+            user.save()
+        if source_page == 'Admin':
+            return redirect('admin_profile')
+        if source_page == 'Manager':
+            return redirect('manage_profile')
+        if source_page == 'Interviewer':
+            return redirect('Interviewer_Profile')
+        if source_page == 'Student':
+            return redirect('Student_profile')
+        
+def profile_changecitizen_id(request):
+    if request.method == 'POST':
+        user_id   = request.POST.get('user_id')
+        citizen_id = request.POST.get('citizen_id')
+        source_page = request.POST.get('page')
+        user = User.objects.get(pk=user_id)
+        user.citizen_id = citizen_id
+        user.save()
+        if source_page == 'Admin':
+            return redirect('admin_profile')
+        if source_page == 'Manager':
+            return redirect('manage_profile')
+        if source_page == 'Interviewer':
+            return redirect('Interviewer_Profile')
+        if source_page == 'Student':
+            return redirect('Student_profile')
+        
+def profile_changephone_number(request):
+    if request.method == 'POST':
+        user_id   = request.POST.get('user_id')
+        phone_number = request.POST.get('phone_number')
+        source_page = request.POST.get('page')
+        user = User.objects.get(pk=user_id)
+        user.phone_number = phone_number
+        user.save()
+        if source_page == 'Admin':
+            return redirect('admin_profile')
+        if source_page == 'Manager':
+            return redirect('manage_profile')
+        if source_page == 'Interviewer':
+            return redirect('Interviewer_Profile')
+        if source_page == 'Student':
+            return redirect('Student_profile')
+
+def profile_changeaddress(request):
+
+    if request.method == 'POST':
+        user_id   = request.POST.get('user_id')
+        address = request.POST.get('address')
+        postcode = request.POST.get('postcode')
+        source_page = request.POST.get('page')
+        user = User.objects.get(pk=user_id)
+        user.address = address
+        user.postcode = postcode
+        user.save()
+        if source_page == 'Admin':
+            return redirect('admin_profile')
+        if source_page == 'Manager':
+            return redirect('manage_profile')
+        if source_page == 'Interviewer':
+            return redirect('Interviewer_Profile')
+        if source_page == 'Student':
+            return redirect('Student_profile')
+        
+def profile_hbd(request):
+    if request.method == 'POST':
+        user_id   = request.POST.get('user_id')
+        birth_date_str = request.POST.get('birth_date')
+        birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date()
+        source_page = request.POST.get('page')
+        user = User.objects.get(pk=user_id)
+        user.birth_date = birth_date
+        user.save()
+        if source_page == 'Admin':
+            return redirect('admin_profile')
+        if source_page == 'Manager':
+            return redirect('manage_profile')
+        if source_page == 'Interviewer':
+            return redirect('Interviewer_Profile')
+        if source_page == 'Student':
+            return redirect('Student_profile')

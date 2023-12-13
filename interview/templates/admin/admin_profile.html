@@ -1,5 +1,7 @@
 {% extends 'admin/base/n_base.html' %}
 
 {% block content %}
-    {% include '../html/profile.html' %}
+{% with source_page="Admin" %}
+{% include '../html/profile.html' %}
+{% endwith %}
 {% endblock %}

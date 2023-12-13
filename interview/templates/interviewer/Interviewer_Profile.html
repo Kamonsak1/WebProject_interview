@@ -1,5 +1,7 @@
 {% extends 'Interviewer/base/n_base.html' %}
 
 {% block content %}
-    {% include '../html/profile.html' %}
+{% with source_page="Interviewer" %}
+{% include '../html/profile.html' %}
+{% endwith %}
 {% endblock %}
