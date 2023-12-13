@@ -1,0 +1,52 @@
+{% extends 'manager/base/n_base.html' %}
+
+{% block topic %}
+<h1 class="text-3xl text-gray-100 mt-2 text-center">คะแนนสัมภาษณ์</h1>
+{% endblock %}
+{% block content %}
+<div class="pt-14 px-2">
+    {% if text == False %}
+
+    <div class="d-flex justify-content-end">
+        <button class="btn btn-info fs-4 fw-semibold " onclick="add_Score()">สร้างใหม่</button>
+      </div>
+    <div class="container">
+        <div class="row">
+          {% for key, topics in no_topic.items %}
+            <div class="col-md-4">
+              <div class="card">
+                <div class="card-body">
+                  <div class="d-flex justify-content-center">
+                    <h2 class="fs-6 card-title">Pattern: </h2>
+                    <h2 class="fs-6 text-primary card-title fw-bolder">{{ key }}</h2>
+                  </div>
+                  <ul class="list-group list-group-flush">
+                    {% for topic in topics %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      {{ topic.topic_name }} : {{ topic.max_score }}
+                  </li>
+                    {% endfor %}
+                    <div class="text-center">
+                        <a href="" class="btn btn-info mt-2 px-2 py-2">นำไปใช้</a>
+                    </div>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            {% if forloop.counter|divisibleby:3 and not forloop.last %}
+              </div><div class="row">
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+
+    {% else %}
+
+
+
+
+
+    {% endif %}
+</div>
+{% endblock %}

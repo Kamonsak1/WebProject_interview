@@ -1065,3 +1065,26 @@ def add_meetlink(request):
 
     return redirect('/Interviewer_page')
 
+
+@login_required
+@user_passes_test(is_Manager)
+def Manager_ScoreTopic(request,id):
+    round = Round.objects.get(id=id)
+    if RoundScore.objects.filter(Round=round):
+        text = True
+    else:
+        text = False
+
+    score_topics = ScoreTopic.objects.all()
+    grouped_topics = defaultdict(list)
+    for topic in score_topics:
+        if re.match('^\d+$', topic.pattern_id):
+            grouped_topics[topic.pattern_id].append(topic)
+
+    topics = dict(sorted(grouped_topics.items()))
+    context = {
+        "text" : text,
+        "no_topic" : topics,
+    }
+    
+    return render(request,"manager/Manager_ScoreTopic.html",context)

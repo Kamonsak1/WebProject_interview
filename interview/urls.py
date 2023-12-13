@@ -66,6 +66,7 @@ urlpatterns = [
     path('toggle_round_active/<int:round_id>/', toggle_round_active, name='toggle_round_active'),
     path('chang_major', chang_major, name='chang_major'),
     path('Manage_User', Manage_User, name='Manage_User'),
+    path('Manager_Score/score/<int:id>', Manager_ScoreTopic, name="Manager_ScoreTopic"),
 
     #Interviewer
     path('Interviewer_page',interviewer_page, name='Interviewer_page'),
