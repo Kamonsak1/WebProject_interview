@@ -29,7 +29,7 @@
   <div class="container-fluid">
       <div class="card">
           <div class="card-body row">
-              <span class="card-title fw-semibold mb-2 col-6">{{ i.faculty }}</span>
+              <span class="card-title fw-semibold mb-2 col-6">คณะ: {{ i.faculty }}</span>
               <div class="d-flex justify-content-end mb-2 col-6">
                 <button class="btn btn-secondary m-1 fs-5" onclick="add_Major('{{ i.faculty }}', '{{ i.id }}')">เพิ่มสาขา</button>
                 <a href="delete_Faculty/{{i.id}}"><button class="fs-5 m-1 btn btn-red p1">ลบคณะ</button></a>
@@ -37,10 +37,10 @@
               {% for major in i.major_set.all %}
               <div class="card mb-1">
                 <div class="card-body p-2 d-flex justify-content-between">
-                    <h5 class="mb-0" onclick="display_manager('{{ major.id }}')" style="cursor: pointer;">{{ major.major }}</h5>
+                    <h5 class="mb-0" onclick="display_manager('{{ major.id }}')" style="cursor: pointer;">สาขา: {{ major.major }}</h5>
                     <div class="d-flex justify-content-end mb-2 col-6">
                         <button class="btn btn-secondary m-1 fs-2" onclick="add_Major_manager('{{ major.major }}', '{{ major.id }}')">เพิ่มผู้ดูแล</button>
-                        <a href="delete_Major/{{i.id}}"><button class="fs-2 m-1 btn btn-red p1">ลบสาขา</button></a>
+                        <a href="delete_Major/{{major.id}}"><button class="fs-2 m-1 btn btn-red p1">ลบสาขา</button></a>
                     </div>
                 </div>
                 <div style="display: none;" id="display_manager_{{ major.id }}">

@@ -305,20 +305,25 @@ def confirm_email(request):
                                 role_model.users.add(user)
                                 round_names = []
                                 major_names = []
+                                faculty_names=[]
                                 for round_obj in tem_user.rounds_participated.all():
                                     round_names.append(round_obj.round_name)
                                     major_names.append(round_obj.major.major)  
+                                    faculty_names.append(round_obj.major.faculty.faculty)                                  
                                     round_obj.users.add(user)
                                 for major_name in major_names:
                                     major_instance = Major.objects.get(major=major_name)
                                     major_instance.users.add(user)
+                                for faculty_name in faculty_names:
+                                    faculty_instance = Faculty.objects.get(faculty=faculty_name)
+                                    faculty_instance.users.add(user)
  
                                 # for faculty in faculty_TemporaryUser:
                                 #     faculty.users.add(user)
                                 # for  major in major_TemporaryUser:
                                 #      major.users.add(user)
                                 user.save()
-                                return redirect('changepassword')
+                                return redirect('social:begin', backend='google-oauth2')
                             else:
                                 return redirect('confirm_email')
                     else:
@@ -469,7 +474,6 @@ def add_TemporaryUser(request):
         birth_date_str = request.POST.get('birth_date')
         birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date() 
         round_sel = request.POST.get('round') 
-        checkboxgroup = request.POST.getlist('checkboxgroup')
         round = Round.objects.get(pk=round_sel)
 
         try:
@@ -481,6 +485,10 @@ def add_TemporaryUser(request):
         try:
             check_temporary_user = TemporaryUser.objects.get(citizen_id=citizen_id)
             round.TemporaryUser.add(check_temporary_user)
+            faculty_instance = Faculty.objects.get(faculty=round.major.faculty.faculty)
+            faculty_instance.TemporaryUser.add(check_temporary_user)
+            major_instance = Major.objects.get(major=round.major.major)
+            major_instance.TemporaryUser.add(check_temporary_user)
             return redirect('TemporaryUser') 
         except TemporaryUser.DoesNotExist:
             check_temporary_user = TemporaryUser.objects.create(
@@ -490,9 +498,12 @@ def add_TemporaryUser(request):
                 birth_date=birth_date,
             )
             round.TemporaryUser.add(check_temporary_user)
-            for role_name in checkboxgroup:
-                role_model, _ = Role.objects.get_or_create(name=role_name)
-                role_model.TemporaryUser.add(check_temporary_user)
+            role_model, _ = Role.objects.get_or_create(name='Student')
+            role_model.TemporaryUser.add(check_temporary_user)
+            faculty_instance = Faculty.objects.get(faculty=round.major.faculty.faculty)
+            faculty_instance.TemporaryUser.add(check_temporary_user)
+            major_instance = Major.objects.get(major=round.major.major)
+            major_instance.TemporaryUser.add(check_temporary_user)
             check_temporary_user.save()
             
             return redirect('TemporaryUser')    
@@ -704,14 +715,23 @@ def add_TemporaryUser_by_file(request):
                     role=Role.objects.filter(name='Student').first()
                     role.TemporaryUser.add(Temporary_User)
                     Round_db = Round.objects.filter(round_name=round).first()
-                    Round_db.TemporaryUser.add(Temporary_User)    
+                    Round_db.TemporaryUser.add(Temporary_User)  
+                    faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
+                    faculty_instance.TemporaryUser.add(Temporary_User)
+                    major_instance = Major.objects.get(major=Round_db.major.major)
+                    major_instance.TemporaryUser.add(Temporary_User) 
+                    
                 else:
                     TemporaryUser_old.append(data.iloc[i]['ชื่อ'])
                     user_id = checkTemporaryUser.first().id
                     checkRound = Round.objects.filter(round_name=round,TemporaryUser=user_id)
                     if not checkRound.exists():
                         Round_db = Round.objects.filter(round_name=round).first()
-                        Round_db.TemporaryUser.add(user_id)                    
+                        Round_db.TemporaryUser.add(user_id)  
+                        faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
+                        faculty_instance.TemporaryUser.add(Temporary_User)
+                        major_instance = Major.objects.get(major=Round_db.major.major)
+                        major_instance.TemporaryUser.add(Temporary_User)                   
                     else:
                         pass
                         #return HttpResponse(usernames[0]+'อยู่ใน' + faculty + 'แล้ว')
@@ -720,8 +740,12 @@ def add_TemporaryUser_by_file(request):
                 user_id = checkuser.first().id
                 checkRound = Round.objects.filter(round_name=round,users=user_id)
                 if not checkRound.exists():
-                     Round_db = Round.objects.filter(round_name=round).first()
-                     Round_db.users.add(user_id)                    
+                    Round_db = Round.objects.filter(round_name=round).first()
+                    Round_db.users.add(user_id)
+                    faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
+                    faculty_instance.users.add(Temporary_User)
+                    major_instance = Major.objects.get(major=Round_db.major.major)
+                    major_instance.users.add(Temporary_User)                     
                 else:
                     pass
                     #return HttpResponse(usernames[0]+'อยู่ใน' + faculty + 'แล้ว')
@@ -820,7 +844,7 @@ def add_User_by_file(request):
         
         for i in range(len(data)):
             try:
-                faculty = 'คณะ'+(data.iloc[i]['คณะ'].strip())
+                faculty = (data.iloc[i]['คณะ'].strip())
             except Exception as e:
                 return HttpResponse('ชื่อคณะไม่ถูกต้อง')
             try:
@@ -866,8 +890,8 @@ def add_User_by_file(request):
                         #return HttpResponse(usernames[0]+'อยู่ใน' + faculty + 'แล้ว')
                 checkMajor = Major.objects.filter(major=major,users=user_id)
                 if not checkMajor.exists():
-                    faculty_db = Major.objects.filter(major=major).first()
-                    faculty_db.users.add(user_id)                    
+                    Major_db = Major.objects.filter(major=major).first()
+                    Major_db.users.add(user_id)                    
                 else:
                     pass
 

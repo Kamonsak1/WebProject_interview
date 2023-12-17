@@ -37,66 +37,9 @@ function add_User() {
         }
     });
   }
-  function edit_popup(user_id, first_name, last_name, faculty, major,citizen_id,birth_date,role,email) {
+  function edit_popup(user_id,role) {
   var optionsDiv = document.getElementById("edit_popup");
   document.getElementById('user_id').value = user_id;
-  document.getElementById('first_name').value = first_name;
-  document.getElementById('last_name').value = last_name;
-  document.getElementById('citizen_id').value = citizen_id;
-  document.getElementById('email').value = email;
-  if (birth_date) {
-    var birth_date_split =  birth_date.split(' ');
-    if (birth_date_split.length > 1) {
-      var hbd_day =  birth_date_split[1].split(',')[0];
-      var new_HBD;
-    } 
-  }
-  
-  if (birth_date_split[0] == 'Jan.') {
-    new_HBD = hbd_day + '/01/' + birth_date_split[2];
-  } else if (birth_date_split[0] == 'Feb.') {
-    new_HBD = hbd_day + '/02/' + birth_date_split[2];
-  } else if (birth_date_split[0] == 'March') {
-    new_HBD = hbd_day + '/03/' + birth_date_split[2];
-  } else if (birth_date_split[0] == 'April') {
-    new_HBD = hbd_day + '/04/' + birth_date_split[2];
-  } else if (birth_date_split[0] == 'May.') {
-    new_HBD = hbd_day + '/05/' + birth_date_split[2];
-  } else if (birth_date_split[0] == 'June') {
-    new_HBD = hbd_day + '/06/' + birth_date_split[2];
-  } else if (birth_date_split[0] == 'July') {
-    new_HBD = hbd_day + '/07/' + birth_date_split[2];
-  } else if (birth_date_split[0] == 'Aug.') {
-    new_HBD = hbd_day + '/08/' + birth_date_split[2];
-  } else if (birth_date_split[0] == 'Sept.') {
-    new_HBD = hbd_day + '/09/' + birth_date_split[2];
-  } else if (birth_date_split[0] == 'Oct.') {
-    new_HBD = hbd_day + '/10/' + birth_date_split[2];
-  } else if (birth_date_split[0] == 'Nov.') {
-    new_HBD = hbd_day + '/11/' + birth_date_split[2];
-  } else if (birth_date_split[0] == 'Dec.') {
-    new_HBD = hbd_day + '/12/' + birth_date_split[2];
-  }
-  
-  document.getElementById('birth_date').value = new_HBD || " ";
-  
-  //document.getElementById('birth_date').value = birth_date;
-  var faculty_new = [];
-  faculty_new.push(faculty.split(':'));
-  var faculty_split = [];
-  for (var i = 0; i < faculty_new[0].length; i++) {
-      var a2 = faculty_new[0][i].split(">");
-      a2[0] = a2[0].trim();
-      faculty_split.push(a2[0]);
-  }
-  var major_new = [];
-  major_new.push(major.split(':'));
-  var major_split = [];
-  for (var i = 0; i < major_new[0].length; i++) {
-      var a2 = major_new[0][i].split(">");
-      a2[0] = a2[0].trim();
-      major_split.push(a2[0]);
-  }
   var role_new = [];
   role_new.push(role.split(':'));
   var role_split = [];
@@ -140,12 +83,11 @@ function add_User() {
   }
   }
   
-  function display_popup(user_id, first_name, last_name,citizen_id,birth_date,role,email,major,faculty,round) {
+  function display_popup(user_id, first_name, last_name,birth_date,role,email,major,faculty,round) {
   var optionsDiv = document.getElementById("display_popup");
   document.getElementById('user_id').value = user_id;
   document.getElementById('display_first_name').value = first_name;
   document.getElementById('display_last_name').value = last_name;
-  document.getElementById('display_citizen_id').value = citizen_id;
   document.getElementById('display_email').value = email;
   var formattedround = round.replace(',', "<br>");
   document.getElementById('rou').innerHTML = formattedround;
