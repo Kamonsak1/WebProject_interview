@@ -1093,11 +1093,23 @@ def add_meetlink(request):
 @user_passes_test(is_Manager)
 def Manager_ScoreTopic(request,id):
     round = Round.objects.get(id=id)
+    if request.method == "POST":
+        pattern_id = request.POST.get("pattern")
+        pattern_name = request.POST.get("round_name")
+
+        Topic_in_Pattern = ScoreTopic.objects.filter(pattern_id=pattern_id)
+        for t in Topic_in_Pattern:
+            new_topic = ScoreTopic(pattern_id=pattern_name,topic_name=t.topic_name,max_score=t.max_score,score_detail=t.score_detail)
+            new_topic.save()
+            round_score = RoundScore(topic=new_topic,Round=round)
+            round_score.save()
+        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
     if RoundScore.objects.filter(Round=round):
         text = True
     else:
         text = False
 
+    round_name = f"{round.round_name}_{round.academic_year}_{round.major.major}"
     score_topics = ScoreTopic.objects.all()
     grouped_topics = defaultdict(list)
     for topic in score_topics:
@@ -1105,9 +1117,13 @@ def Manager_ScoreTopic(request,id):
             grouped_topics[topic.pattern_id].append(topic)
 
     topics = dict(sorted(grouped_topics.items()))
+
+    template = ScoreTopic.objects.filter(pattern_id=round_name)
     context = {
         "text" : text,
         "no_topic" : topics,
+        "round" : round_name,
+        "topics" : template,
     }
     
     return render(request,"manager/Manager_ScoreTopic.html",context)

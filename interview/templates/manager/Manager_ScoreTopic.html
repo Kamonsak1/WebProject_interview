@@ -27,14 +27,19 @@
                   </li>
                     {% endfor %}
                     <div class="text-center">
-                        <a href="" class="btn btn-info mt-2 px-2 py-2">นำไปใช้</a>
+                      <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="round_name" id="round_name" value="{{round}}">
+                        <input type="hidden" name="pattern" id="pattern" value="{{key}}">
+                        <button type="submit" class="btn btn-info mt-2 px-2 py-2">นำไปใช้</button>
+                      </form>
                     </div>
                   </ul>
                 </div>
               </div>
             </div>
             {% if forloop.counter|divisibleby:3 and not forloop.last %}
-              </div><div class="row">
+          </div><div class="row">
             {% endif %}
           {% endfor %}
         </div>
@@ -44,7 +49,9 @@
     {% else %}
 
 
-
+      {% for t in topics %}
+      {{ t.topic_name }} <br>
+      {% endfor %}
 
 
     {% endif %}
