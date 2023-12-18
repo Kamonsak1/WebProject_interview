@@ -552,9 +552,21 @@ def delete_InterviewRound(request,id):
 @user_passes_test(is_admin)
 def add_ScoreTopic(request):
     if request.method == "POST":
-        if request.POST.get("Template_ID"):
-            Template_ID = request.POST.get("Template_ID")
-            return redirect(f"View_ScoreTemplate/{Template_ID}")
+        round_value = request.POST.get("round")
+        if round_value:
+            template_num = request.POST.get('template_num')
+            topic_name = request.POST.get('topic_name')
+            max_score = request.POST.get('max_score')
+            score_detail = request.POST.get('score_detail')
+            score_topic, _ = ScoreTopic.objects.get_or_create( pattern_id=template_num,
+                                                                topic_name=topic_name,
+                                                                max_score=max_score,
+                                                                score_detail=score_detail)
+            score_topic.save()
+            round = Round.objects.get(id=round_value)
+            Score_Round = RoundScore(topic=score_topic,Round=round)
+            Score_Round.save()
+            return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
         else:
             template_num = request.POST.get('template_num')
             topic_name = request.POST.get('topic_name')
@@ -583,7 +595,7 @@ def delete_ScoreTopic(request,id):
     object = ScoreTopic.objects.get(pk=id)
     pattern = object.pattern_id
     object.delete()
-    return redirect(f"/Score")
+    return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
 @login_required
 @user_passes_test(is_admin)
@@ -625,7 +637,7 @@ def edit_ScoreTopic(request):
         score_topic.score_detail=detail
         score_topic.save()
         
-    return redirect('/Score')
+    return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
 @login_required
 @user_passes_test(is_admin)
@@ -1119,6 +1131,7 @@ def Manager_ScoreTopic(request,id):
         text = False
 
     round_name = f"{round.round_name}_{round.academic_year}_{round.major.major}"
+    round_id = round.id
     score_topics = ScoreTopic.objects.all()
     grouped_topics = defaultdict(list)
     for topic in score_topics:
@@ -1132,6 +1145,7 @@ def Manager_ScoreTopic(request,id):
         "text" : text,
         "no_topic" : topics,
         "round" : round_name,
+        "round_id" : round,
         "topics" : template,
     }
     

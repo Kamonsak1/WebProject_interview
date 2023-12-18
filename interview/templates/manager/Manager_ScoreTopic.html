@@ -1,5 +1,10 @@
 {% extends 'manager/base/n_base.html' %}
+{% load static %}
 
+{% block css_js %} 
+<link rel="stylesheet" href="{% static 'css/manager_css/Score.css' %}" />
+<script src="{% static 'js/manager/Score.js' %}"></script>
+{% endblock %} 
 {% block topic %}
 <h1 class="text-3xl text-gray-100 mt-2 text-center">คะแนนสัมภาษณ์</h1>
 {% endblock %}
@@ -8,7 +13,7 @@
     {% if text == False %}
 
     <div class="d-flex justify-content-end">
-        <button class="btn btn-info fs-4 fw-semibold " onclick="add_Score()">สร้างใหม่</button>
+        <button class="btn btn-info fs-4 fw-semibold " onclick="add_ScoreRound()">สร้างใหม่</button>
       </div>
     <div class="container">
         <div class="row">
@@ -45,15 +50,132 @@
         </div>
       </div>
 
+      <div class="container_Scoreadd" id="add_ScoreTopic">
+        <div class="text-end">
+        <a href="/Manager_Score/{{ round_id.id }}">
+          <i class="fs-6 ti ti-x text-danger"></i>
+        </a>
+        <h1 class="text-center fs-6 fw-semibold text-primary">เพิ่มหัวข้อคะแนนสำหรับรอบ</h1>
+        </div>
+        <form action="/add_ScoreTopic" method="post" class="container mt-4">
+          {% csrf_token %}
+          <input type="hidden" name="round" id="round" value="{{round_id.id}}">
+          <input type="hidden" name="template_num" id="template_num" value="{{round}}">
+          <div class="row mb-3">
+                <div class="col">
+                  <input type="text" name="topic_name" id="topic_name" placeholder="หัวข้อการให้คะแนน" class="form-control">
+              </div>
+              <div class="col">
+                <input type="text" name="max_score" id="max_score" placeholder="คะแนนเต็ม (ตัวเลขเท่านั้น)" class="form-control">
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <input type="text" name="score_detail" id="score_detail" placeholder="รายละเอียดของหัวข้อคะแนน" class="form-control">
+          </div>
+          </div>
+          <div class="text-center">
+            <button type="submit" class="btn btn-info btn-lg">เพิ่มหัวข้อ</button>
+        </div>
+    </form>
+  </div>
+            
+
 
     {% else %}
 
+      <div class="container justify-content-center">
+        <div class="row">
+          <div class="col-md-8 mx-auto">
+            <div class="card">
+              <div class="card-body">
+                <div class="d-flex justify-content-center">
+                  <h2 class="fs-6 card-title">{{ round_id.round_name }} {{ round_id.academic_year }} </h2>
+                  <h2 class="fs-6 text-primary card-title fw-bolder">{{ key }}</h2>
+                </div>
+                <ul class="list-group list-group-flush">
+                {% for topic in topics %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div> 
+                      <h1 class="fs-4">{{ topic.topic_name }} : {{ topic.max_score }}</h1>
+                      <h1 class="fs-4 ms-9 text-muted">{{ topic.score_detail }}</h1>
+                    </div>
+                    <div>
+                      <a class="btn btn-info btn-sm" href="javascript:void(0);" onclick="edit_popup
+                        ('{{ topic.id }}', '{{ topic.topic_name }}', '{{ topic.max_score }}', '{{ topic.score_detail }}')">แก้ไข</a>
+                      <a class="btn btn-danger btn-sm" href="/delete_ScoreTopic/{{topic.id}}">ลบ</a>
+                    </div>
+                  </li>
+                {% endfor %}
+                <li class="text-center">
+                  <button class="text-center btn btn-info fs-3 fw-semibold px-2 mt-2" onclick="add_ScoreRound()">เพิ่มหัวข้อ</button>
+                </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
 
-      {% for t in topics %}
-      {{ t.topic_name }} <br>
-      {% endfor %}
+    <div class="container_Scoreadd" id="add_ScoreTopic">
+      <div class="text-end">
+      <a href="/Manager_Score/{{ round_id.id }}">
+        <i class="fs-6 ti ti-x text-danger"></i>
+      </a>
+      <h1 class="text-center fs-6 fw-semibold text-primary">เพิ่มหัวข้อคะแนนสำหรับรอบ</h1>
+      </div>
+      <form action="/add_ScoreTopic" method="post" class="container mt-4">
+        {% csrf_token %}
+        <input type="hidden" name="round" id="round" value="{{round_id.id}}">
+        <input type="hidden" name="template_num" id="template_num" value="{{round}}">
+        <div class="row mb-3">
+              <div class="col">
+                <input type="text" name="topic_name" id="topic_name" placeholder="หัวข้อการให้คะแนน" class="form-control">
+            </div>
+            <div class="col">
+              <input type="text" name="max_score" id="max_score" placeholder="คะแนนเต็ม (ตัวเลขเท่านั้น)" class="form-control">
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col">
+            <input type="text" name="score_detail" id="score_detail" placeholder="รายละเอียดของหัวข้อคะแนน" class="form-control">
+        </div>
+        </div>
+        <div class="text-center">
+          <button type="submit" class="btn btn-info btn-lg">เพิ่มหัวข้อ</button>
+      </div>
+  </form>
+  </div>
 
-
+  <div class="container_Scoreadd" id="edit_popup">
+    <div class="text-end">
+    <a href="/Manager_Score/{{ round_id.id }}">
+      <i class="fs-6 ti ti-x text-danger"></i>
+    </a>
+    <h1 class="text-center fs-6 fw-semibold text-primary">แก้ไขหัวข้อคะแนน</h1>
+    </div>
+    <form action="/edit_ScoreTopic" method="post" class="container mt-4">
+      {% csrf_token %}
+      <input type="hidden" name="topic_id" id="topic_id">
+      <div class="row mb-3">
+            <div class="col">
+              <input type="text" name="topic_name" id="topic_name_edit" placeholder="หัวข้อการให้คะแนน" class="form-control">
+          </div>
+          <div class="col">
+              <input type="text" name="max_score" id="max_score_edit" placeholder="คะแนนเต็ม" class="form-control">
+          </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col">
+          <input type="text" name="score_detail" id="score_detail_edit" placeholder="รายละเอียดของหัวข้อคะแนน" class="form-control">
+      </div>
+      </div>
+      <div class="text-center">
+          <button type="submit" class="btn btn-info btn-lg">แก้ไข</button>
+      </div>
+  </form>
+</div>
     {% endif %}
 </div>
 {% endblock %}
+
