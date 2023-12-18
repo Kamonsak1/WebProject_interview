@@ -148,16 +148,16 @@ class Round(models.Model):
 class Schedule(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
-    round = models.ForeignKey(Round, on_delete=models.CASCADE)
-    role = models.ForeignKey(Role, on_delete=models.CASCADE)
+    round = models.ManyToManyField(Round)
+    role = models.ManyToManyField(Role)
     schedule_name = models.CharField(max_length=200)
     schedule_content = models.TextField()
 
 class Announcement(models.Model):
     post_date = models.DateField(default=datetime.now) 
     expire_date = models.DateField()
-    round = models.ForeignKey(Round, on_delete=models.CASCADE)
-    role = models.ForeignKey(Role, on_delete=models.CASCADE)
+    round = models.ManyToManyField(Round)
+    role = models.ManyToManyField(Role )
     title = models.CharField(max_length=200)
     announcement_content = models.TextField()
 

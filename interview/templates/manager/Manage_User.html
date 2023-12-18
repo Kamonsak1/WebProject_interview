@@ -17,22 +17,8 @@
             <form action="{% url 'search_user' %}" method="post" class="w-100 d-flex flex-row align-items-center">
                 {% csrf_token %}
                 <input class="form-control me-2" type="search" name="search" id="" placeholder="ค้นหา..." style="flex-grow: 1; min-width: 0;">
-                <select class="form-select me-2" name="faculty" id="id_faculty_second" style="width: auto;">
-                    <option value="">คณะ</option>
-                    {% for faculty in faculty_all %}
-                    <option value="{{faculty}}">{{faculty}}</option>
-                    {% endfor %}
-                </select>
-                <select class="form-select" name="major" id="id_major_second" style="width: auto;">
-                    <option value="">สาขา</option>
-                </select>
                 <button class="btn btn-info mx-2" type="submit">ค้นหา</button>
             </form>
-        </div>
-
-        <div>
-            <button class="btn btn-info " onclick="add_User()">เพิ่มผู้ใช้งาน</button>
-            <button class="btn btn-info " onclick="add_User_by_file()">เพิ่มผู้ใช้งานแบบไฟล์</button>
         </div>
 
     </div>
@@ -52,14 +38,22 @@
                 <td>{{ user.email }}</td>
                 <td class="d-flex justify-content-center">
                     <a class="btn btn-primary btn-sm fs-3 mx-1" href="javascript:void(0);" onclick="display_popup
+                        ('{{ user.id }}',
+                        '{{ user.first_name }}', 
+                        '{{ user.last_name }}',
+                        '{{user.birth_date}}',
+                        '{{user.roles.all}}',
+                        '{{user.email}}','{% for round in user.rounds_participated.all %}{{ round.major }}{% if not forloop.last %}, {% endif %}{% endfor %}',
+                        '{% for round in user.rounds_participated.all %}{{ round.major.faculty.faculty }}{% if not forloop.last %}, {% endif %}{% endfor %}',
+                        '{{ user.rounds_participated.all|join:',' }}',
+                        '{{user.phone_number}}',
+                        '{{user.address}}',
+                        '{{user.postcode}}',)">ดูข้อมูล</a>
+                    <!--<a class="btn btn-secondary btn-sm fs-3 mx-1" href="javascript:void(0);" onclick="edit_popup
                         ('{{ user.id }}', '{{ user.first_name }}', '{{ user.last_name }}',
                         '{{ user.faculty_set.all }}','{{ user.major_set.all}}','{{ user.citizen_id }}',
-                        '{{user.birth_date}}','{{user.roles.all}}','{{user.email}}')">ดูข้อมูล</a>
-                    <a class="btn btn-secondary btn-sm fs-3 mx-1" href="javascript:void(0);" onclick="edit_popup
-                        ('{{ user.id }}', '{{ user.first_name }}', '{{ user.last_name }}',
-                        '{{ user.faculty_set.all }}','{{ user.major_set.all}}','{{ user.citizen_id }}',
-                        '{{user.birth_date}}','{{user.roles.all}}','{{user.email}}')">แก้ไข</a>
-                    <a class="btn btn-danger btn-sm fs-3 mx-1" href="delete_User/{{user.id}}">ลบ</a>  
+                        '{{user.birth_date}}','{{user.roles.all}}','{{user.email}}')">แก้ไข</a>  -->
+                    <a class="btn btn-danger btn-sm fs-3 mx-1" href="delete_User_in_manager/{{user.id}}">ลบ</a>  
                 </td>
             </tr>
             {% endfor %}
@@ -124,41 +118,51 @@
     <div class="container_display" id="display_popup">
             <div  class="topic">
                 <h3 >ข้อมูลผู้ใช้</h3>
-                <a href="User">
+                <a href="Manage_User">
                     <i class="fas fa-sign-out-alt"></i> Exit
                 </a>
             </div>  
             <div class="input_data">
                 <input type="hidden" name="user_id" id="user_id">
-                <div>
-                    <label >ชื่อ</label>
-                    <input type="text" name="first_name" id="display_first_name"readonly>
-                </div>
-                <div>
-                    <label >นามสกุล</label>
-                    <input type="text" name="last_name" id="display_last_name"readonly>
-                </div>
-                <div>
-                    <label >เลขบัตรประชาชน</label>
-                    <input type="text" name="citizen_id" id="display_citizen_id"readonly>
+                <div class="input_row">
+                    <div class="input_group">
+                        <label for="first_name">ชื่อ</label>
+                        <input type="text" name="first_name" id="display_first_name"readonly>
+                    </div>
+                    <div class="input_group">
+                        <label for="last_name">นามสกุล</label>	
+                        <input type="text" name="last_name" id="display_last_name"readonly>
+                    </div>
                 </div>
                 <div>
                     <label >email</label>
                     <input type="text" name="email" id="display_email" readonly>
                 </div>
+                <div class="input_row">
+                    <div class="input_group">
+                        <label >เบอร์โทร</label>
+                        <input type="text" name="email" id="display_phone_number" readonly>
+                    </div>
+                    <div class="input_group">
+                        <label>วัน/เดือน/ปีเกิด</label>
+                        <input type="text" name="birth_date" id="display_birth_date"readonly>
+                    </div>
+                </div>
                 <div>
-                    <label>วัน/เดือน/ปีเกิด</label>
-                    <input type="text" name="birth_date" id="display_birth_date"readonly>
+                    <label>ที่อยู่</label>
+                    <textarea name="address" id="display_address" readonly></textarea>
                 </div>
                 <table class="table table-bordered table-hover">
                     <thead class="thead-dark">
                         <tr>
+                            <th class="text-center fs-5 fw-medium">รอบ</th>
                             <th class="text-center fs-5 fw-medium">คณะ</th>
                             <th class="text-center fs-5 fw-medium">สาขา</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
+                            <td id="rou"></td>
                             <td id="fa"></td>
                             <td id="ma"></td>
                         </tr>

@@ -61,11 +61,14 @@ def test(request):
 @login_required
 @user_passes_test(is_admin)
 def admin_page(request):
-    return render(request,'admin/Admin_page.html')
+    Announcement_all = Announcement.objects.filter(role__name='Admin')
+    return render(request,'admin/Admin_page.html',{'am':Announcement_all})
 @login_required
 @user_passes_test(is_admin)
-def Announcement(request):
-    return render(request,'admin/Announcement.html')
+def Announcement_page(request):
+    Announcement_all= Announcement.objects.all()
+    round = Round.objects.all()
+    return render(request,'admin/Announcement.html',{'a':Announcement_all,'round':round})
 @login_required
 @user_passes_test(is_admin)
 def FacultyMajor(request):
@@ -170,7 +173,7 @@ def Manage_User(request):
     if  major_from_session:
         users = User.objects.filter(roles__name='Student',major__major=major_from_session)
         return render(request,'manager/Manage_User.html',{'users': users,"s_major":major_from_session,'faculty_all':faculty_all,'majors':majors})
-    return render(request,'manager/Manage_User.html',{'users': users,'faculty_all':faculty_all,'majors':majors})
+    return render(request,'manager/Manage_User.html',{'users': users,'faculty_all':faculty_all,'majors':majors,})
 
 @login_required
 @user_passes_test(is_Manager)
@@ -757,9 +760,15 @@ def add_TemporaryUser_by_file(request):
 @login_required
 @user_passes_test(is_admin)
 def delete_User(request,id):
+    
     user_del = User.objects.get(pk=id)
     user_del.delete()
     return redirect('User')
+
+def delete_User_in_manager(request,id):
+    user_del = User.objects.get(pk=id)
+    user_del.delete()
+    return redirect('Manage_User')
 
 @login_required
 @user_passes_test(is_admin)
@@ -783,7 +792,6 @@ def add_User(request):
             major.users.add(check_user)
             return redirect('User')
         except User.DoesNotExist:
-
             new_user = User.objects.create(
                                            first_name= first_name,
                                            last_name= last_name,
@@ -797,7 +805,7 @@ def add_User(request):
             for role_name in checkboxgroup:
                 role_model, _ = Role.objects.get_or_create(name=role_name)
                 role_model.users.add(new_user)
-            send_registration_email(email, citizen_id, password)
+            send_registration_email(email)
             return redirect('User')
         
     return redirect("User")
@@ -1263,3 +1271,28 @@ def profile_hbd(request):
             return redirect('Interviewer_Profile')
         if source_page == 'Student':
             return redirect('Student_profile')
+        
+def add_announcement(request):
+    if request.method == 'POST':
+        topic = request.POST.get('topic')
+        details = request.POST.get('details')
+        date_str = request.POST.get('expire_date')
+        date_object = datetime.strptime(date_str, '%d/%m/%Y')
+        adjusted_year = date_object.year - 543
+        adjusted_date = date_object.replace(year=adjusted_year)
+        formatted_date = adjusted_date.strftime('%Y-%m-%d')
+        selected_rounds_str = request.POST.get('selectedRounds').split(',')
+        checkboxgroup = request.POST.getlist('checkboxgroup')
+        add_announcement =Announcement.objects.create(title=topic,announcement_content=details,expire_date=formatted_date)
+        for rounds in selected_rounds_str:
+            round = Round.objects.get(pk=rounds)
+            add_announcement.round.add(round)
+        for role in checkboxgroup:
+            role = Role.objects.get(name=role)
+            add_announcement.role.add(role)
+        return redirect('Announcement_page')
+    
+def delete_Announcement(request,id):
+    delete_Am = Announcement.objects.get(pk=id)
+    delete_Am.delete()
+    return redirect('Announcement_page')

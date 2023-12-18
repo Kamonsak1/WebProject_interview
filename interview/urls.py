@@ -24,7 +24,7 @@ urlpatterns = [
 
     #Admin
     path('Admin_page',admin_page, name='Admin_page'),
-    path('Announcement',Announcement, name='Announcement'),
+    path('Announcement_page',Announcement_page, name='Announcement_page'),
     path('FacultyMajor',FacultyMajor, name='FacultyMajor'),
     path('Interview',Interview, name='Interview'),
     path('Score',Score, name='Score'),
@@ -56,6 +56,7 @@ urlpatterns = [
     path('edit_password_in_profile',edit_password_in_profile, name='edit_password_in_profile'),
     path('add_Major_manager',add_Major_manager, name='add_Major_manager'),
     path('delete_manage_in_major',delete_manage_in_major, name='delete_manage_in_major'),
+     path('delete_Announcement/<int:id>/',delete_Announcement, name='delete_Announcement'),
 
     
 
@@ -73,6 +74,9 @@ urlpatterns = [
     path('chang_major', chang_major, name='chang_major'),
     path('Manage_User', Manage_User, name='Manage_User'),
     path('Manager_Score/score/<int:id>', Manager_ScoreTopic, name="Manager_ScoreTopic"),
+    path('delete_User_in_manager/<int:id>',delete_User_in_manager,name='delete_User_in_manager'),
+    path('add_announcement',add_announcement,name='add_announcement'),
+
 
     #Interviewer
     path('Interviewer_page',interviewer_page, name='Interviewer_page'),

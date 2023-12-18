@@ -236,3 +236,31 @@ input[type="checkbox"]:checked {
 .search button:hover {
     background-color: #2980b9; 
 }
+
+.input_row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.input_group {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.input_group:last-child {
+    margin-right: 0;
+}
+
+input {
+    width: 100%;
+}
+#display_address {
+    width: 100%; 
+    min-height: 50px;  
+    padding: 10px;  
+    box-sizing: border-box;  
+    border: 1px solid #ccc;  
+    border-radius: 4px; 
+    resize: none;  
+}

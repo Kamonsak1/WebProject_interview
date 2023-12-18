@@ -83,12 +83,15 @@ function add_User() {
   }
   }
   
-  function display_popup(user_id, first_name, last_name,birth_date,role,email,major,faculty,round) {
-  var optionsDiv = document.getElementById("display_popup");
-  document.getElementById('user_id').value = user_id;
-  document.getElementById('display_first_name').value = first_name;
-  document.getElementById('display_last_name').value = last_name;
-  document.getElementById('display_email').value = email;
+  function display_popup(user_id, first_name, last_name,birth_date,role,email,major,faculty,round,phone_number,address,postcode) {
+    var optionsDiv = document.getElementById("display_popup");
+    var fullAddress = address + ' ' + postcode;
+    document.getElementById('user_id').value = user_id;
+    document.getElementById('display_first_name').value = first_name;
+    document.getElementById('display_last_name').value = last_name;
+    document.getElementById('display_email').value = email;
+    document.getElementById('display_phone_number').value = phone_number;display_address
+    document.getElementById('display_address').value = fullAddress;
   var formattedround = round.replace(',', "<br>");
   document.getElementById('rou').innerHTML = formattedround;
   var formattedfaculty = faculty.replace(',', "<br>");
