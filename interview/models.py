@@ -162,11 +162,11 @@ class Announcement(models.Model):
     announcement_content = models.TextField()
 
 def user_directory_path(instance, filename):
-    # ไฟล์จะถูกอัพโหลดไปยัง MEDIA_ROOT/<id>/<filename>
-    return '{0}/{1}'.format(instance.User_M.id, filename)
+    return 'Document/{0}/{1}'.format(instance.user.id, filename)
 class Document(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     round = models.ForeignKey(Round, on_delete=models.CASCADE)
+    doc_name = models.CharField(max_length=100,blank=True,null=True)
     document = models.FileField(upload_to=user_directory_path)
 
 class ScoreTopic(models.Model):

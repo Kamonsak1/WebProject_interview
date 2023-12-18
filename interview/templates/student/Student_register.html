@@ -1,5 +1,10 @@
 {% extends 'student/base/n_base.html' %}
+{% load static %}
 
+{% block css_js %} 
+<link rel="stylesheet" href="{% static 'css/student_css/document.css' %}" />
+<script src="{% static 'js/student/document.js' %}"></script>
+{% endblock %} 
 {% block topic %}
 <h1 class="text-3xl text-gray-100 mt-2 text-center">ลงทะเบียนสัมภาษณ์</h1>
 {% endblock %}
@@ -16,7 +21,7 @@
             </div>
             <div class="d-flex">
                 <h4 class="fs-5 fw-bolder text-success mt-auto me-5">{{ r.interview_time }}</h4>
-                <button class="btn btn-secondary btn-sm fs-3 mx-1">อัปโหลดเอกสาร</button>
+                <button class="btn btn-secondary btn-sm fs-3 mx-1" onclick="upload()">อัปโหลดเอกสาร</button>
             {% if r.active and r.id not in registered_rounds %}
                 <form method="post" action="{% url 'register_interview' r.id %}">
                     {% csrf_token %}
@@ -32,6 +37,44 @@
         </div>
     </div>
     {% endfor %}
+
+    <div class="" id="edit_popup">
+        <div class="text-end">
+        <a href="/Score">
+          <i class="fs-6 ti ti-x text-danger"></i>
+        </a>
+        <h1 class="text-center fs-6 fw-semibold text-primary">แก้ไขหัวข้อคะแนน</h1>
+        </div>
+        <form action="/edit_ScoreTopic" method="post" class="container mt-4">
+            {% csrf_token %}
+            <p>
+                <select name="user" required="" id="id_user">
+                    <option value="" selected="">---------</option>
+                    <option value="1">ชื่อผู้ใช้: 1</option>
+                    <option value="26">ชื่อผู้ใช้: gokingxd2@gmail.com</option>
+                    <option value="30">ชื่อผู้ใช้: 2</option>
+                </select>
+            </p>
+            <p>
+                <select name="round" required="" id="id_round">
+                    <option value="" selected="">---------</option>
+                    <option value="2">DSSI</option>
+                    <option value="3">DSSI2</option>
+                </select>
+            </p>
+            <p>
+                <input type="text" name="doc_name" maxlength="100" required="" id="id_doc_name">
+            </p>
+            <p>
+                <input type="file" name="document" required="" id="id_document">
+            </p>
+            <div class="text-center">
+                <button type="submit" class="btn btn-info btn-lg">อัปโหลดเอกสาร</button>
+            </div>
+        </form>
+
+
+    </div>
 
 </div>
 {% endblock %}

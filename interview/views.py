@@ -25,6 +25,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.hashers import check_password
 from collections import defaultdict
 import re
+from .forms import *
 # Create your views here.
 
 def is_admin(user):
@@ -238,13 +239,29 @@ def Student_profile(request):
 @login_required
 @user_passes_test(is_Student)
 def Student_register(request):
+    
     user_rounds = Round.objects.filter(users=request.user)
     user_majors = Major.objects.filter(users=request.user)
     related_rounds = Round.objects.filter(major__in=user_majors)
     combined_rounds = user_rounds | related_rounds
     registered_rounds = InterviewStatus.objects.filter(user=request.user).values_list('round', flat=True)
 
-    return render(request,'student/Student_register.html',{'rounds': combined_rounds.distinct(),'registered_rounds': registered_rounds})
+    if request.method == 'POST':
+        form = DocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            document = form.save(commit=False)
+            document.user = request.user
+            document.save()
+            return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+    else:
+        form = DocumentForm()
+    
+    context = {
+        'rounds': combined_rounds.distinct(),
+        'registered_rounds': registered_rounds,
+        'form' : form,
+        }
+    return render(request,'student/Student_register.html',context)
 @login_required
 @user_passes_test(is_Student)
 def Student_room(request):
