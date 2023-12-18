@@ -73,9 +73,10 @@ urlpatterns = [
     path('toggle_round_active/<int:round_id>/', toggle_round_active, name='toggle_round_active'),
     path('chang_major', chang_major, name='chang_major'),
     path('Manage_User', Manage_User, name='Manage_User'),
-    path('Manager_Score/score/<int:id>', Manager_ScoreTopic, name="Manager_ScoreTopic"),
+    path('Manager_Score/<int:id>', Manager_ScoreTopic, name="Manager_ScoreTopic"),
     path('delete_User_in_manager/<int:id>',delete_User_in_manager,name='delete_User_in_manager'),
     path('add_announcement',add_announcement,name='add_announcement'),
+    path('Manager_Status/<int:id>',Manager_StatusRound,name='Manager_StatusRound'),
 
 
     #Interviewer

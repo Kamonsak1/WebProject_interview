@@ -205,7 +205,8 @@ def Manager_Print_Interview(request):
 @login_required
 @user_passes_test(is_Manager)
 def Manager_Status(request):
-    return render(request,'manager/Manager_Status.html')
+    user_rounds = Round.objects.filter(manager=request.user)
+    return render(request,'manager/Manager_Status.html', {'rounds': user_rounds})
 
 #Interviewer
 @login_required
@@ -1296,3 +1297,12 @@ def delete_Announcement(request,id):
     delete_Am = Announcement.objects.get(pk=id)
     delete_Am.delete()
     return redirect('Announcement_page')
+
+def Manager_StatusRound(request,id):
+    round = Round.objects.get(id=id)
+    UserInRound = InterviewStatus.objects.filter(round=round)
+    context = {
+        "Users" : UserInRound,
+        "round" : round,
+    }
+    return render(request, "manager/Manager_StatusRound.html", context)

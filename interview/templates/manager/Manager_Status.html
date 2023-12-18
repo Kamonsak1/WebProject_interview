@@ -5,6 +5,21 @@
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
-    <!-- ตำแหน่งเนื้อหาของหน้าหลัก -->
+    {% for round in rounds %}
+    <div class="card w-100">
+        <div class="card-body mini-card-body d-flex justify-content-between">
+            <div class="d-flex">
+                <h4 class="fs-5 text-primary mt-auto">{{ round.round_name }} ({{ round.academic_year }})</h4> 
+                <h4 class="fs-5 text-dark ms-2 mt-auto">{{ round.major }} | เอกสารที่จำเป็น :</h4>
+                <h4 class="fs-5 text-warning mt-auto"> {{ round.documents }}</h4>
+            </div>
+            <div class="d-flex">
+                <h4 class="fs-5 fw-bolder text-success mt-auto me-3">{{ round.interview_time }}</h4>
+                <a href="Manager_Status/{{round.id}}" class="btn btn-secondary btn-sm fs-3 mx-1">สถานะการสัมภาษณ์</a>
+            </div>
+        </div>
+    </div>
+    {{ r.round_name }} {{ r.academic_year }}
+    {% endfor %}
 </div>
 {% endblock %}
