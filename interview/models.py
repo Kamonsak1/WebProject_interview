@@ -190,6 +190,7 @@ class InterviewStatus(models.Model):
 class InterviewLink(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='interview_link')
     link = models.CharField(max_length=300)
+    active = models.BooleanField(default=False,null=True,blank=True)
 
 
 class RoundScore(models.Model):

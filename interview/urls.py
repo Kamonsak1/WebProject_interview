@@ -73,6 +73,7 @@ urlpatterns = [
     path('Manager_Print_Interview',Manager_Print_Interview, name='Manager_Print_Interview'),
     path('Manager_Status',Manager_Status, name='Manager_Status'),
     path('toggle_round_active/<int:round_id>/', toggle_round_active, name='toggle_round_active'),
+    path('toggle_status_active/<int:link_id>/', toggle_status_active, name='toggle_status_active'),
     path('chang_major', chang_major, name='chang_major'),
     path('Manage_User', Manage_User, name='Manage_User'),
     path('Manager_Score/<int:id>', Manager_ScoreTopic, name="Manager_ScoreTopic"),

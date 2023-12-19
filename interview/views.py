@@ -1063,7 +1063,15 @@ def toggle_round_active(request, round_id):
     round = get_object_or_404(Round, id=round_id)
     round.active = not round.active
     round.save()
-    return redirect('/Manager_interview')
+    return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+
+@login_required
+@user_passes_test(is_Manager)
+def toggle_status_active(request, link_id):
+    link = get_object_or_404(InterviewLink, id=link_id)
+    link.active = not link.active
+    link.save()
+    return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
 
 @login_required
@@ -1114,13 +1122,9 @@ def add_meetlink(request):
     if request.method == "POST":
         link = request.POST.get("link")
         user = request.user
-        if InterviewLink(user=user):
-            change_link = InterviewLink.objects.get(user=user)
-            change_link.link = link
-            change_link.save()
-        else:
-            add_link = InterviewLink(user=user,link=link)
-            add_link.save()
+        change_link, create = InterviewLink.objects.get_or_create(user=user)
+        change_link.link = link
+        change_link.save()
         return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
     return redirect('/Interviewer_page')
