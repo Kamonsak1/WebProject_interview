@@ -248,19 +248,17 @@ def Student_register(request):
     registered_rounds = InterviewStatus.objects.filter(user=request.user).values_list('round', flat=True)
 
     if request.method == 'POST':
-        form = DocumentForm(request.POST, request.FILES)
-        if form.is_valid():
-            document = form.save(commit=False)
-            document.user = request.user
-            document.save()
-            return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
-    else:
-        form = DocumentForm()
+        user = request.user
+        round = Round.objects.get(id=request.POST.get("round_id"))
+        doc_name = request.POST.get("doc_name")
+        file = request.FILES.get('file_name')
+        document = Document(user=user,round=round,doc_name=doc_name,document=file)
+        document.save()
+        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
     
     context = {
         'rounds': combined_rounds.distinct(),
         'registered_rounds': registered_rounds,
-        'form' : form,
         }
     return render(request,'student/Student_register.html',context)
 @login_required
