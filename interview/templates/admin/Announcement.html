@@ -29,10 +29,14 @@
                 {% for i in a %}
                 <div class="card mb-1">
                     <div class="card-body p-2">
+                        <div  class=" d-flex justify-content-between">
+                        <div>    
                         <h5 class="text_date" style="display: none;" data-post-date="{{ i.post_date }}"></h5>
                         <h5 class="display_birth_date" style="display: inline-block; margin-right: 5px;"></h5>
                         <h5 style="display: inline-block;">|{{ i.title }}</h5>
-                        <button><a href="delete_Announcement/{{i.id}}">ลบ</a></button>
+                        </div>
+                        <span><i class="ti ti-edit" id="icon_edit" onclick="edit_Announcement()"></i> </span>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
@@ -66,7 +70,54 @@
         </div>
     </div>
 </div>
-
+<div  class="container_edit" id="edit_Announcement" >
+    <form action="">
+        <div  class="topic">
+            <h3 >แก้ไขประกาศ</h3>
+            <a href="Announcement_page">
+                <i class="fas fa-sign-out-alt"></i> Exit
+            </a>         
+        </div>   
+        <div class="input_data">
+            <label for="">หัวข้อประกาศ</label> 
+            <input type="text" name="topic" id="" placeholder="หัวข้อ">
+    
+            <label for="">เนื้อหาประกาศ</label> 
+            <textarea name="details" placeholder="เนื้อหา" ></textarea>
+            <label for="">ประกาศถึงวันที่</label> 
+            <input type="text" name="expire_date" id="" placeholder="วว/ดด/ปป">    
+        </div>
+        <div  class="title_role">
+            <h3 >บทบาทที่ต้องการให้เห็น</h3>
+        </div> 
+        <div class="checkbox-container">
+            <input type="checkbox" id="checkbox1" name="checkboxgroup" value="Admin" >
+            <label for="checkbox1" class="checkbox-label">Admin</label>
+        
+            <input type="checkbox" id="checkbox2" name="checkboxgroup" value="Manager" >
+            <label for="checkbox2" class="checkbox-label">Manager</label>
+        
+            <input type="checkbox" id="checkbox3" name="checkboxgroup" value="Interviewer" >
+            <label for="checkbox3" class="checkbox-label">Interviewer</label>
+        
+            <input type="checkbox" id="checkbox4" name="checkboxgroup" value="Student" >
+            <label for="checkbox4" class="checkbox-label">Student</label>
+        </div>
+        <div class="title_role">
+            <h3 class="title">รอบที่ต้องการให้เห็น</h3>
+            <select name="" id="edit_selectRound" class="select-round" ">
+              <option value="">เลือกรอบ</option>
+              {% for round in round %}
+                  <option value="{{ round.id }}">{{ round.round_name }}</option>
+              {% endfor %}
+          </select>
+        </div>
+          <div id="edit_round">
+  
+          </div>
+          <input type="hidden" id="edit_selectedRoundsInput" name="edit_selectedRounds" value="">     
+    </form>
+</div>  
 <div class="container_add" id="add_Announcement" >
   <form action="{% url 'add_announcement' %}" method="post">
       {% csrf_token %}
@@ -117,7 +168,10 @@
           <button  type="submit">เพิ่ม</button>
         </div>        
     </form>
-  </div>
+</div>
+
+
+
   <script>
    document.addEventListener('DOMContentLoaded', function() {
     // ใช้ querySelectorAll เพื่อเข้าถึงทุก elements ที่มี class 'text_date'

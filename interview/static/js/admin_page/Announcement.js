@@ -7,6 +7,17 @@ function add_Announcement() {
     }
   }
 
+  function edit_Announcement() {
+    var edit_An = document.getElementById("edit_Announcement");
+    console.log('asd')
+    if (edit_An.style.display === "block") {
+      edit_An.style.display = "none";
+    } else {
+      edit_An.style.display = "block";
+    }
+  }
+
+
   var selectedRounds = [];
   var Roundid = [];
   function updateRoundInfo() {

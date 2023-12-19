@@ -109,8 +109,7 @@ def TemporaryUser_path(request):
     users = TemporaryUser.objects.all()
     faculty_all = Faculty.objects.all()
     major_all = Major.objects.all()
-    round_active = Round.objects.filter(active='True')
-
+    round_active = Round.objects.all().order_by('-academic_year')
     return render(request,'admin/TemporaryUser.html', {'users': users,'faculty_all':faculty_all,"major_all":major_all,'round_active':round_active})
 @login_required
 @user_passes_test(is_admin)
@@ -941,22 +940,22 @@ def add_User_by_file(request):
 def edit_User(request):
     if request.method == "POST":
         user_id = request.POST.get('user_id')
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        citizen_id = request.POST.get('citizen_id')
-        email = request.POST.get('email')
-        birth_date_str = request.POST.get('birth_date')
-        birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date()
+        # first_name = request.POST.get('first_name')
+        # last_name = request.POST.get('last_name')
+        # citizen_id = request.POST.get('citizen_id')
+        # email = request.POST.get('email')
+        # birth_date_str = request.POST.get('birth_date')
+        # birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date()
         checkboxgroup = request.POST.getlist('checkboxgroup')
         edit_user = User.objects.get(pk=user_id)
         role = Role.objects.filter(users=edit_user)
         for role in role:
             role.users.remove(edit_user)
-        edit_user.first_name=first_name
-        edit_user.last_name=last_name
-        edit_user.citizen_id=citizen_id
-        edit_user.birth_date=birth_date
-        edit_user.email=email
+        # edit_user.first_name=first_name
+        # edit_user.last_name=last_name
+        # edit_user.citizen_id=citizen_id
+        # edit_user.birth_date=birth_date
+        # edit_user.email=email
         for role_name in checkboxgroup:
             role_model, _ = Role.objects.get_or_create(name=role_name)
             role_model.users.add(edit_user)

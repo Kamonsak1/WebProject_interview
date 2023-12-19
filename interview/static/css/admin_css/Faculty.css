@@ -214,9 +214,9 @@ input {
     position: absolute;
     width: 90%;
     background-color: #fff;
+    text-align: left;
 }
 .group a{
-    text-align: left;
 
     color: #000000;
 }

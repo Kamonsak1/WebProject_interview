@@ -74,7 +74,8 @@ input[type="checkbox"] {
     border-radius: 50%; 
     outline: none;
     cursor: pointer;
-    margin-right: 5px;
+    margin: 5px;
+    margin-bottom: 10px;
 }
 input[type="checkbox"]:checked {
     background-color: #000; 
@@ -121,3 +122,29 @@ input[type="checkbox"]:checked {
     position: absolute;
 }
 
+#icon_edit {
+    font-size: 30px; 
+    cursor: pointer; 
+    z-index: 999;
+}
+
+
+.container_edit{
+    width: 700px;
+    margin: 0 auto;
+    display: none;
+    border: 3px solid black;
+    z-index: 999;
+    border-radius: 9px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+}
+
+.checkbox-container, .title_role {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
