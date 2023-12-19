@@ -34,8 +34,16 @@
                         <h5 class="text_date" style="display: none;" data-post-date="{{ i.post_date }}"></h5>
                         <h5 class="display_birth_date" style="display: inline-block; margin-right: 5px;"></h5>
                         <h5 style="display: inline-block;">|{{ i.title }}</h5>
+                        
                         </div>
-                        <span><i class="ti ti-edit" id="icon_edit" onclick="edit_Announcement()"></i> </span>
+                        <span><i class="ti ti-edit" id="icon_edit" 
+                        onclick="edit_Announcement(
+                            '{{ i.id }}',
+                            '{{ i.title }}',
+                            '{{ i.expire_date }}',
+                            '{{ i.announcement_content }}',
+                            '{% for role in i.role.all %}{{role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}',
+                            '{% for round in i.round.all %}{{ round.round_name }}{% if not forloop.last %}, {% endif %}{% endfor %}', )"></i> </span>
                         </div>
                     </div>
                 </div>
@@ -71,7 +79,8 @@
     </div>
 </div>
 <div  class="container_edit" id="edit_Announcement" >
-    <form action="">
+    <form action="edit_Announcement" method="post">
+        {% csrf_token %}
         <div  class="topic">
             <h3 >แก้ไขประกาศ</h3>
             <a href="Announcement_page">
@@ -79,13 +88,14 @@
             </a>         
         </div>   
         <div class="input_data">
+            <input type="hidden" name="round_id" id="round_id" >
             <label for="">หัวข้อประกาศ</label> 
-            <input type="text" name="topic" id="" placeholder="หัวข้อ">
+            <input type="text" name="topic" id="edit_topic" placeholder="หัวข้อ">
     
             <label for="">เนื้อหาประกาศ</label> 
-            <textarea name="details" placeholder="เนื้อหา" ></textarea>
+            <textarea name="details" id="edit_content" placeholder="เนื้อหา" ></textarea>
             <label for="">ประกาศถึงวันที่</label> 
-            <input type="text" name="expire_date" id="" placeholder="วว/ดด/ปป">    
+            <input type="text" name="expire_date" id="edit_post_date" placeholder="วว/ดด/ปป">    
         </div>
         <div  class="title_role">
             <h3 >บทบาทที่ต้องการให้เห็น</h3>
@@ -105,17 +115,23 @@
         </div>
         <div class="title_role">
             <h3 class="title">รอบที่ต้องการให้เห็น</h3>
-            <select name="" id="edit_selectRound" class="select-round" ">
+            <select name="" id="edit_selectRound" class="select-round" onchange="editRoundInfo() ">
               <option value="">เลือกรอบ</option>
               {% for round in round %}
-                  <option value="{{ round.id }}">{{ round.round_name }}</option>
+                  <option value="{{ round.round_name }}">{{ round.round_name }}</option>
               {% endfor %}
           </select>
         </div>
-          <div id="edit_round">
+          <div class="title_round" id="edit_round">
   
           </div>
-          <input type="hidden" id="edit_selectedRoundsInput" name="edit_selectedRounds" value="">     
+          <input type="hidden" id="edit_selectedRoundsInput" name="edit_selectedRounds" value="">   
+          <div class="bt">
+            <button  type="submit">แก้ไขข้อมูล</button>
+            <button><a href="#" id="deleteLink" style="color: black;">ลบประกาศ</a></button>
+
+          </div>  
+
     </form>
 </div>  
 <div class="container_add" id="add_Announcement" >
@@ -160,7 +176,7 @@
             {% endfor %}
         </select>
         </div>
-        <div id="round">
+        <div class="title_round"  id="round">
 
         </div>
         <input type="hidden" id="selectedRoundsInput" name="selectedRounds" value="">

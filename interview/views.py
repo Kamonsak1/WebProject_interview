@@ -6,6 +6,8 @@ from interview.models import *
 from django.contrib.auth import login, logout,authenticate
 from django.contrib.auth.decorators import login_required,user_passes_test
 from django.shortcuts import render, redirect
+from django.core.exceptions import ObjectDoesNotExist
+
 from social_core.backends.google import GoogleOAuth2
 from allauth.socialaccount.models import SocialAccount
 from django.shortcuts import get_object_or_404
@@ -138,13 +140,11 @@ def manager_page(request,id):
     faculty_all = Faculty.objects.filter(users=id)
     majors = Major.objects.filter(default_manager=id)
     request.session['myuser_id'] = id
+    Announcement_all = Announcement.objects.filter(role__name='Manager')
     major_from_session = request.session.get('major')
     if  major_from_session:
-        
-
-
-        return render(request,'manager/Manager_page.html',{'users': users,"s_major":major_from_session,'faculty_all':faculty_all,'majors':majors})
-    return render(request,'manager/Manager_page.html',{'users': users,'faculty_all':faculty_all,'majors':majors})
+        return render(request,'manager/Manager_page.html',{'users': users,"s_major":major_from_session,'faculty_all':faculty_all,'majors':majors,'am':Announcement_all})
+    return render(request,'manager/Manager_page.html',{'users': users,'faculty_all':faculty_all,'majors':majors ,'am':Announcement_all})
 @login_required
 @user_passes_test(is_Manager)
 def manage_profile(request):
@@ -212,7 +212,8 @@ def Manager_Status(request):
 @login_required
 @user_passes_test(is_Interviewer)
 def interviewer_page(request):
-    return render(request,'interviewer/Interviewer_page.html')
+    Announcement_all = Announcement.objects.filter(role__name='Interviewer')
+    return render(request,'interviewer/Interviewer_page.html',{'am':Announcement_all})
 @login_required
 @user_passes_test(is_Interviewer)
 def Interviewer_Profile(request):
@@ -230,7 +231,8 @@ def Interviewer_room(request):
 @login_required
 @user_passes_test(is_Student)
 def student_page(request):
-    return render(request,'student/Student_page.html')
+    Announcement_all = Announcement.objects.filter(role__name='Student')
+    return render(request,'student/Student_page.html',{'am':Announcement_all})
 @login_required
 @user_passes_test(is_Student)
 def Student_profile(request):
@@ -1336,3 +1338,39 @@ def Manager_StatusRound(request,id):
         "round" : round,
     }
     return render(request, "manager/Manager_StatusRound.html", context)
+
+def edit_Announcement(request):
+    if request.method == 'POST':
+        round_id = request.POST.get('round_id')
+        topic = request.POST.get('topic')
+        details = request.POST.get('details')
+        date_str = request.POST.get('expire_date')
+        date_object = datetime.strptime(date_str, '%d/%m/%Y')
+        adjusted_year = date_object.year - 543
+        adjusted_date = date_object.replace(year=adjusted_year)
+        formatted_date = adjusted_date.strftime('%Y-%m-%d')
+        selected_rounds_str = request.POST.get('edit_selectedRounds').split(',')
+        checkboxgroup = request.POST.getlist('checkboxgroup')
+        edit_announcement = Announcement.objects.get(pk=round_id)
+        edit_announcement.title = topic
+        edit_announcement.announcement_content = details
+        edit_announcement.expire_date = formatted_date
+        edit_announcement.role.clear()
+        edit_announcement.round.clear()
+        try:
+            for role_name in checkboxgroup:
+                role_model = Role.objects.get(name=role_name)
+                edit_announcement.role.add(role_model)
+        except ObjectDoesNotExist:
+            pass
+
+        try:
+            for round in selected_rounds_str:
+                round_model = Round.objects.get(round_name=round)
+                edit_announcement.round.add(round_model)
+        except ObjectDoesNotExist:
+            pass
+        print(selected_rounds_str)
+        edit_announcement.save()
+        return redirect('Announcement_page')
+    

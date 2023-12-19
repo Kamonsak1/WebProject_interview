@@ -148,3 +148,9 @@ input[type="checkbox"]:checked {
     align-items: center;
     justify-content: center;
 }
+
+.title_round{
+    text-align: center;
+    line-height: 1;
+}
+  

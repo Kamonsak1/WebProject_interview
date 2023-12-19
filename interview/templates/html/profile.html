@@ -34,8 +34,8 @@
                     </div>
                 </div>
             </div>
-            <div class="card w-100">
-                <div class="card-body mini-card-body d-flex justify-content-between" style="display: block;" id="show_name" >
+            <div class="card w-100" style="display: block;" id="show_name">
+                <div class="card-body mini-card-body d-flex justify-content-between"  >
                     <h4>ชื่อ-นามสกุล : {{ user.first_name }} {{ user.last_name }}</h5>
                     <span class="text-primary fs-6 edit-icon" onclick="changename('{{ user.id }}')">✎</span>
                 </div>
