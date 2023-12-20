@@ -1,5 +1,47 @@
 #icon_edit {
     font-size: 30px; 
     cursor: pointer; 
+}
+.container_read{
+    width: 700px;
+    margin: 0 auto;
+    display: none;
+    border: 3px solid black;
     z-index: 999;
+    border-radius: 9px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+}
+
+#read_Announcement{
+    cursor: pointer; 
+}
+
+.topic_an{
+    text-align: center;
+}
+.content_an{
+    color: black;
+    padding-left: 5px;
+}
+
+.topic {
+    position: relative;
+    background-color: #376CFF;
+    border-radius:  5px 5px 0px 0px;
+    z-index: 800;
+    padding: 1;
+}
+.topic h3{
+    color: white;
+    text-align: center;
+}
+.topic a{
+    color: white;
+    top: 0;
+    right: 0;
+    position: absolute;
 }

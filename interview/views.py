@@ -1316,15 +1316,25 @@ def add_announcement(request):
         adjusted_year = date_object.year - 543
         adjusted_date = date_object.replace(year=adjusted_year)
         formatted_date = adjusted_date.strftime('%Y-%m-%d')
-        selected_rounds_str = request.POST.get('selectedRounds').split(',')
+        try:
+            selected_rounds_str = request.POST.get('selectedRounds').split(',')
+        except ObjectDoesNotExist:
+            pass
         checkboxgroup = request.POST.getlist('checkboxgroup')
         add_announcement =Announcement.objects.create(title=topic,announcement_content=details,expire_date=formatted_date)
-        for rounds in selected_rounds_str:
-            round = Round.objects.get(pk=rounds)
-            add_announcement.round.add(round)
-        for role in checkboxgroup:
-            role = Role.objects.get(name=role)
-            add_announcement.role.add(role)
+        try:
+            if selected_rounds_str[0]:
+                for rounds in selected_rounds_str:
+                    round = Round.objects.get(pk=rounds)
+                    add_announcement.round.add(round)
+        except ObjectDoesNotExist:
+            pass
+        try:
+            for role in checkboxgroup:
+                role = Role.objects.get(name=role)
+                add_announcement.role.add(role)
+        except ObjectDoesNotExist:
+            pass
         return redirect('Announcement_page')
     
 def delete_Announcement(request,id):

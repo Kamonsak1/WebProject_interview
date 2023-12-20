@@ -23,14 +23,15 @@
                             {% for i in am %}
                             <div class="card mb-1">
                                 <div class="card-body p-2">
-                                    <div  class=" d-flex justify-content-between">
+                                    <div id="read_Announcement" class="d-flex justify-content-between" onclick="read_Announcement(this.getAttribute('data-title'), this.getAttribute('data-content'))" data-id="{{ i.id }}" data-title="{{ i.title | escape }}" data-content="{{ i.announcement_content | escape }}">
+
                                         <div>    
                                         <h5 class="text_date" style="display: none;" data-post-date="{{ i.post_date }}"></h5>
                                         <h5 class="display_birth_date" style="display: inline-block; margin-right: 5px;"></h5>
                                         <h5 style="display: inline-block;">|{{ i.title }}</h5>
                                         
                                         </div>
-                                        <span><i class="ti ti-edit" id="icon_edit" 
+                                        <span><i class="ti ti-news fs-8" id="icon_edit" 
                                         onclick="edit_Announcement(
                                             '{{ i.id }}',
                                             '{{ i.title }}',
@@ -69,7 +70,7 @@
 
                         </div>
                     </div>
-                </div>
+                </div>   
 
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
@@ -108,7 +109,22 @@
                  
                    </script>
             </div>
-            
+            <div class="container_read" id="readAnnouncement" >
+                <div  class="topic">
+                    <h3 ></h3>
+                    <a href="Admin_page">
+                        <i class="fs-6 ti ti-x text-danger"></i>
+                    </a>
+                </div> 
+                <div class="topic_an">
+                    <h1 id="topic"></h1>
+                </div>
+                <div class="content_an">
+                    <p id="content"></p>
+                </div>
+                
+
+            </div>
         </div>     
         {% endblock %}
 
