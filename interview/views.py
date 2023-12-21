@@ -173,7 +173,7 @@ def Manage_User(request):
     if  major_from_session:
         users = User.objects.filter(roles__name='Student',major__major=major_from_session)
         return render(request,'manager/Manage_User.html',{'users': users,"s_major":major_from_session,'faculty_all':faculty_all,'majors':majors})
-    return render(request,'manager/Manage_User.html',{'users': users,'faculty_all':faculty_all,'majors':majors,})
+    return render(request,'manager/Manage_User.html',{'faculty_all':faculty_all,'majors':majors,})
 
 @login_required
 @user_passes_test(is_Manager)
