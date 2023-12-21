@@ -237,6 +237,14 @@
                 </a>
             </div>   
             <input type="file" name="fileInputa">
+            <div  class="faculty_major">
+                <select name="round" id="round">
+                    <option value="">รอบที่สมัคร</option>
+                    {% for round in round_active %}
+                    <option value="{{round.id}}">{{round.round_name}} {{round.academic_year}}</option>
+                    {% endfor %}
+                </select>
+            </div>
             
             <div class="bt">
                 <button  type="submit">สร้างบัญชีผู้ใช้</button>

@@ -685,6 +685,7 @@ def edit_InterviewRound(request):
 @user_passes_test(is_admin)
 def add_TemporaryUser_by_file(request):
     if request.method == 'POST':
+        round_sel = request.POST.get('round') 
         data = request.FILES.get('fileInputa')
         if data.name.endswith('.xlsx'):
             df = pd.read_excel(data)
@@ -693,7 +694,7 @@ def add_TemporaryUser_by_file(request):
         else:
             pass
         try:
-            data = df[['เลขบัตรประชาชน','ชื่อ','วว/ดด/ปป','รอบที่สมัคร']]
+            data = df[['เลขบัตรประชาชน','ชื่อ','วว/ดด/ปป']]
         except Exception as e:
             return HttpResponse('คอลัมไม่ตรงตามที่ต้องการ')
         try:
@@ -726,10 +727,6 @@ def add_TemporaryUser_by_file(request):
             except Exception as e:
                 return HttpResponse('first_name ไม่ถูกต้อง')
             try:
-                round=(data.iloc[i]['รอบที่สมัคร'].strip())
-            except Exception as e:
-                return HttpResponse('round ไม่ถูกต้อง')
-            try:
                 last_name=(data.iloc[i]['นามสกุล'].strip())
             except Exception as e:
                 return HttpResponse('last_name ไม่ถูกต้อง')
@@ -746,7 +743,7 @@ def add_TemporaryUser_by_file(request):
                     Temporary_User = TemporaryUser.objects.create(citizen_id=citizen_id,first_name=first_name,last_name=last_name,birth_date=birth_date)
                     role=Role.objects.filter(name='Student').first()
                     role.TemporaryUser.add(Temporary_User)
-                    Round_db = Round.objects.filter(round_name=round).first()
+                    Round_db = Round.objects.get(pk=round_sel)
                     Round_db.TemporaryUser.add(Temporary_User)  
                     faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
                     faculty_instance.TemporaryUser.add(Temporary_User)
@@ -758,7 +755,7 @@ def add_TemporaryUser_by_file(request):
                     user_id = checkTemporaryUser.first().id
                     checkRound = Round.objects.filter(round_name=round,TemporaryUser=user_id)
                     if not checkRound.exists():
-                        Round_db = Round.objects.filter(round_name=round).first()
+                        Round_db = Round.objects.get(pk=round_sel)
                         Round_db.TemporaryUser.add(user_id)  
                         faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
                         faculty_instance.TemporaryUser.add(Temporary_User)
@@ -772,7 +769,7 @@ def add_TemporaryUser_by_file(request):
                 user_id = checkuser.first().id
                 checkRound = Round.objects.filter(round_name=round,users=user_id)
                 if not checkRound.exists():
-                    Round_db = Round.objects.filter(round_name=round).first()
+                    Round_db = Round.objects.get(pk=round_sel)
                     Round_db.users.add(user_id)
                     faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
                     faculty_instance.users.add(Temporary_User)
@@ -834,7 +831,7 @@ def add_User(request):
             for role_name in checkboxgroup:
                 role_model, _ = Role.objects.get_or_create(name=role_name)
                 role_model.users.add(new_user)
-            send_registration_email(email)
+            #send_registration_email(email)
             return redirect('User')
         
     return redirect("User")

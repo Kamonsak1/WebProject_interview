@@ -64,7 +64,10 @@
                         '{{user.roles.all}}',
                         '{{user.email}}','{% for round in user.rounds_participated.all %}{{ round.major }}{% if not forloop.last %}, {% endif %}{% endfor %}',
                         '{% for round in user.rounds_participated.all %}{{ round.major.faculty.faculty }}{% if not forloop.last %}, {% endif %}{% endfor %}',
-                        '{{ user.rounds_participated.all|join:',' }}')">ดูข้อมูล</a>
+                        '{{ user.rounds_participated.all|join:',' }}',
+                        '{{user.phone_number}}',
+                        '{{user.address}}',
+                        '{{user.postcode}}',)">ดูข้อมูล</a>
                     <a class="btn btn-secondary btn-sm fs-3 mx-1" href="javascript:void(0);" onclick="edit_popup
                         ('{{ user.id }}','{{user.roles.all}}','{{user.email}}')">แก้ไข</a>
                     <a class="btn btn-danger btn-sm fs-3 mx-1" href="delete_User/{{user.id}}">ลบ</a>  
@@ -82,7 +85,7 @@
             <div  class="topic">
                 <h3 >แก้ไขข้อมูล</h3>
                 <a href="User">
-                    <i class="fas fa-sign-out-alt"></i> Exit
+                    <i class="fs-6 ti ti-x text-danger"></i>
                 </a>
             </div>  
             <div class="input_data">
@@ -113,26 +116,38 @@
             <div  class="topic">
                 <h3 >ข้อมูลผู้ใช้</h3>
                 <a href="User">
-                    <i class="fas fa-sign-out-alt"></i> Exit
+                    <i class="fs-6 ti ti-x text-danger"></i>
                 </a>
             </div>  
             <div class="input_data">
                 <input type="hidden" name="user_id" id="user_id">
-                <div>
-                    <label >ชื่อ</label>
-                    <input type="text" name="first_name" id="display_first_name"readonly>
-                </div>
-                <div>
-                    <label >นามสกุล</label>
-                    <input type="text" name="last_name" id="display_last_name"readonly>
+                <div class="input_row">
+                    <div class="input_group">
+                        <label for="first_name">ชื่อ</label>
+                        <input type="text" name="first_name" id="display_first_name"readonly>
+                    </div>
+                    <div class="input_group">
+                        <label for="last_name">นามสกุล</label>	
+                        <input type="text" name="last_name" id="display_last_name"readonly>
+                    </div>
                 </div>
                 <div>
                     <label >email</label>
                     <input type="text" name="email" id="display_email" readonly>
                 </div>
+                <div class="input_row">
+                    <div class="input_group">
+                        <label >เบอร์โทร</label>
+                        <input type="text" name="email" id="display_phone_number" readonly>
+                    </div>
+                    <div class="input_group">
+                        <label>วัน/เดือน/ปีเกิด</label>
+                        <input type="text" name="birth_date" id="display_birth_date"readonly>
+                    </div>
+                </div>
                 <div>
-                    <label>วัน/เดือน/ปีเกิด</label>
-                    <input type="text" name="birth_date" id="display_birth_date"readonly>
+                    <label>ที่อยู่</label>
+                    <textarea name="address" id="display_address" readonly></textarea>
                 </div>
                 <table class="table table-bordered table-hover">
                     <thead class="thead-dark">
@@ -174,7 +189,7 @@
             <div  class="topic">
                 <h3 >สร้างผู้ใช้งาน</h3>
                 <a href="User">
-                    <i class="fas fa-sign-out-alt"></i> Exit
+                    <i class="fs-6 ti ti-x text-danger"></i>
                 </a>
             </div>       
             <div class="input_data">
