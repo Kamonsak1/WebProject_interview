@@ -174,3 +174,106 @@ function deleteItem(itemName) {
 }
 
 
+function add_Schedule() {
+  var add_Schedule = document.getElementById("add_Schedule");
+  if (add_Schedule.style.display === "block") {
+    add_Schedule.style.display = "none";
+  } else {
+    add_Schedule.style.display = "block";
+  }
+}
+
+function select_calendar() {
+  var add_Schedule = document.getElementById("select_calendar");
+  if (add_Schedule.style.display === "block") {
+    add_Schedule.style.display = "none";
+  } else {
+    add_Schedule.style.display = "block";
+  }
+}
+
+
+var previousSelectedTd; 
+function createYearOptions() {
+    var yearSelect = document.getElementById('year');
+    var currentYear = new Date().getFullYear();
+    for (var i = currentYear + 2; i >= currentYear - 2; i--) {
+        var option = document.createElement('option');
+        option.value = i; 
+        option.textContent = (i + 543).toString(); 
+        if (i === currentYear) {
+            option.selected = true; 
+        }
+        yearSelect.appendChild(option);
+    }
+}
+
+
+
+
+function createMonthOptions() {
+    var months = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+    var monthSelect = document.getElementById('month');
+    months.forEach(function(month, index) {
+        var option = document.createElement('option');
+        option.value = index + 1;
+        option.textContent = month;
+        monthSelect.appendChild(option);
+    });
+}
+
+function selectDate(td, day) {
+    var year = parseInt(document.getElementById('year').value);
+    var month = document.getElementById('month').value;
+    var formatyear =  year + 543
+    var formattedDate = ('0' + day).slice(-2) + '/' + ('0' + month).slice(-2) + '/' + formatyear.toString();
+    var inputformattedDate = ('0' + day).slice(-2) + '/' + ('0' + month).slice(-2) + '/' + year.toString();
+    document.getElementById('selectedDate').textContent = 'วันที่เลือก: ' + formattedDate;
+    document.getElementById('inputselectedDate').value = inputformattedDate;
+
+    if (previousSelectedTd) {
+        previousSelectedTd.classList.remove('selected');
+    }
+    td.classList.add('selected');
+    previousSelectedTd = td;
+    document.getElementById('select_calendar').style.display = 'none';
+}
+
+function getFirstDayOfMonth(year, month) {
+    return new Date(year, month - 1, 1).getDay();
+}
+
+function updateCalendar() {
+    var year = parseInt(document.getElementById('year').value);
+    var month = parseInt(document.getElementById('month').value);
+    var daysInMonth = new Date(year, month, 0).getDate();
+    var firstDay = getFirstDayOfMonth(year, month);
+
+    var calendarHtml = '<table><thead><tr>';
+    var daysOfWeek = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
+    for (var i = 0; i < 7; i++) {
+        calendarHtml += '<th>' + daysOfWeek[i] + '</th>';
+    }
+    calendarHtml += '</tr></thead><tbody>';
+
+    var day = 1;
+    var cellCount = 0;
+    for (var i = 0; i < 6; i++) {
+        calendarHtml += '<tr>';
+        for (var j = 0; j < 7; j++, cellCount++) {
+            if (cellCount >= firstDay && day <= daysInMonth) {
+                calendarHtml += `<td onclick="selectDate(this, ${day})">${day}</td>`;
+                day++;
+            } else {
+                calendarHtml += '<td></td>';
+            }
+        }
+        calendarHtml += '</tr>';
+        if (day > daysInMonth) {
+            break;
+        }
+    }
+    calendarHtml += '</tbody></table>';
+
+    document.getElementById('calendar').innerHTML = calendarHtml;
+}

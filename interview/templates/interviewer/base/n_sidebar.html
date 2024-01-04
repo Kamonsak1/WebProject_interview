@@ -30,7 +30,7 @@
                 <a href="{% url 'Manager_page' id=user.id %}" class="btn btn-primary fs-2 fw-semibold lh-sm">Manager</a>
                 {% endif %}
                 {% if role.name == 'Interviewer' %}
-                <a href="{% url 'Interviewer_page' %}" class="btn btn-primary fs-2 fw-semibold lh-sm">Interviewer</a>
+                <a href="{% url 'Interviewer_page' %}" class="btn btn-warning fs-2 fw-semibold lh-sm">Interviewer</a>
                 {% endif %}
             {% endfor %}
         </div>

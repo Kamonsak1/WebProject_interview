@@ -146,7 +146,7 @@ class Round(models.Model):
         return self.round_name
 
 class Schedule(models.Model):
-    start_date = models.DateField()
+    start_date = models.DateField(default=datetime.now)
     end_date = models.DateField()
     round = models.ManyToManyField(Round)
     role = models.ManyToManyField(Role)
@@ -155,7 +155,7 @@ class Schedule(models.Model):
 
 class Announcement(models.Model):
     post_date = models.DateField(default=datetime.now) 
-    expire_date = models.DateField()
+    expire_date = models.DateField(null=True,blank=True)
     round = models.ManyToManyField(Round)
     role = models.ManyToManyField(Role )
     title = models.CharField(max_length=200)

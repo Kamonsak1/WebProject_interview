@@ -58,7 +58,7 @@ def test(request):
     user = User.objects.get(username='1')
     rounds_participated = user.rounds_participated.all()
     majors_participated = [round_obj.major for round_obj in rounds_participated]
-    return render(request,"html/test.html",{'user':user,'rounds_participated':rounds_participated,'majors_participated':majors_participated})
+    return render(request,"admin/test.html",{'user':user,'rounds_participated':rounds_participated,'majors_participated':majors_participated})
 
 #Admin_path
 @login_required
@@ -70,8 +70,9 @@ def admin_page(request):
 @user_passes_test(is_admin)
 def Announcement_page(request):
     Announcement_all= Announcement.objects.all()
+    Schedule_all = Schedule.objects.all()
     round = Round.objects.all()
-    return render(request,'admin/Announcement.html',{'a':Announcement_all,'round':round})
+    return render(request,'admin/Announcement.html',{'a':Announcement_all,'round':round,'s':Schedule_all})
 @login_required
 @user_passes_test(is_admin)
 def FacultyMajor(request):
@@ -1308,17 +1309,12 @@ def add_announcement(request):
     if request.method == 'POST':
         topic = request.POST.get('topic')
         details = request.POST.get('details')
-        date_str = request.POST.get('expire_date')
-        date_object = datetime.strptime(date_str, '%d/%m/%Y')
-        adjusted_year = date_object.year - 543
-        adjusted_date = date_object.replace(year=adjusted_year)
-        formatted_date = adjusted_date.strftime('%Y-%m-%d')
         try:
             selected_rounds_str = request.POST.get('selectedRounds').split(',')
         except ObjectDoesNotExist:
             pass
         checkboxgroup = request.POST.getlist('checkboxgroup')
-        add_announcement =Announcement.objects.create(title=topic,announcement_content=details,expire_date=formatted_date)
+        add_announcement =Announcement.objects.create(title=topic,announcement_content=details)
         try:
             if selected_rounds_str[0]:
                 for rounds in selected_rounds_str:
@@ -1353,17 +1349,11 @@ def edit_Announcement(request):
         round_id = request.POST.get('round_id')
         topic = request.POST.get('topic')
         details = request.POST.get('details')
-        date_str = request.POST.get('expire_date')
-        date_object = datetime.strptime(date_str, '%d/%m/%Y')
-        adjusted_year = date_object.year - 543
-        adjusted_date = date_object.replace(year=adjusted_year)
-        formatted_date = adjusted_date.strftime('%Y-%m-%d')
         selected_rounds_str = request.POST.get('edit_selectedRounds').split(',')
         checkboxgroup = request.POST.getlist('checkboxgroup')
         edit_announcement = Announcement.objects.get(pk=round_id)
         edit_announcement.title = topic
         edit_announcement.announcement_content = details
-        edit_announcement.expire_date = formatted_date
         edit_announcement.role.clear()
         edit_announcement.round.clear()
         try:
@@ -1383,3 +1373,29 @@ def edit_Announcement(request):
         edit_announcement.save()
         return redirect('Announcement_page')
     
+def addSchedule(request):
+    if request.method == 'POST':
+        topic = request.POST.get('topic')
+        details = request.POST.get('details')
+        date_str = request.POST.get('expire_date')
+        date_object = datetime.strptime(date_str, '%d/%m/%Y')
+        try:
+            selected_rounds_str = request.POST.get('selectedRounds').split(',')
+        except ObjectDoesNotExist:
+            pass
+        checkboxgroup = request.POST.getlist('checkboxgroup')
+        add_Schedule =Schedule.objects.create(schedule_name=topic,schedule_content=details,end_date=date_object)
+        try:
+            if selected_rounds_str[0]:
+                for rounds in selected_rounds_str:
+                    round = Round.objects.get(pk=rounds)
+                    add_Schedule.round.add(round)
+        except ObjectDoesNotExist:
+            pass
+        try:
+            for role in checkboxgroup:
+                role = Role.objects.get(name=role)
+                add_Schedule.role.add(role)
+        except ObjectDoesNotExist:
+            pass
+        return redirect('Announcement_page')

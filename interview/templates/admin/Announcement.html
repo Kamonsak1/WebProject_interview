@@ -31,9 +31,9 @@
                     <div class="card-body p-2">
                         <div  class=" d-flex justify-content-between" >
                         <div>    
-                        <h5 class="text_date" style="display: none;" data-post-date="{{ i.post_date }}"></h5>
+                        <h5 class="text_date-" style="display: none;" data-post-date="{{ i.post_date }}"></h5>
                         <h5 class="display_birth_date" style="display: inline-block; margin-right: 5px;"></h5>
-                        <h5 style="display: inline-block;">|{{ i.title }}</h5>
+                        <h5 style="display: inline-block;">{{ i.title }}</h5>
                         
                         </div>
                         <span><i class="ti ti-edit" id="icon_edit" 
@@ -41,7 +41,7 @@
                             '{{ i.id }}',
                             '{{ i.title }}',
                             '{{ i.expire_date }}',
-                            '{{ i.announcement_content }}',
+                            '{{ i.announcement_content|escapejs }}',
                             '{% for role in i.role.all %}{{role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}',
                             '{% for round in i.round.all %}{{ round.round_name }}{% if not forloop.last %}, {% endif %}{% endfor %}', )"></i> </span>
                         </div>
@@ -58,26 +58,108 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-body">
-                <span>
-                    <i class="ti ti-calendar-event fs-8"></i>
-                </span>
-                <span class="card-title fw-semibold mb-2 text-primary">กำหนดการ</span>
-
+                <div class=" d-flex justify-content-between">
+                <i class="ti ti-news fs-8">
+                    <span class="card-title fw-semibold mb-2 text-primary">กำหนดการ</span>
+                </i>
+                <span class="card-title fw-semibold mb-2 text-primary" onclick="add_Schedule()" id="Schedule">+</span>
+                </div>
+                {% for i in s %}
                 <div class="card mb-1">
                     <div class="card-body p-2">
-                        <h5>ทดสอบกำหนดการ 1</h5>
+                        <div  class=" d-flex justify-content-between" >
+                        <div>    
+                        <h5 class="text_date" style="display: none;" data-post-date="{{ i.end_date }}"></h5>
+                        <h5 class="display_birth_date" style=" font-weight: bold; margin-right: 5px;"></h5>
+                        <h5 style="padding-left: 40px;">{{ i.schedule_name }}</h5>
+                        
+                        </div>
+                        <span><i class="ti ti-edit" id="icon_edit" 
+                        onclick="edit_Schedule(
+                            '{{ i.id }}',
+                            '{{ i.title }}',
+                            '{{ i.expire_date }}',
+                            '{{ i.announcement_content|escapejs }}',
+                            '{% for role in i.role.all %}{{role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}',
+                            '{% for round in i.round.all %}{{ round.round_name }}{% if not forloop.last %}, {% endif %}{% endfor %}', )"></i> </span>
+                        </div>
                     </div>
                 </div>
-                <div class="card mb-1">
-                    <div class="card-body p-2">
-                        <h5>ทดสอบกำหนดการ 2</h5>
-                    </div>
-                </div>
-
+                {% endfor %}
+                
             </div>
+        </div>
         </div>
     </div>
 </div>
+
+<div class="container_addSchedule" id="add_Schedule" >
+    <form action="{% url 'addSchedule' %}" method="post">
+        {% csrf_token %}
+        <div  class="topic">
+          <h3 >เพิ่มกำหนดการ</h3>
+          <a href="Announcement_page">
+              <i class="fs-6 ti ti-x text-danger"></i>
+          </a>
+      </div>       
+        <div class="input_data">
+          <label for="">หัวข้อประกาศ</label> 
+          <input type="text" name="topic" id="" placeholder="หัวข้อ">
+  
+          <label for="">เนื้อหาประกาศ</label> 
+          <textarea name="details" placeholder="เนื้อหา" ></textarea>
+          <label for="">กำหนดการ</label> 
+          <button type="button"  onclick="select_calendar()">เลือกวันที่</button>
+          <div id="selectedDate">วันที่เลือก: ไม่มี</div>
+          <input hidden type="text" name="expire_date" id="inputselectedDate" >
+        </div>
+          <div  class="title_role">
+            <h3 >บทบาทที่ต้องการให้เห็น</h3>
+          </div> 
+        <div class="checkbox-container">
+            <input type="checkbox" id="checkbox5" name="checkboxgroup" value="Admin" >
+            <label for="checkbox1" class="checkbox-label">Admin</label>
+        
+            <input type="checkbox" id="checkbox6" name="checkboxgroup" value="Manager" >
+            <label for="checkbox2" class="checkbox-label">Manager</label>
+        
+            <input type="checkbox" id="checkbox7" name="checkboxgroup" value="Interviewer" >
+            <label for="checkbox3" class="checkbox-label">Interviewer</label>
+        
+            <input type="checkbox" id="checkbox8" name="checkboxgroup" value="Student" >
+            <label for="checkbox4" class="checkbox-label">Student</label>
+        </div>   
+        <div class="title_role">
+            <h3 class="title">รอบที่ต้องการให้เห็น</h3>
+            <select name="" id="selectRound" class="select-round" onchange="updateRoundInfo()">
+              <option value="">เลือกรอบ</option>
+              {% for round in round %}
+                  <option value="{{ round.id }}">{{ round.round_name }}</option>
+              {% endfor %}
+          </select>
+        </div>
+        <div class="title_round"  id="round">
+  
+        </div>
+          <input type="hidden" id="selectedRoundsInput" name="selectedRounds" value="">
+        <div class="bt">
+            <button  type="submit">เพิ่ม</button>
+        </div>        
+      </form>
+</div>
+
+<div class="container_sele_y_m" id="select_calendar">
+    <div class="container_calendar">
+        <div class="sele_y_m">
+            <select id="year" onchange="updateCalendar()"></select>
+            <select id="month" onchange="updateCalendar()"></select>
+        </div>
+
+        <div id="calendar"></div>
+    </div>  
+    
+</div>
+
 <div  class="container_edit" id="edit_Announcement" >
     <form action="edit_Announcement" method="post">
         {% csrf_token %}
@@ -94,8 +176,8 @@
     
             <label for="">เนื้อหาประกาศ</label> 
             <textarea name="details" id="edit_content" placeholder="เนื้อหา" ></textarea>
-            <label for="">ประกาศถึงวันที่</label> 
-            <input type="text" name="expire_date" id="edit_post_date" placeholder="วว/ดด/ปป">    
+            <label hidden for="">ประกาศถึงวันที่</label> 
+            <input hidden ="text" name="expire_date" id="edit_post_date" placeholder="วว/ดด/ปป">    
         </div>
         <div  class="title_role">
             <h3 >บทบาทที่ต้องการให้เห็น</h3>
@@ -134,6 +216,7 @@
 
     </form>
 </div>  
+
 <div class="container_add" id="add_Announcement" >
   <form action="{% url 'add_announcement' %}" method="post">
       {% csrf_token %}
@@ -149,8 +232,6 @@
 
         <label for="">เนื้อหาประกาศ</label> 
         <textarea name="details" placeholder="เนื้อหา" ></textarea>
-        <label for="">ประกาศถึงวันที่</label> 
-        <input type="text" name="expire_date" id="" placeholder="วว/ดด/ปป">
         <div  class="title_role">
           <h3 >บทบาทที่ต้องการให้เห็น</h3>
         </div> 
@@ -187,10 +268,11 @@
 </div>
 
 
-
   <script>
+    createYearOptions();
+    createMonthOptions();
+    updateCalendar();
    document.addEventListener('DOMContentLoaded', function() {
-    // ใช้ querySelectorAll เพื่อเข้าถึงทุก elements ที่มี class 'text_date'
     var birthDateElements = document.querySelectorAll('.text_date');
     
     birthDateElements.forEach(function(birthDateElement) {
@@ -221,8 +303,7 @@ function display_hbd(birth_date, displayElement) {
 
     displayElement.innerText = new_HBD;
 }
-
-
   </script>
+
 </div>
 {% endblock %}
