@@ -5,7 +5,22 @@
     margin-top: 5px;
     float: left;
 }
+
+
 .container_addSchedule{
+    width:1000px;
+    margin: 0 auto;
+    display: none;
+    border: 3px solid black;
+    z-index: 998;
+    border-radius: 9px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+}
+.container_editSchedule{
     width:1000px;
     margin: 0 auto;
     display: none;
@@ -214,3 +229,4 @@ input[type="checkbox"]:checked {
 .selected {
     background-color: #f0e68c; 
 }
+

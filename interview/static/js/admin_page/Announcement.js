@@ -11,7 +11,7 @@ function add_Announcement() {
   function edit_Announcement(id,title,post_date,content,role,round) {
     document.getElementById('edit_topic').value = title;
     document.getElementById('round_id').value = id;
-    document.getElementById('deleteLink').href = 'delete_Announcement/' + id;
+    document.getElementById('deleteLink_Announcement').href = 'delete_Announcement/' + id;
     document.getElementById('edit_content').value = content;
     var role_new = role.split(',').map(function(item) {
       return item.trim();
@@ -92,9 +92,6 @@ function add_Announcement() {
       return '<span style="color: black; font-weight: bold;">' + item + '</span> <button onclick="deleteItem(\'' + item + '\')" style="font-size: 20px; color: red; background: none; border: none;">-</button>';
   }).join('<br>');
   
-    
-
-    console.log(round_new)
 
     var edit_An = document.getElementById("edit_Announcement");
     if (edit_An.style.display === "block") {
@@ -113,9 +110,8 @@ function add_Announcement() {
   document.getElementById('edit_round').innerHTML = edit_selectedRounds.map(function(item) {
     return '<span style="color: black; font-weight: bold;">' + item + '</span> <button onclick="deleteItem(\'' + item + '\')" style="font-size: 20px; color: red; background: none; border: none;">-</button>';
 }).join('<br>');
-
-  
     document.getElementById('edit_selectedRoundsInput').value = edit_selectedRounds
+  
 }
 
 function deleteItem(itemName) {
@@ -144,7 +140,6 @@ function deleteItem(itemName) {
           selectedRounds.push({id: value, name: text}); 
           Roundid.push(value);
       }
-
 
       var displayText = '<ul>';
       for (var i = 0; i < selectedRounds.length; i++) {
@@ -182,6 +177,163 @@ function add_Schedule() {
     add_Schedule.style.display = "block";
   }
 }
+
+var edit_selectedRounds_Schedule = [];
+var edit_Roundid_Schedule = [];
+function edit_Schedule(id,schedule_name,end_date,schedule_content,role,round) {
+  document.getElementById('Schedule_id').value = id;
+  document.getElementById('deleteLink_Schedule').href = 'delete_Schedule/' + id;
+  document.getElementById('schedule_name').value = schedule_name;
+  document.getElementById('schedule_content').value = schedule_content;
+
+  document.getElementById('schedule_name').value = schedule_name;
+  var edit_Schedule = document.getElementById("edit_Schedule");
+  var role_new = role.split(',').map(function(item) {
+    return item.trim();
+  });
+  var checkbox1 = document.getElementById('checkbox_1');
+  var checkbox2 = document.getElementById('checkbox_2');
+  var checkbox3 = document.getElementById('checkbox_3');
+  var checkbox4 = document.getElementById('checkbox_4');
+  checkbox1.checked = false;
+  checkbox2.checked = false;
+  checkbox3.checked = false;
+  checkbox4.checked = false;
+  
+  for (let i = 0; i < role_new.length; i++) {
+    if (role_new[i] === 'Admin') {
+      checkbox1.checked = true;
+    }
+    if (role_new[i] === 'Manager') {
+      checkbox2.checked = true;
+    }
+    if (role_new[i] === 'Interviewer') {
+      checkbox3.checked = true;
+    }
+    if (role_new[i] === 'Student') {
+      checkbox4.checked = true;
+    }
+  }
+
+  if (end_date) {
+    var birth_date_split =  end_date.split(' ');
+    if (birth_date_split.length > 1) {
+      var hbd_day =  birth_date_split[1].split(',')[0];
+      var new_year =  parseInt(birth_date_split[2])+543;
+      var new_HBD;
+    } 
+  }
+  
+  if (birth_date_split[0] == 'Jan.') {
+    new_HBD = hbd_day + '/01/' + new_year
+  } else if (birth_date_split[0] == 'Feb.') {
+    new_HBD = hbd_day + '/02/' + new_year
+  } else if (birth_date_split[0] == 'March') {
+    new_HBD = hbd_day + '/03/' + new_year
+  } else if (birth_date_split[0] == 'April') {
+    new_HBD = hbd_day + '/04/' + new_year
+  } else if (birth_date_split[0] == 'May.') {
+    new_HBD = hbd_day + '/05/' + new_year
+  } else if (birth_date_split[0] == 'June') {
+    new_HBD = hbd_day + '/06/' + new_year
+  } else if (birth_date_split[0] == 'July') {
+    new_HBD = hbd_day + '/07/' + new_year
+  } else if (birth_date_split[0] == 'Aug.') {
+    new_HBD = hbd_day + '/08/' + new_year
+  } else if (birth_date_split[0] == 'Sept.') {
+    new_HBD = hbd_day + '/09/' + new_year
+  } else if (birth_date_split[0] == 'Oct.') {
+    new_HBD = hbd_day + '/10/' + new_year
+  } else if (birth_date_split[0] == 'Nov.') {
+    new_HBD = hbd_day + '/11/' + new_year
+  } else if (birth_date_split[0] == 'Dec.') {
+    new_HBD = hbd_day + '/12/' + new_year
+  }
+  
+  document.getElementById('selectedDate_edit').innerHTML = "วันที่เลือก:" +new_HBD;
+
+  edit_selectedRounds_Schedule = [];
+  var round_new = round.split(',').map(function(item) {
+    return item.trim();
+  });
+  round_new.forEach(function(item) {
+    if (item !== "") { 
+      edit_selectedRounds_Schedule.push(item);
+    }
+  });
+  
+  document.getElementById('edit_round_schedule').innerHTML = edit_selectedRounds_Schedule.map(function(item) {
+    return '<span style="color: black; font-weight: bold;">' + item + '</span> <button onclick="delete_Round_Schedule(\'' + item + '\')" style="font-size: 20px; color: red; background: none; border: none;">-</button>';
+}).join('<br>');
+
+
+  if (edit_Schedule.style.display === "block") {
+    edit_Schedule.style.display = "none";
+  } else {
+    edit_Schedule.style.display = "block";
+  }
+
+}
+  function edit_ScheduleRoundInfo() {
+    var select = document.getElementById('edit_selectRound_schedule');
+    var text = select.options[select.selectedIndex].value;
+    if (text !== "" && !edit_selectedRounds_Schedule.includes(text)) {
+      edit_selectedRounds_Schedule.push(text);
+  }
+  document.getElementById('edit_round_schedule').innerHTML = edit_selectedRounds_Schedule.map(function(item) {
+    return '<span style="color: black; font-weight: bold;">' + item + '</span> <button onclick="delete_Round_Schedule(\'' + item + '\')" style="font-size: 20px; color: red; background: none; border: none;">-</button>';
+  }).join('<br>');
+    document.getElementById('edit_selectedRoundsInput_schedule').value = edit_selectedRounds_Schedule
+
+  }
+function delete_Round_Schedule(itemName) {
+  var index = edit_selectedRounds_Schedule.indexOf(itemName);
+  if (index > -1) {
+    edit_selectedRounds_Schedule.splice(index, 1);
+  }
+  document.getElementById('edit_round_schedule').innerHTML = edit_selectedRounds_Schedule.map(function(item) {
+    return '<span style="color: black; font-weight: bold;">' + item + '</span> <button onclick="delete_Round_Schedule(\'' + item + '\')" style="font-size: 20px; color: red; background: none; border: none;">-</button>';
+}).join('<br>');
+  document.getElementById('edit_selectedRoundsInput_schedule').value = edit_selectedRounds_Schedule
+}
+
+var selectedRounds_Schedule = [];
+var Roundid_Schedule = [];
+function update_ScheduleInfo() {
+    var select = document.getElementById('selectRound_Schedule_add');
+    var value = select.options[select.selectedIndex].value;
+    var text = select.options[select.selectedIndex].text;
+    
+
+    if (value && !selectedRounds_Schedule.some(round => round.id === value)) {
+      selectedRounds_Schedule.push({id: value, name: text}); 
+      Roundid_Schedule.push(value);
+    }
+
+    var displayText = '<ul>';
+    for (var i = 0; i < selectedRounds_Schedule.length; i++) {
+        displayText += '<li style="color: black; font-weight: bold;">';
+        displayText += selectedRounds_Schedule[i].name;
+        displayText += ' <button style="font-size: 20px; color: red; background: none; border: none;"  onclick="delete_Schedule(' + i + ')">-</button></li>';
+    }
+    displayText += '</ul>';
+    
+    document.getElementById('round_Schedule').innerHTML = displayText;
+    document.getElementById('selectedRoundsInput_Schedule').value = Roundid_Schedule
+}
+function delete_Schedule(index) {
+  selectedRounds_Schedule.splice(index, 1);
+  var updatedDisplayText = '<ul>';
+  for (var i = 0; i < selectedRounds_Schedule.length; i++) {
+      updatedDisplayText += '<li style="color: black; font-weight: bold;">';
+      updatedDisplayText += selectedRounds_Schedule[i].name;
+      updatedDisplayText += ' <button style="font-size: 20px; color: red; background: none; border: none;"  onclick="delete_Schedule(' + i + ')">-</button></li>';
+  }
+  updatedDisplayText += '</ul>';
+  document.getElementById('round_Schedule').innerHTML = updatedDisplayText;
+}
+
+
 
 function select_calendar() {
   var add_Schedule = document.getElementById("select_calendar");
@@ -229,6 +381,8 @@ function selectDate(td, day) {
     var formattedDate = ('0' + day).slice(-2) + '/' + ('0' + month).slice(-2) + '/' + formatyear.toString();
     var inputformattedDate = ('0' + day).slice(-2) + '/' + ('0' + month).slice(-2) + '/' + year.toString();
     document.getElementById('selectedDate').textContent = 'วันที่เลือก: ' + formattedDate;
+    document.getElementById('selectedDate_edit').innerHTML = 'วันที่เลือก: ' + formattedDate;
+    document.getElementById('inputselectedDate_edit').value = inputformattedDate;
     document.getElementById('inputselectedDate').value = inputformattedDate;
 
     if (previousSelectedTd) {

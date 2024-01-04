@@ -58,8 +58,9 @@ urlpatterns = [
     path('edit_password_in_profile',edit_password_in_profile, name='edit_password_in_profile'),
     path('add_Major_manager',add_Major_manager, name='add_Major_manager'),
     path('delete_manage_in_major',delete_manage_in_major, name='delete_manage_in_major'),
-     path('delete_Announcement/<int:id>/',delete_Announcement, name='delete_Announcement'),
-     path('addSchedule',addSchedule,name='addSchedule'),
+    path('delete_Announcement/<int:id>/',delete_Announcement, name='delete_Announcement'),
+    path('delete_Schedule/<int:id>/',delete_Schedule, name='delete_Schedule'),
+    path('addSchedule',addSchedule,name='addSchedule'),
 
     
 

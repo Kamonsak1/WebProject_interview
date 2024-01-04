@@ -1318,7 +1318,9 @@ def add_announcement(request):
         try:
             if selected_rounds_str[0]:
                 for rounds in selected_rounds_str:
-                    round = Round.objects.get(pk=rounds)
+                    round_name, year = rounds.rsplit(" (", 1)
+                    year = year.strip(")")
+                    round = Round.objects.get(round_name=round_name,academic_year=year)
                     add_announcement.round.add(round)
         except ObjectDoesNotExist:
             pass
@@ -1365,11 +1367,14 @@ def edit_Announcement(request):
 
         try:
             for round in selected_rounds_str:
-                round_model = Round.objects.get(round_name=round)
+                round_name, year = round.rsplit(" (", 1)
+                year = year.strip(")")
+                round_model = Round.objects.get(round_name=round_name,academic_year=year)
                 edit_announcement.round.add(round_model)
+
         except ObjectDoesNotExist:
             pass
-        print(selected_rounds_str)
+        
         edit_announcement.save()
         return redirect('Announcement_page')
     
@@ -1386,9 +1391,12 @@ def addSchedule(request):
         checkboxgroup = request.POST.getlist('checkboxgroup')
         add_Schedule =Schedule.objects.create(schedule_name=topic,schedule_content=details,end_date=date_object)
         try:
+            print(selected_rounds_str)
             if selected_rounds_str[0]:
                 for rounds in selected_rounds_str:
-                    round = Round.objects.get(pk=rounds)
+                    round_name, year = rounds.rsplit(" (", 1)
+                    year = year.strip(")")
+                    round = Round.objects.get(round_name=round_name,academic_year=year)
                     add_Schedule.round.add(round)
         except ObjectDoesNotExist:
             pass
@@ -1399,3 +1407,8 @@ def addSchedule(request):
         except ObjectDoesNotExist:
             pass
         return redirect('Announcement_page')
+
+def delete_Schedule(request,id):
+    delete_Sd = Schedule.objects.get(pk=id)
+    delete_Sd.delete()
+    return redirect('Announcement_page')

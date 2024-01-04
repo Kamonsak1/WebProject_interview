@@ -43,7 +43,7 @@
                             '{{ i.expire_date }}',
                             '{{ i.announcement_content|escapejs }}',
                             '{% for role in i.role.all %}{{role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}',
-                            '{% for round in i.round.all %}{{ round.round_name }}{% if not forloop.last %}, {% endif %}{% endfor %}', )"></i> </span>
+                            '{% for round in i.round.all %}{{ round.round_name }} ({{ round.academic_year }}){% if not forloop.last %}, {% endif %}{% endfor %}', )"></i> </span>
                         </div>
                     </div>
                 </div>
@@ -75,13 +75,12 @@
                         
                         </div>
                         <span><i class="ti ti-edit" id="icon_edit" 
-                        onclick="edit_Schedule(
-                            '{{ i.id }}',
-                            '{{ i.title }}',
-                            '{{ i.expire_date }}',
-                            '{{ i.announcement_content|escapejs }}',
-                            '{% for role in i.role.all %}{{role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}',
-                            '{% for round in i.round.all %}{{ round.round_name }}{% if not forloop.last %}, {% endif %}{% endfor %}', )"></i> </span>
+                        onclick="edit_Schedule('{{ i.id }}',
+                        '{{ i.schedule_name }}',
+                        '{{ i.end_date }}',
+                        '{{ i.schedule_content|escapejs }}',
+                        '{% for role in i.role.all %}{{role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}',
+                        '{% for round in i.round.all %}{{ round.round_name }} ({{ round.academic_year }}){% if not forloop.last %}, {% endif %}{% endfor %}', )"></i> </span>
                         </div>
                     </div>
                 </div>
@@ -131,21 +130,79 @@
         </div>   
         <div class="title_role">
             <h3 class="title">รอบที่ต้องการให้เห็น</h3>
-            <select name="" id="selectRound" class="select-round" onchange="updateRoundInfo()">
+            <select name="" id="selectRound_Schedule_add" class="select-round" onchange="update_ScheduleInfo()">
               <option value="">เลือกรอบ</option>
               {% for round in round %}
-                  <option value="{{ round.id }}">{{ round.round_name }}</option>
+              <option value="{{ round.round_name }} ({{ round.academic_year }})">{{ round.round_name }} ({{ round.academic_year }})</option>
               {% endfor %}
           </select>
         </div>
-        <div class="title_round"  id="round">
+        <div class="title_round"  id="round_Schedule">
   
         </div>
-          <input type="hidden" id="selectedRoundsInput" name="selectedRounds" value="">
+          <input type="hidden" id="selectedRoundsInput_Schedule" name="selectedRounds" value="">
         <div class="bt">
             <button  type="submit">เพิ่ม</button>
         </div>        
       </form>
+</div>
+
+<div class="container_editSchedule" id="edit_Schedule" >
+  <form action="" method="post">
+      {% csrf_token %}
+      <div  class="topic">
+        <h3 >แก้ไขกำหนดการ</h3>
+        <a href="Announcement_page">
+            <i class="fs-6 ti ti-x text-danger"></i>
+        </a>
+    </div>       
+      <div class="input_data">
+        <input type="hidden" name="Schedule_id" id="Schedule_id" >
+        <label for="">หัวข้อประกาศ</label> 
+        <input type="text" name="topic" id="schedule_name" placeholder="หัวข้อ">
+
+        <label for="">เนื้อหาประกาศ</label> 
+        <textarea name="details" placeholder="เนื้อหา" id="schedule_content" ></textarea>
+        <label for="">กำหนดการ</label> 
+        <button type="button"  onclick="select_calendar()">เลือกวันที่</button>
+        <div id="selectedDate_edit">วันที่เลือก: ไม่มี</div>
+        <input hidden type="text" name="expire_date" id="inputselectedDate_edit" >
+      </div>
+        <div  class="title_role">
+          <h3 >บทบาทที่ต้องการให้เห็น</h3>
+        </div> 
+      <div class="checkbox-container">
+          <input type="checkbox" id="checkbox_1" name="checkboxgroup" value="Admin" >
+          <label for="checkbox1" class="checkbox-label">Admin</label>
+      
+          <input type="checkbox" id="checkbox_2" name="checkboxgroup" value="Manager" >
+          <label for="checkbox2" class="checkbox-label">Manager</label>
+      
+          <input type="checkbox" id="checkbox_3" name="checkboxgroup" value="Interviewer" >
+          <label for="checkbox3" class="checkbox-label">Interviewer</label>
+      
+          <input type="checkbox" id="checkbox_4" name="checkboxgroup" value="Student" >
+          <label for="checkbox4" class="checkbox-label">Student</label>
+      </div>   
+      <div class="title_role">
+          <h3 class="title">รอบที่ต้องการให้เห็น</h3>
+          <select name="" id="edit_selectRound_schedule" class="select-round" onchange="edit_ScheduleRoundInfo()">
+            <option value="">เลือกรอบ</option>
+            {% for round in round %}
+            <option value="{{ round.round_name }} ({{ round.academic_year }})">{{ round.round_name }} ({{ round.academic_year }})</option>
+            {% endfor %}
+        </select>
+      </div>
+      <div class="title_round" id="edit_round_schedule">
+
+      </div>
+      <input type="hidden" id="edit_selectedRoundsInput_schedule" name="edit_selectedRounds_schedule" value="">   
+      <div class="bt">
+        <button  type="submit">แก้ไขข้อมูล</button>
+        <button type="button"><a href="#" id="deleteLink_Schedule" style="color: black;">ลบประกาศ</a></button>
+
+      </div>         
+    </form>
 </div>
 
 <div class="container_sele_y_m" id="select_calendar">
@@ -161,7 +218,7 @@
 </div>
 
 <div  class="container_edit" id="edit_Announcement" >
-    <form action="edit_Announcement" method="post">
+    <form action="{% url 'edit_Announcement' %}" method="post">
         {% csrf_token %}
         <div  class="topic">
             <h3 >แก้ไขประกาศ</h3>
@@ -200,7 +257,7 @@
             <select name="" id="edit_selectRound" class="select-round" onchange="editRoundInfo() ">
               <option value="">เลือกรอบ</option>
               {% for round in round %}
-                  <option value="{{ round.round_name }}">{{ round.round_name }}</option>
+                  <option value="{{ round.round_name }} ({{ round.academic_year }})">{{ round.round_name }} ({{ round.academic_year }})</option>
               {% endfor %}
           </select>
         </div>
@@ -210,7 +267,7 @@
           <input type="hidden" id="edit_selectedRoundsInput" name="edit_selectedRounds" value="">   
           <div class="bt">
             <button  type="submit">แก้ไขข้อมูล</button>
-            <button><a href="#" id="deleteLink" style="color: black;">ลบประกาศ</a></button>
+            <button type="button"><a href="#" id="deleteLink_Announcement" style="color: black;">ลบประกาศ</a></button>
 
           </div>  
 
@@ -253,7 +310,7 @@
           <select name="" id="selectRound" class="select-round" onchange="updateRoundInfo()">
             <option value="">เลือกรอบ</option>
             {% for round in round %}
-                <option value="{{ round.id }}">{{ round.round_name }}</option>
+            <option value="{{ round.round_name }} ({{ round.academic_year }})">{{ round.round_name }} ({{ round.academic_year }})</option>
             {% endfor %}
         </select>
         </div>
