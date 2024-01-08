@@ -103,13 +103,13 @@
       </div>       
         <div class="input_data">
           <label for="">หัวข้อประกาศ</label> 
-          <input type="text" name="topic" id="" placeholder="หัวข้อ">
+          <input type="text" name="topic" id="" placeholder="หัวข้อ" required>
   
           <label for="">เนื้อหาประกาศ</label> 
-          <textarea name="details" placeholder="เนื้อหา" ></textarea>
+          <textarea name="details" placeholder="เนื้อหา" required></textarea>
           <label for="">กำหนดการ</label> 
           <button type="button"  onclick="select_calendar()">เลือกวันที่</button>
-          <div id="selectedDate">วันที่เลือก: ไม่มี</div>
+          <div id="selectedDate" >วันที่เลือก: ไม่มี</div >
           <input hidden type="text" name="expire_date" id="inputselectedDate" >
         </div>
           <div  class="title_role">
@@ -148,7 +148,7 @@
 </div>
 
 <div class="container_editSchedule" id="edit_Schedule" >
-  <form action="" method="post">
+  <form action="{% url 'edit_Schedule' %}" method="post">
       {% csrf_token %}
       <div  class="topic">
         <h3 >แก้ไขกำหนดการ</h3>
@@ -227,7 +227,7 @@
             </a>         
         </div>   
         <div class="input_data">
-            <input type="hidden" name="round_id" id="round_id" >
+            <input type="hidden" name="Announcement_id" id="round_id" >
             <label for="">หัวข้อประกาศ</label> 
             <input type="text" name="topic" id="edit_topic" placeholder="หัวข้อ">
     
@@ -285,10 +285,10 @@
     </div>       
       <div class="input_data">
         <label for="">หัวข้อประกาศ</label> 
-        <input type="text" name="topic" id="" placeholder="หัวข้อ">
+        <input type="text" name="topic" id="" placeholder="หัวข้อ" required>
 
         <label for="">เนื้อหาประกาศ</label> 
-        <textarea name="details" placeholder="เนื้อหา" ></textarea>
+        <textarea name="details" placeholder="เนื้อหา" required></textarea>
         <div  class="title_role">
           <h3 >บทบาทที่ต้องการให้เห็น</h3>
         </div> 

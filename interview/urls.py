@@ -61,6 +61,7 @@ urlpatterns = [
     path('delete_Announcement/<int:id>/',delete_Announcement, name='delete_Announcement'),
     path('delete_Schedule/<int:id>/',delete_Schedule, name='delete_Schedule'),
     path('addSchedule',addSchedule,name='addSchedule'),
+    path('edit_Schedule',edit_Schedule,name='edit_Schedule'),
 
     
 

@@ -13,6 +13,7 @@ function add_Announcement() {
     document.getElementById('round_id').value = id;
     document.getElementById('deleteLink_Announcement').href = 'delete_Announcement/' + id;
     document.getElementById('edit_content').value = content;
+    document.getElementById('edit_selectedRoundsInput').value = round;
     var role_new = role.split(',').map(function(item) {
       return item.trim();
     });
@@ -185,6 +186,7 @@ function edit_Schedule(id,schedule_name,end_date,schedule_content,role,round) {
   document.getElementById('deleteLink_Schedule').href = 'delete_Schedule/' + id;
   document.getElementById('schedule_name').value = schedule_name;
   document.getElementById('schedule_content').value = schedule_content;
+  document.getElementById('edit_selectedRoundsInput_schedule').value = round;
 
   document.getElementById('schedule_name').value = schedule_name;
   var edit_Schedule = document.getElementById("edit_Schedule");
@@ -221,36 +223,50 @@ function edit_Schedule(id,schedule_name,end_date,schedule_content,role,round) {
       var hbd_day =  birth_date_split[1].split(',')[0];
       var new_year =  parseInt(birth_date_split[2])+543;
       var new_HBD;
+      var old_date;
     } 
   }
   
   if (birth_date_split[0] == 'Jan.') {
     new_HBD = hbd_day + '/01/' + new_year
+    old_date = hbd_day + '/01/' + birth_date_split[2]
   } else if (birth_date_split[0] == 'Feb.') {
     new_HBD = hbd_day + '/02/' + new_year
+    old_date = hbd_day + '/01/' + birth_date_split[2]
   } else if (birth_date_split[0] == 'March') {
     new_HBD = hbd_day + '/03/' + new_year
+    old_date = hbd_day + '/01/' + birth_date_split[2]
   } else if (birth_date_split[0] == 'April') {
     new_HBD = hbd_day + '/04/' + new_year
+    old_date = hbd_day + '/01/' + birth_date_split[2]
   } else if (birth_date_split[0] == 'May.') {
     new_HBD = hbd_day + '/05/' + new_year
+    old_date = hbd_day + '/01/' + birth_date_split[2]
   } else if (birth_date_split[0] == 'June') {
     new_HBD = hbd_day + '/06/' + new_year
+    old_date = hbd_day + '/01/' + birth_date_split[2]
   } else if (birth_date_split[0] == 'July') {
     new_HBD = hbd_day + '/07/' + new_year
+    old_date = hbd_day + '/01/' + birth_date_split[2]
   } else if (birth_date_split[0] == 'Aug.') {
     new_HBD = hbd_day + '/08/' + new_year
+    old_date = hbd_day + '/01/' + birth_date_split[2]
   } else if (birth_date_split[0] == 'Sept.') {
     new_HBD = hbd_day + '/09/' + new_year
+    old_date = hbd_day + '/01/' + birth_date_split[2]
   } else if (birth_date_split[0] == 'Oct.') {
     new_HBD = hbd_day + '/10/' + new_year
+    old_date = hbd_day + '/01/' + birth_date_split[2]
   } else if (birth_date_split[0] == 'Nov.') {
     new_HBD = hbd_day + '/11/' + new_year
+    old_date = hbd_day + '/01/' + birth_date_split[2]
   } else if (birth_date_split[0] == 'Dec.') {
     new_HBD = hbd_day + '/12/' + new_year
+    old_date = hbd_day + '/01/' + birth_date_split[2]
   }
   
   document.getElementById('selectedDate_edit').innerHTML = "วันที่เลือก:" +new_HBD;
+  document.getElementById('inputselectedDate_edit').value = old_date;
 
   edit_selectedRounds_Schedule = [];
   var round_new = round.split(',').map(function(item) {
@@ -261,7 +277,6 @@ function edit_Schedule(id,schedule_name,end_date,schedule_content,role,round) {
       edit_selectedRounds_Schedule.push(item);
     }
   });
-  
   document.getElementById('edit_round_schedule').innerHTML = edit_selectedRounds_Schedule.map(function(item) {
     return '<span style="color: black; font-weight: bold;">' + item + '</span> <button onclick="delete_Round_Schedule(\'' + item + '\')" style="font-size: 20px; color: red; background: none; border: none;">-</button>';
 }).join('<br>');
@@ -359,8 +374,6 @@ function createYearOptions() {
         yearSelect.appendChild(option);
     }
 }
-
-
 
 
 function createMonthOptions() {

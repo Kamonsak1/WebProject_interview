@@ -1348,12 +1348,12 @@ def Manager_StatusRound(request,id):
 
 def edit_Announcement(request):
     if request.method == 'POST':
-        round_id = request.POST.get('round_id')
+        Announcement_id = request.POST.get('Announcement_id')
         topic = request.POST.get('topic')
         details = request.POST.get('details')
         selected_rounds_str = request.POST.get('edit_selectedRounds').split(',')
         checkboxgroup = request.POST.getlist('checkboxgroup')
-        edit_announcement = Announcement.objects.get(pk=round_id)
+        edit_announcement = Announcement.objects.get(pk=Announcement_id)
         edit_announcement.title = topic
         edit_announcement.announcement_content = details
         edit_announcement.role.clear()
@@ -1364,10 +1364,11 @@ def edit_Announcement(request):
                 edit_announcement.role.add(role_model)
         except ObjectDoesNotExist:
             pass
-
+        print(selected_rounds_str)
         try:
             for round in selected_rounds_str:
-                round_name, year = round.rsplit(" (", 1)
+                round_name, year = round.rsplit(" (",1)
+                round_name = round_name.lstrip()
                 year = year.strip(")")
                 round_model = Round.objects.get(round_name=round_name,academic_year=year)
                 edit_announcement.round.add(round_model)
@@ -1406,6 +1407,46 @@ def addSchedule(request):
                 add_Schedule.role.add(role)
         except ObjectDoesNotExist:
             pass
+        return redirect('Announcement_page')
+
+def edit_Schedule(request):
+    if request.method == 'POST':
+        Schedule_id = request.POST.get('Schedule_id')
+        topic = request.POST.get('topic')
+        details = request.POST.get('details')
+
+        selected_rounds_str = request.POST.get('edit_selectedRounds_schedule').split(',')
+        print(selected_rounds_str)
+        checkboxgroup = request.POST.getlist('checkboxgroup')
+        edit_Schedule = Schedule.objects.get(pk=Schedule_id)
+        edit_Schedule.schedule_name = topic
+        edit_Schedule.schedule_content = details
+        edit_Schedule.role.clear()
+        edit_Schedule.round.clear()
+        try:
+            date = request.POST.get('expire_date')
+            ndate = datetime.strptime(date, "%d/%m/%Y").date()
+            edit_Schedule.end_date = ndate
+        except ObjectDoesNotExist:
+            pass
+        try:
+            for role_name in checkboxgroup:
+                role_model = Role.objects.get(name=role_name)
+                edit_Schedule.role.add(role_model)
+        except ObjectDoesNotExist:
+            pass
+        try:
+            for round in selected_rounds_str:
+                round_name, year = round.rsplit(" (",1)
+                round_name = round_name.lstrip()
+                year = year.strip(")")
+                round_model = Round.objects.get(round_name=round_name,academic_year=year)
+                edit_Schedule.round.add(round_model)
+
+        except ObjectDoesNotExist:
+            pass
+        
+        edit_Schedule.save()
         return redirect('Announcement_page')
 
 def delete_Schedule(request,id):
