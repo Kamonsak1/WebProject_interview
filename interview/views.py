@@ -604,7 +604,8 @@ def add_ScoreTopic(request):
             return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
         else:
             template_num = request.POST.get('template_num')
-            template = ScorePattern.objects.get(pattern_name=template_num)
+            print(template_num)
+            template = ScorePattern.objects.get(id=template_num)
             topic_name = request.POST.get('topic_name')
             max_score = request.POST.get('max_score')
             score_detail = request.POST.get('score_detail')
@@ -627,9 +628,14 @@ def View_ScoreTopic(request,id):
 
 @login_required
 @user_passes_test(is_admin)
+def delete_ScoreTemplate(request,id):
+    object = ScorePattern.objects.get(pk=id)
+    object.delete()
+    return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+@login_required
+@user_passes_test(is_admin)
 def delete_ScoreTopic(request,id):
     object = ScoreTopic.objects.get(pk=id)
-    pattern = object.pattern_id
     object.delete()
     return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 

@@ -1,5 +1,7 @@
-function add_Score() {
+function add_Score(pattern_id) {
+  console.log(pattern_id);
     var optionsDiv = document.getElementById("add_ScoreTopic");
+    document.getElementById('template_num').value = pattern_id;
     if (optionsDiv.style.display === "block") {
       optionsDiv.style.display = "none";
     } else {
@@ -17,6 +19,7 @@ function add_Score() {
   }
 
   function edit_popup(topic_id, topic_name, max_score, detail) {
+    console.log(topic_id);
     var optionsDiv = document.getElementById("edit_popup");
     document.getElementById('topic_id').value = topic_id;
     document.getElementById('topic_name_edit').value = topic_name;

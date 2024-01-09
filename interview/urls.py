@@ -46,6 +46,7 @@ urlpatterns = [
     path('edit_InterviewRound',edit_InterviewRound, name='edit_InterviewRound'),
     path('add_ScorePattern',add_ScorePattern, name='add_ScorePattern'),
     path('add_ScoreTopic',add_ScoreTopic, name='add_ScoreTopic'),
+    path('delete_ScoreTemplate/<int:id>',delete_ScoreTemplate, name='delete_ScoreTemplate'),
     path('delete_ScoreTopic/<int:id>',delete_ScoreTopic, name='delete_ScoreTopic'),
     path('edit_ScoreTopic',edit_ScoreTopic, name='edit_ScoreTopic'),
     path('View_ScoreTemplate/<int:id>',View_ScoreTopic, name='View_ScoreTopic'),

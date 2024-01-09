@@ -22,9 +22,16 @@
         <div class="col-md-4">
           <div class="card">
             <div class="card-body">
-              <div class="d-flex justify-content-center">
-                <h2 class="fs-6 card-title">ชื่อ:</h2>
-                <h2 class="fs-6 text-primary card-title fw-bolder px-2">{{ pattern.pattern_name }}</h2>
+              <div class="d-flex justify-content-between">
+                <span class="d-flex">
+                  <h2 class="fs-6 card-title">ชื่อ:</h2>
+                  <h2 class="fs-6 text-primary card-title fw-bolder px-2">{{ pattern.pattern_name }}</h2>
+                </span>
+                <a href="/delete_ScoreTemplate/{{pattern.id}}">
+                  <span class="fs-6 text-danger">
+                    <i class="ti ti-trash-x"></i>
+                  </span>
+                </a>
               </div>
               <ul class="list-group list-group-flush">
                 {% for topic in pattern.Score_pattern.all %}
@@ -38,36 +45,8 @@
                 </li>
                 {% endfor %}
               </ul>
-                  <div class="container_Scoreadd" id="add_ScoreTopic">
-                    <div class="text-end">
-                    <a href="/Score">
-                      <i class="fs-6 ti ti-x text-danger"></i>
-                    </a>
-                    <h1 class="text-center fs-6 fw-semibold text-primary">เพิ่มหัวข้อคะแนน</h1>
-                    </div>
-                    <form action="/add_ScoreTopic" method="post" class="container mt-4">
-                      {% csrf_token %}
-                      <input type="hidden" name="template_num" id="template_num" value="{{ pattern.pattern_name }}">
-                      <div class="row mb-3">
-                            <div class="col">
-                              <input type="text" name="topic_name" id="topic_name" placeholder="หัวข้อการให้คะแนน" class="form-control">
-                          </div>
-                          <div class="col">
-                            <input type="text" name="max_score" id="max_score" placeholder="คะแนนเต็ม (ตัวเลขเท่านั้น)" class="form-control">
-                        </div>
-                      </div>
-                      <div class="row mb-3">
-                        <div class="col">
-                          <input type="text" name="score_detail" id="score_detail" placeholder="รายละเอียดของหัวข้อคะแนน" class="form-control">
-                      </div>
-                      </div>
-                      <div class="text-center">
-                          <button type="submit" class="btn btn-info btn-lg">เพิ่มหัวข้อ</button>
-                      </div>
-                  </form>
-                  </div>
               <div class="d-flex justify-content-center">
-                <button class="btn btn-info fs-3 fw-semibold " onclick="add_Score()">เพิ่มหัวข้อ</button>
+                <a class="btn btn-info fs-3 fw-semibold " onclick="add_Score('{{ pattern.id }}')">เพิ่มหัวข้อ {{ pattern.id }}</a>
               </div>
             </div>
           </div>
@@ -99,7 +78,34 @@
   </form>
   </div>
 
-
+  <div class="container_Scoreadd" id="add_ScoreTopic">
+    <div class="text-end">
+    <a href="/Score">
+      <i class="fs-6 ti ti-x text-danger"></i>
+    </a>
+    <h1 class="text-center fs-6 fw-semibold text-primary">เพิ่มหัวข้อคะแนน</h1>
+    </div>
+    <form action="/add_ScoreTopic" method="post" class="container mt-4">
+      {% csrf_token %}
+      <input type="text" name="template_num" id="template_num">
+      <div class="row mb-3">
+        <div class="col">
+          <input type="text" name="topic_name" id="topic_name" placeholder="หัวข้อการให้คะแนน" class="form-control">
+        </div>
+        <div class="col">
+          <input type="text" name="max_score" id="max_score" placeholder="คะแนนเต็ม (ตัวเลขเท่านั้น)" class="form-control">
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col">
+          <input type="text" name="score_detail" id="score_detail" placeholder="รายละเอียดของหัวข้อคะแนน" class="form-control">
+        </div>
+      </div>
+      <div class="text-center">
+          <button type="submit" class="btn btn-info btn-lg">เพิ่มหัวข้อ</button>
+      </div>
+    </form>
+  </div>
 
   <div class="container_Scoreadd" id="edit_popup">
       <div class="text-end">
