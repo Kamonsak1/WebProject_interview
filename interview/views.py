@@ -94,16 +94,9 @@ def Interview(request):
 @login_required
 @user_passes_test(is_admin)
 def Score(request):
-    score_topics = ScoreTopic.objects.all()
-    grouped_topics = defaultdict(list)
-    for topic in score_topics:
-        if re.match('^\d+$', topic.pattern_id):
-            grouped_topics[topic.pattern_id].append(topic)
-
-    sorted_grouped_topics = dict(sorted(grouped_topics.items()))
-
+    main_pattern = ScorePattern.objects.filter(main_pattern=True)
     context = {
-        'grouped_topics': sorted_grouped_topics,
+        'main_pattern': main_pattern,
     }
     return render(request, 'admin/Score.html', context)
 @login_required
@@ -567,6 +560,31 @@ def delete_InterviewRound(request,id):
 
 @login_required
 @user_passes_test(is_admin)
+def add_ScorePattern(request):
+    if request.method == "POST":
+        round_value = request.POST.get("round")
+        if round_value:
+            template_num = request.POST.get('template_num')
+            topic_name = request.POST.get('topic_name')
+            max_score = request.POST.get('max_score')
+            score_detail = request.POST.get('score_detail')
+            score_topic, _ = ScoreTopic.objects.get_or_create( pattern_id=template_num,
+                                                                topic_name=topic_name,
+                                                                max_score=max_score,
+                                                                score_detail=score_detail)
+            score_topic.save()
+            round = Round.objects.get(id=round_value)
+            Score_Round = RoundScore(topic=score_topic,Round=round)
+            Score_Round.save()
+            return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+        else:
+            pattern_name = request.POST.get('pattern_name')
+            pattern = ScorePattern(pattern_name=pattern_name,main_pattern=True)
+            pattern.save()
+            return redirect(f"/Score")
+
+@login_required
+@user_passes_test(is_admin)
 def add_ScoreTopic(request):
     if request.method == "POST":
         round_value = request.POST.get("round")
@@ -586,10 +604,11 @@ def add_ScoreTopic(request):
             return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
         else:
             template_num = request.POST.get('template_num')
+            template = ScorePattern.objects.get(pattern_name=template_num)
             topic_name = request.POST.get('topic_name')
             max_score = request.POST.get('max_score')
             score_detail = request.POST.get('score_detail')
-            score_topic, _ = ScoreTopic.objects.get_or_create( pattern_id=template_num,
+            score_topic, _ = ScoreTopic.objects.get_or_create( pattern_id=template,
                                                                 topic_name=topic_name,
                                                                 max_score=max_score,
                                                                 score_detail=score_detail)

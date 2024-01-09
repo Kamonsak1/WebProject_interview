@@ -169,9 +169,12 @@ class Document(models.Model):
     doc_name = models.CharField(max_length=100,blank=True,null=True)
     document = models.FileField(upload_to=user_directory_path)
 
+class ScorePattern(models.Model):
+    pattern_name = models.CharField(max_length=100)
+    main_pattern = models.BooleanField(default=False)
+
 class ScoreTopic(models.Model):
-    #round = models.ForeignKey(Round, on_delete=models.CASCADE)
-    pattern_id = models.CharField(max_length=100)
+    pattern_id = models.ForeignKey(ScorePattern, on_delete=models.CASCADE, related_name="Score_pattern")
     topic_name = models.CharField(max_length=100)
     max_score = models.PositiveIntegerField()
     score_detail = models.CharField(max_length=500 , null=True,blank=True)
