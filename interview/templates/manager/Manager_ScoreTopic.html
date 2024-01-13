@@ -17,25 +17,27 @@
       </div>
     <div class="container">
         <div class="row">
-          {% for key, topics in no_topic.items %}
-            <div class="col-md-4">
-              <div class="card">
-                <div class="card-body">
-                  <div class="d-flex justify-content-center">
-                    <h2 class="fs-6 card-title">Pattern: </h2>
-                    <h2 class="fs-6 text-primary card-title fw-bolder">{{ key }}</h2>
-                  </div>
-                  <ul class="list-group list-group-flush">
-                    {% for topic in topics %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                      {{ topic.topic_name }} : {{ topic.max_score }}
+          {% for pattern in no_topic %}
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <span class="d-flex">
+                    <h2 class="fs-6 card-title">ชื่อ:</h2>
+                    <h2 class="fs-6 text-primary card-title fw-bolder px-2">{{ pattern.pattern_name }}</h2>
+                  </span>
+                </div>
+                <ul class="list-group list-group-flush">
+                  {% for topic in pattern.Score_pattern.all %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ topic.topic_name }} : {{ topic.max_score }}
                   </li>
                     {% endfor %}
                     <div class="text-center">
                       <form method="post">
                         {% csrf_token %}
                         <input type="hidden" name="round_name" id="round_name" value="{{round}}">
-                        <input type="hidden" name="pattern" id="pattern" value="{{key}}">
+                        <input type="hidden" name="pattern" id="pattern" value="{{pattern.pattern_name}}">
                         <button type="submit" class="btn btn-info mt-2 px-2 py-2">นำไปใช้</button>
                       </form>
                     </div>
@@ -57,25 +59,13 @@
         </a>
         <h1 class="text-center fs-6 fw-semibold text-primary">เพิ่มหัวข้อคะแนนสำหรับรอบ</h1>
         </div>
-        <form action="/add_ScoreTopic" method="post" class="container mt-4">
+        <form action="/add_ScorePattern" method="post" class="container mt-4">
           {% csrf_token %}
           <input type="hidden" name="round" id="round" value="{{round_id.id}}">
           <input type="hidden" name="template_num" id="template_num" value="{{round}}">
-          <div class="row mb-3">
-                <div class="col">
-                  <input type="text" name="topic_name" id="topic_name" placeholder="หัวข้อการให้คะแนน" class="form-control">
-              </div>
-              <div class="col">
-                <input type="text" name="max_score" id="max_score" placeholder="คะแนนเต็ม (ตัวเลขเท่านั้น)" class="form-control">
-            </div>
-          </div>
-          <div class="row mb-3">
-            <div class="col">
-              <input type="text" name="score_detail" id="score_detail" placeholder="รายละเอียดของหัวข้อคะแนน" class="form-control">
-          </div>
-          </div>
           <div class="text-center">
-            <button type="submit" class="btn btn-info btn-lg">เพิ่มหัวข้อ</button>
+            <button type="submit" class="btn btn-info btn-lg mx-2">เพิ่มเทมเพลต</button>
+            <a class="btn btn-danger btn-lg mx-2" href="/Manager_Score/{{ round_id.id }}">ยกเลิก</a>
         </div>
     </form>
   </div>
@@ -89,10 +79,17 @@
           <div class="col-md-8 mx-auto">
             <div class="card">
               <div class="card-body">
-                <div class="d-flex justify-content-center">
-                  <h2 class="fs-6 card-title">{{ round_id.round_name }} {{ round_id.academic_year }} </h2>
-                  <h2 class="fs-6 text-primary card-title fw-bolder">{{ key }}</h2>
-                </div>
+                  <div class="d-flex justify-content-between">
+                    <span class="d-flex">
+                      <h2 class="fs-6 card-title">ชื่อ:</h2>
+                      <h2 class="fs-6 text-primary card-title fw-bolder px-2">{{ round_id.round_name }} {{ round_id.academic_year }}</h2>
+                    </span>
+                    <a href="/delete_ScoreTemplate/{{pattern_id}}">
+                      <span class="fs-6 text-danger">
+                        <i class="ti ti-trash-x"></i>
+                      </span>
+                    </a>
+                  </div>
                 <ul class="list-group list-group-flush">
                 {% for topic in topics %}
                   <li class="list-group-item d-flex justify-content-between align-items-center">

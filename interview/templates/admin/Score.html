@@ -46,7 +46,7 @@
                 {% endfor %}
               </ul>
               <div class="d-flex justify-content-center">
-                <a class="btn btn-info fs-3 fw-semibold " onclick="add_Score('{{ pattern.id }}')">เพิ่มหัวข้อ {{ pattern.id }}</a>
+                <a class="btn btn-info fs-3 fw-semibold " onclick="add_Score('{{ pattern.id }}')">เพิ่มหัวข้อ</a>
               </div>
             </div>
           </div>
@@ -87,7 +87,7 @@
     </div>
     <form action="/add_ScoreTopic" method="post" class="container mt-4">
       {% csrf_token %}
-      <input type="text" name="template_num" id="template_num">
+      <input type="hidden" name="template_num" id="template_num">
       <div class="row mb-3">
         <div class="col">
           <input type="text" name="topic_name" id="topic_name" placeholder="หัวข้อการให้คะแนน" class="form-control">

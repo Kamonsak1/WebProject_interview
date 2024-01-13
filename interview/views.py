@@ -565,16 +565,10 @@ def add_ScorePattern(request):
         round_value = request.POST.get("round")
         if round_value:
             template_num = request.POST.get('template_num')
-            topic_name = request.POST.get('topic_name')
-            max_score = request.POST.get('max_score')
-            score_detail = request.POST.get('score_detail')
-            score_topic, _ = ScoreTopic.objects.get_or_create( pattern_id=template_num,
-                                                                topic_name=topic_name,
-                                                                max_score=max_score,
-                                                                score_detail=score_detail)
-            score_topic.save()
+            score_pattern = ScorePattern( pattern_name=template_num)
+            score_pattern.save()
             round = Round.objects.get(id=round_value)
-            Score_Round = RoundScore(topic=score_topic,Round=round)
+            Score_Round = RoundScore(pattern=score_pattern,Round=round)
             Score_Round.save()
             return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
         else:
@@ -590,17 +584,15 @@ def add_ScoreTopic(request):
         round_value = request.POST.get("round")
         if round_value:
             template_num = request.POST.get('template_num')
+            score_pattern = ScorePattern.objects.get(pattern_name=template_num)
             topic_name = request.POST.get('topic_name')
             max_score = request.POST.get('max_score')
             score_detail = request.POST.get('score_detail')
-            score_topic, _ = ScoreTopic.objects.get_or_create( pattern_id=template_num,
+            score_topic, _ = ScoreTopic.objects.get_or_create( pattern_id=score_pattern,
                                                                 topic_name=topic_name,
                                                                 max_score=max_score,
                                                                 score_detail=score_detail)
             score_topic.save()
-            round = Round.objects.get(id=round_value)
-            Score_Round = RoundScore(topic=score_topic,Round=round)
-            Score_Round.save()
             return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
         else:
             template_num = request.POST.get('template_num')
@@ -1157,39 +1149,41 @@ def add_meetlink(request):
 @user_passes_test(is_Manager)
 def Manager_ScoreTopic(request,id):
     round = Round.objects.get(id=id)
+    pattern_id = "None"
+
+    round_name = f"{round.round_name}_{round.academic_year}_{round.major.major}"
+    templates = ScorePattern.objects.filter(main_pattern=True)
+
+    template = ScorePattern.objects.filter(pattern_name=round_name).first()
+    topics = ScoreTopic.objects.filter(pattern_id=template)
+
     if request.method == "POST":
         pattern_id = request.POST.get("pattern")
         pattern_name = request.POST.get("round_name")
 
-        Topic_in_Pattern = ScoreTopic.objects.filter(pattern_id=pattern_id)
+        Pattern = ScorePattern.objects.get(pattern_name=pattern_id)
+        Topic_in_Pattern = ScoreTopic.objects.filter(pattern_id=Pattern)
+        new_pattern = ScorePattern(pattern_name=pattern_name)
+        new_pattern.save()
         for t in Topic_in_Pattern:
-            new_topic = ScoreTopic(pattern_id=pattern_name,topic_name=t.topic_name,max_score=t.max_score,score_detail=t.score_detail)
+            new_topic = ScoreTopic(pattern_id=new_pattern,topic_name=t.topic_name,max_score=t.max_score,score_detail=t.score_detail)
             new_topic.save()
-            round_score = RoundScore(topic=new_topic,Round=round)
+            round_score = RoundScore(pattern=new_pattern,Round=round)
             round_score.save()
         return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
     if RoundScore.objects.filter(Round=round):
         text = True
+        pattern_id = template.id
     else:
         text = False
 
-    round_name = f"{round.round_name}_{round.academic_year}_{round.major.major}"
-    round_id = round.id
-    score_topics = ScoreTopic.objects.all()
-    grouped_topics = defaultdict(list)
-    for topic in score_topics:
-        if re.match('^\d+$', topic.pattern_id):
-            grouped_topics[topic.pattern_id].append(topic)
-
-    topics = dict(sorted(grouped_topics.items()))
-
-    template = ScoreTopic.objects.filter(pattern_id=round_name)
     context = {
         "text" : text,
-        "no_topic" : topics,
+        "no_topic" : templates,
         "round" : round_name,
         "round_id" : round,
-        "topics" : template,
+        "topics" : topics,
+        "pattern_id" : pattern_id
     }
     
     return render(request,"manager/Manager_ScoreTopic.html",context)
