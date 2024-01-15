@@ -5,9 +5,41 @@
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
-    
+    {% if user.interview_link.all %}
+            {% for link in user.interview_link.all %}
+            <div class="row">       
+                <form class="col d-flex" method="post" action="{% url 'toggle_status_active' link.id %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="link_id" value="{{ link.id }}">
+                  <h1>{{ link.active|yesno:"พร้อมสัมภาษณ์,ไม่พร้อมสัมภาษณ์" }}</h1>
+                  <button class="btn fs-3 {% if link.active %}btn-danger{% else %}btn-success{% endif %}" type="submit">{{ link.active|yesno:"ไม่พร้อม,พร้อม" }}</button>
+              </form>
+                <form class="col" action="/add_meetlink" method="post">
+                  {% csrf_token %}
+                  <input class="search-bordered fs-4" style="width: 95%;" type="text" name="link" id="link" value="{{ link.link }}">
+                  <button class="search-bordered btn btn-secondary px-1 py-1" type="submit"><i class="ti fs-6 ti-device-floppy"></i></button>
+                </form>
+              {% endfor %}
+            </div>
+                {% else %}
+            <div class="row">
+                <div class="col"></div>
+                <form class="col" action="/add_meetlink" method="post">
+                {% csrf_token %}
+                <input class="search-bordered fs-4" type="text" style="width: 95%;" name="link" id="link" value="">
+                <button class="search-bordered btn btn-secondary px-1 py-1" type="submit"><i class="ti fs-6 ti-device-floppy"></i></button>
+              </form>
+            </div>
+    {% endif %}
+
+    <!-- {{ time }} <br>
+
+    {% for r in rounds %}
+    {{ r.round_name }} {{ r.academic_year}} {{ r.interview_time }}<br>
+    {% endfor %}
+
     {% for doc in docs %}
     <a href="{{ doc.document.url }}" target="_blank" class="btn btn-danger">{{ doc.doc_name }}</a> <br>
-    {% endfor %}
+    {% endfor %} -->
 </div>
 {% endblock %}

@@ -215,10 +215,19 @@ def Interviewer_Profile(request):
 @login_required
 @user_passes_test(is_Interviewer)
 def Interviewer_room(request):
+    user_rounds = Round.objects.filter(users=request.user)
+    user_majors = Major.objects.filter(users=request.user)
+    related_rounds = Round.objects.filter(major__in=user_majors)
+    combined_rounds = (user_rounds | related_rounds).distinct()
+
+    time_now = datetime.now()
+
     user = User.objects.get(id=1)
     docs = Document.objects.filter(user=user)
     context = {
-        "docs" : docs
+        "docs" : docs,
+        "rounds" : combined_rounds,
+        "time" : time_now,
     }
     return render(request,'interviewer/Interviewer_room.html', context)
 
@@ -1103,7 +1112,7 @@ def toggle_status_active(request, link_id):
 @user_passes_test(is_Student)
 def register_interview(request, round_id):
     round = get_object_or_404(Round, id=round_id)
-    # สร้างหรืออัปเดต InterviewStatus
+
     InterviewStatus.objects.update_or_create(
         user=request.user, round=round,
         defaults={'status': 'พร้อมสอบ'}
@@ -1368,7 +1377,7 @@ def delete_Announcement(request,id):
 
 def Manager_StatusRound(request,id):
     round = Round.objects.get(id=id)
-    UserInRound = InterviewStatus.objects.filter(round=round)
+    UserInRound = InterviewStatus.objects.filter(round=round).order_by("reg_at")
     context = {
         "Users" : UserInRound,
         "round" : round,
