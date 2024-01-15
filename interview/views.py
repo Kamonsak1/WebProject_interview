@@ -215,7 +215,12 @@ def Interviewer_Profile(request):
 @login_required
 @user_passes_test(is_Interviewer)
 def Interviewer_room(request):
-    return render(request,'interviewer/Interviewer_room.html')
+    user = User.objects.get(id=1)
+    docs = Document.objects.filter(user=user)
+    context = {
+        "docs" : docs
+    }
+    return render(request,'interviewer/Interviewer_room.html', context)
 
 
 
@@ -246,8 +251,13 @@ def Student_register(request):
         round = Round.objects.get(id=request.POST.get("round_id"))
         doc_name = request.POST.get("doc_name")
         file = request.FILES.get('file_name')
-        document = Document(user=user,round=round,doc_name=doc_name,document=file)
-        document.save()
+        if Document.objects.filter(doc_name=doc_name,round=round):
+            document = Document.objects.get(doc_name=doc_name,round=round)
+            document.document = file
+            document.save()
+        else:
+            document = Document(user=user,round=round,doc_name=doc_name,document=file)
+            document.save()
         return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
     
     context = {
