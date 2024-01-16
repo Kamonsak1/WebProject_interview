@@ -195,6 +195,7 @@ class InterviewLink(models.Model):
     link = models.CharField(max_length=300)
     active = models.BooleanField(default=False,null=True,blank=True)
     round = models.ForeignKey(Round, on_delete=models.CASCADE, related_name='interview_round',blank=True,null=True)
+    interviewing = models.BooleanField(default=False)
 
 
 class RoundScore(models.Model):

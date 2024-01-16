@@ -277,7 +277,15 @@ def Student_register(request):
 @login_required
 @user_passes_test(is_Student)
 def Student_room(request):
-    return render(request,'student/Student_room.html')
+    time_now = datetime.now()
+    context = {
+        "time" : time_now
+    }
+    return render(request,'student/Student_room.html', context)
+def current_time(request):
+    time_now = datetime.now()
+    return JsonResponse({"time": time_now.strftime('%Y-%m-%d %H:%M:%S')})
+
 @login_required
 @user_passes_test(is_Student)
 def Student_evidence(request):

@@ -5,6 +5,20 @@
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
-    <!-- asdsad
+    <span id="time-display">{{ time }}</span>
 </div>
+    <script>
+        function updateTime() {
+            fetch('/current-time/')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('time-display').innerHTML = data.time;})
+                    .catch(error => console.error('Error:', error));}
+
+    // อัปเดตเวลาทุก ๆ 1 นาที
+    setInterval(updateTime, 1000);
+
+    // ดึงเวลาเมื่อหน้าเว็บโหลดเสร็จ
+    window.onload = updateTime;
+    </script>
 {% endblock %}
