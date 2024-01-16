@@ -94,10 +94,14 @@
               <div class="d-sm-flex d-block align-items-center mb-9">
                 <div class="card-title d-flex mb-3 mb-sm-0 justify-content-between">
                   <div class="">
-                    <h5 class=" fw-semibold fs-6 pe-1">เอกสาร :</h5>
+                    <h5 class=" fw-semibold fs-6 pe-1">เอกสารของ :</h5>
                   </div>
                   <div class="">
+                    {% if docs %}
                     <h5 class=" fs-5 mt-1 fw-bolder text-muted">{{ docs.user.citizen_id|slice:":4" }}****{{ docs.user.citizen_id|slice:"-4:" }} {{docs.user.first_name}} {{docs.user.last_name}}</h5>
+                    {% else %}
+                    <h5 class=" fs-6 fw-bolder text-muted">ไม่มีผู้เข้าสอบ</h5>
+                    {% endif %}
                   </div>
                 </div>
               </div>
@@ -125,6 +129,7 @@
               </div>
               <div class="text-center">
                 <a class="search-bordered btn btn-danger px-9 py-9 "><i class="ti fs-9 ti-x"></i></a><br>
+                <h1 class="fs-6 text-danger fw-bolder mt-1">ไม่พบเกณฑ์การให้คะแนน</h1>
               </div>
             </div>
           </div>

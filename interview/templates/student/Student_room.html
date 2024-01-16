@@ -6,38 +6,63 @@
 {% block content %}
 <div class="pt-14 px-2">
 
+    {% if test %}
     <audio id="myAudio">
         <source src="{% static 'audio/test.mp3' %}" type="audio/mpeg">
     </audio>
-    <span id="time-display">{{ time }}</span>
     <button onclick="playAudio()" type="button">Play Audio</button>
-    <button onclick="pauseAudio()" type="button">Pause Audio</button> 
+    <button onclick="resetAudioPlayCount()" type="button">Reset Audio Play Count</button>
+    <div id="status-area" >
+        <!-- Statuses will be loaded here -->
+    </div>
+    <a href="" ></a>
+
+    <a href=""></a>
+    {% else %}
+    <audio id="myAudio">
+        <source src="{% static 'audio/test.mp3' %}" type="audio/mpeg">
+    </audio>
+    <button onclick="playAudio()" type="button">Play Audio</button>
+    <button onclick="resetAudioPlayCount()" type="button">Reset Audio Play Count</button>
+    <div id="status-area">
+        <!-- Statuses will be loaded here -->
+    </div>
+    {% endif %}
+
 
 </div>
     <script>
-
+        let audioPlayCount = 0;
         var x = document.getElementById("myAudio"); 
         console.log(x)
 
         function playAudio() { 
-        x.play(); 
-        } 
-
-        function pauseAudio() { 
-        x.pause(); 
-        } 
-
-        function updateTime() {
-            fetch('/current-time/')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('time-display').innerHTML = data.time;
-                    // playAudio();
-                })
-                    .catch(error => console.error('Error:', error));
+            if (audioPlayCount < 2) {
+                x.play();
+                audioPlayCount++;
             }
-    setInterval(updateTime, 1000);
-    window.onload = updateTime;
+        }
+        function resetAudioPlayCount() {
+            audioPlayCount = 0;
+        }
+
+        function fetchAndUpdateData() {
+        fetch('/interview-status/')
+        .then(response => response.json())
+        .then(data => {
+            let item = data[0]; // เข้าถึง object แรกใน array
+            let content = 'Queue Time: ' + item.queue_time + ' minutes' + "<br>"+ '<a href="' + item.link +'" target="_blank" >Meet</a>';
+            document.getElementById('status-area').innerHTML = content;
+            // ตรวจสอบค่า queue_time และเล่นเสียงหากจำเป็น
+            if (item.queue_time === 0) {
+                playAudio();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+        setInterval(fetchAndUpdateData, 1000);
+        fetchAndUpdateData();
 
     </script>
 {% endblock %}

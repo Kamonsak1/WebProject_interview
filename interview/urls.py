@@ -100,7 +100,7 @@ urlpatterns = [
     path('Student_profile',Student_profile, name='Student_profile'),
     path('Student_register',Student_register, name='Student_register'),
     path('Student_room',Student_room, name='Student_room'),
-    path('current-time/', current_time, name='current-time'),
+    path('interview-status/', interview_status, name='interview_status'),
     path('Student_evidence',Student_evidence, name='Student_evidence'),
     path('register_interview/<int:round_id>/', register_interview, name='register_interview'),
 

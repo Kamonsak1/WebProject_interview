@@ -374,14 +374,28 @@ def Student_register(request):
 @login_required
 @user_passes_test(is_Student)
 def Student_room(request):
-    time_now = datetime.now()
+    test = test = InterviewNow.objects.filter(student=request.user)
+
     context = {
-        "time" : time_now
+        "test" : test
     }
     return render(request,'student/Student_room.html', context)
-def current_time(request):
-    time_now = datetime.now()
-    return JsonResponse({"time": time_now.strftime('%Y-%m-%d %H:%M:%S')})
+
+
+def interview_status(request):
+    queue_time = 10
+    link = None
+    interviewing = InterviewNow.objects.filter(student=request.user)
+    if interviewing:
+        student = InterviewNow.objects.filter(student=request.user).first()
+        link = InterviewLink.objects.get(user=student.interviewer)
+        link = link.link
+    data = []
+    data.append({
+        'link': link,
+        'queue_time': queue_time
+    })
+    return JsonResponse(data, safe=False)
 
 @login_required
 @user_passes_test(is_Student)
