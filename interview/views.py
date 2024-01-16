@@ -116,11 +116,6 @@ def User_path(request):
     round_active = Round.objects.filter(active='True')
     return render(request,'admin/User.html', {'users': users,'faculty_all':faculty_all,"major_all":major_all,'round_active':round_active})
 
-# @login_required
-# @user_passes_test(is_admin)
-# def form_interview(request):
-#     return render(request,'admin/form_interview.html')
-
 @login_required
 @user_passes_test(is_admin)
 def admin_profile(request):
@@ -215,6 +210,18 @@ def Interviewer_Profile(request):
 @login_required
 @user_passes_test(is_Interviewer)
 def Interviewer_room(request):
+    if InterviewLink.objects.filter(user=request.user):
+        pass
+    else:
+        new_link = InterviewLink(user=request.user,link="")
+        new_link.save()
+    if InterviewNow.objects.filter(interviewer=request.user):
+        pass
+    else:
+        now = InterviewNow(interviewer=request.user)
+        now.save()
+
+
     user_rounds = Round.objects.filter(users=request.user)
     user_majors = Major.objects.filter(users=request.user)
     related_rounds = Round.objects.filter(major__in=user_majors)
@@ -232,14 +239,70 @@ def Interviewer_room(request):
         link.round = round
         link.save()
         return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+    elif request.method == "POST" and "round_exit" in request.POST:
+        id = int(request.POST.get("round_exit"))
+        link = InterviewLink.objects.get(id=id)
+        link.round = None
+        link.save()
+        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+    elif request.method == "POST" and "finish" in request.POST:
+        user_id = int(request.POST.get("finish"))
+        user = User.objects.get(id=user_id)
+        round = Round.objects.get(id=link.round.id)
+        student_status = InterviewStatus.objects.get(user=user,round=round)
+        student_status.status = "สอบเสร็จแล้ว"
+        student_status.save()
+        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+    elif request.method == "POST" and "skip" in request.POST:
+        user_id = int(request.POST.get("skip"))
+        user = User.objects.get(id=user_id)
+        round = Round.objects.get(id=link.round.id)
+        student_status = InterviewStatus.objects.get(user=user,round=round)
+        student_status.status = "ข้าม"
+        student_status.reg_at = datetime.now()
+        student_status.save()
+        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+    
+    elif request.method == "POST" and "reset" in request.POST:
+        InterviewNow.objects.filter(interviewer=request.user)
+        student_status = InterviewStatus.objects.all()
+        for s in student_status:
+            s.status = "พร้อมสอบ"
+            s.save()
+        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
-    user = User.objects.get(id=1)
-    docs = Document.objects.filter(user=user)
+    link = InterviewLink.objects.get(user=request.user)
+
+    interviewer_interviewing = InterviewNow.objects.get(interviewer=request.user)
+    interviewing = False
+    if interviewer_interviewing.student:
+        interviewing = True
+
+    student = None
+    need_docs = None
+    if link.round and interviewing :
+        interviewing_now = InterviewNow.objects.get(interviewer=request.user)
+        student = InterviewStatus.objects.filter(round=link.round,user=interviewing_now.student)
+        need_docs = link.round.documents.split(",")
+    elif link.round and link.active:
+        ready_student = InterviewStatus.objects.filter(round=link.round, status="พร้อมสอบ")
+        skip_student = InterviewStatus.objects.filter(round=link.round, status="ข้าม")
+        student = (ready_student | skip_student).distinct().order_by("reg_at").first()
+        need_docs = link.round.documents.split(",")
+        if student:
+            interviewing_now = InterviewNow.objects.get(interviewer=request.user)
+            student_status = InterviewStatus.objects.get(round=link.round,user=student.user)
+            interviewing_now.student = student.user
+            interviewing_now.save()
+            student_status.status = "กำลังสอบ"
+            student_status.save()
+
     context = {
-        "docs" : docs,
+        "docs" : student,
         "rounds" : combined_rounds,
-        "test" : link.round,
+        "link" : link,
         "not_selected" : not_selected_round,
+        "need_docs" : need_docs,
     }
     return render(request,'interviewer/Interviewer_room.html', context)
 
@@ -272,8 +335,8 @@ def Student_register(request):
         round = Round.objects.get(id=request.POST.get("round_id"))
         doc_name = request.POST.get("doc_name")
         file = request.FILES.get('file_name')
-        if Document.objects.filter(doc_name=doc_name,round=round):
-            document = Document.objects.get(doc_name=doc_name,round=round)
+        if Document.objects.filter(user=user,doc_name=doc_name,round=round):
+            document = Document.objects.get(user=user,doc_name=doc_name,round=round)
             document.document = file
             document.save()
         else:

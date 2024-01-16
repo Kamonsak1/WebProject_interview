@@ -201,3 +201,7 @@ class InterviewLink(models.Model):
 class RoundScore(models.Model):
     pattern = models.ForeignKey(ScorePattern, on_delete=models.CASCADE ,null = True,blank=True)
     Round = models.ForeignKey(Round, on_delete=models.CASCADE)
+
+class InterviewNow(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='interview_student',blank=True,null=True)
+    interviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='interviewer')
