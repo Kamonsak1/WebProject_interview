@@ -239,15 +239,30 @@ def Interviewer_room(request):
         link.round = round
         link.save()
         return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+    
     elif request.method == "POST" and "round_exit" in request.POST:
         id = int(request.POST.get("round_exit"))
+        round = Round.objects.get(id=link.round.id)
         link = InterviewLink.objects.get(id=id)
+        interviewing_now = InterviewNow.objects.filter(interviewer=request.user)
+        if interviewing_now:
+            now = InterviewNow.objects.filter(interviewer=request.user).first()
+            student_status = InterviewStatus.objects.filter(user=now.student,round=round)
+            now.student = None
+            now.save()
+            if student_status:
+                status = student_status.first()
+                status.status = "พร้อมสอบ"
+                status.save()
         link.round = None
         link.save()
         return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
     elif request.method == "POST" and "finish" in request.POST:
         user_id = int(request.POST.get("finish"))
         user = User.objects.get(id=user_id)
+        interviewing_now = InterviewNow.objects.get(interviewer=request.user)
+        interviewing_now.student = None
+        interviewing_now.save()
         round = Round.objects.get(id=link.round.id)
         student_status = InterviewStatus.objects.get(user=user,round=round)
         student_status.status = "สอบเสร็จแล้ว"
@@ -256,6 +271,9 @@ def Interviewer_room(request):
     elif request.method == "POST" and "skip" in request.POST:
         user_id = int(request.POST.get("skip"))
         user = User.objects.get(id=user_id)
+        interviewing_now = InterviewNow.objects.get(interviewer=request.user)
+        interviewing_now.student = None
+        interviewing_now.save()
         round = Round.objects.get(id=link.round.id)
         student_status = InterviewStatus.objects.get(user=user,round=round)
         student_status.status = "ข้าม"
@@ -266,6 +284,9 @@ def Interviewer_room(request):
     elif request.method == "POST" and "reset" in request.POST:
         InterviewNow.objects.filter(interviewer=request.user)
         student_status = InterviewStatus.objects.all()
+        interviewing_now = InterviewNow.objects.get(interviewer=request.user)
+        interviewing_now.student = None
+        interviewing_now.save()
         for s in student_status:
             s.status = "พร้อมสอบ"
             s.save()
@@ -282,7 +303,7 @@ def Interviewer_room(request):
     need_docs = None
     if link.round and interviewing :
         interviewing_now = InterviewNow.objects.get(interviewer=request.user)
-        student = InterviewStatus.objects.filter(round=link.round,user=interviewing_now.student)
+        student = InterviewStatus.objects.get(round=link.round,user=interviewing_now.student)
         need_docs = link.round.documents.split(",")
     elif link.round and link.active:
         ready_student = InterviewStatus.objects.filter(round=link.round, status="พร้อมสอบ")
@@ -303,6 +324,7 @@ def Interviewer_room(request):
         "link" : link,
         "not_selected" : not_selected_round,
         "need_docs" : need_docs,
+        "test" : InterviewNow.objects.get(interviewer=request.user),
     }
     return render(request,'interviewer/Interviewer_room.html', context)
 
