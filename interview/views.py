@@ -218,16 +218,28 @@ def Interviewer_room(request):
     user_rounds = Round.objects.filter(users=request.user)
     user_majors = Major.objects.filter(users=request.user)
     related_rounds = Round.objects.filter(major__in=user_majors)
-    combined_rounds = (user_rounds | related_rounds).distinct()
+    combined_rounds = (user_rounds | related_rounds).distinct().order_by("-academic_year")
 
-    time_now = datetime.now()
+    not_selected_round = True
+    link = InterviewLink.objects.get(user=request.user)
+    if link.round:
+        not_selected_round = False
+
+    if request.method == "POST" and "round" in request.POST:
+        r = request.POST.get("round")
+        round = Round.objects.get(id=r)
+        link = InterviewLink.objects.get(user=request.user)
+        link.round = round
+        link.save()
+        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
     user = User.objects.get(id=1)
     docs = Document.objects.filter(user=user)
     context = {
         "docs" : docs,
         "rounds" : combined_rounds,
-        "time" : time_now,
+        "test" : link.round,
+        "not_selected" : not_selected_round,
     }
     return render(request,'interviewer/Interviewer_room.html', context)
 

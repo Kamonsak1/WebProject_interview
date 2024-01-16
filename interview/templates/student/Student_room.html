@@ -1,24 +1,43 @@
 {% extends 'student/base/n_base.html' %}
-
+{% load static %}
 {% block topic %}
 <h1 class="text-3xl text-gray-100 mt-2 text-center">ห้องสัมภาษณ์</h1>
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
+
+    <audio id="myAudio">
+        <source src="{% static 'audio/test.mp3' %}" type="audio/mpeg">
+    </audio>
     <span id="time-display">{{ time }}</span>
+    <button onclick="playAudio()" type="button">Play Audio</button>
+    <button onclick="pauseAudio()" type="button">Pause Audio</button> 
+
 </div>
     <script>
+
+        var x = document.getElementById("myAudio"); 
+        console.log(x)
+
+        function playAudio() { 
+        x.play(); 
+        } 
+
+        function pauseAudio() { 
+        x.pause(); 
+        } 
+
         function updateTime() {
             fetch('/current-time/')
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('time-display').innerHTML = data.time;})
-                    .catch(error => console.error('Error:', error));}
-
-    // อัปเดตเวลาทุก ๆ 1 นาที
+                    document.getElementById('time-display').innerHTML = data.time;
+                    // playAudio();
+                })
+                    .catch(error => console.error('Error:', error));
+            }
     setInterval(updateTime, 1000);
-
-    // ดึงเวลาเมื่อหน้าเว็บโหลดเสร็จ
     window.onload = updateTime;
+
     </script>
 {% endblock %}
