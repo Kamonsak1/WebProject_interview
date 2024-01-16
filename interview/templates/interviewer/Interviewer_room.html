@@ -139,7 +139,7 @@
         <form class="me-2" method="post">
           {% csrf_token %}
           <input type="hidden" name="reset" id="reset" value="{{ docs.user.id }}">
-          <button class="search-bordered btn btn-info px-2 py-2 fs-7 fw-semibold" type="submit">Reset</button>
+          <button class="search-bordered btn btn-danger px-2 py-2 fs-7 fw-semibold" type="submit">Reset</button>
         </form>
         <form class="me-2" method="post">
           {% csrf_token %}
