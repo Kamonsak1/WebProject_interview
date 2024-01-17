@@ -9,7 +9,8 @@
         <thead class="thead-dark">
             <tr>
                 <th class="text-center fs-5 fw-medium">ชื่อ-นามสกุล</th>
-                <th class="text-center fs-5 fw-medium">Email</th>
+                <th class="text-center fs-5 fw-medium">บทบาท</th>
+                <th class="text-center fs-5 fw-medium">จัดการ</th>
 
             </tr>
         </thead>
@@ -17,14 +18,36 @@
             {% for user in users %}
             <tr>
                 <td>{{ user.first_name }} {{ user.last_name }}</td>
-                <td style="text-align: left;">{{ user.email }}</td>
-                <td style="text-align: right; display: flex;
-                justify-content: space-between;">
-                    <a href="#">+</a>
-                    <a href="#">-</a>
+                <td>
+                    {% for role in user.roles.all %}
+                        {{ role.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+                <td>
+                    <form action="{% url 'increase_manager' %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="id" value="{{ user.id }}">
+                        <input type="hidden" name="major" value="{{ s_major }}">
+                        <button type="submit">+</button>
+                    </form>
+                    {% for major in user.manager.all %}
+                        {% if major.major == s_major %}
+                            <form action="{% url 'decrease_manager' %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="id" value="{{ user.id }}">
+                                <input type="hidden" name="major" value="{{ s_major }}">
+                                <button type="submit">-</button>
+                            </form>
+                        {% endif %}
+                    {% endfor %}
                 </td>
                 
+                
+                
             </tr>
+            
+            
+            
             {% endfor %}
         </tbody>
     </table>

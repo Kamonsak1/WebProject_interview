@@ -125,7 +125,7 @@ def admin_profile(request):
 @login_required
 @user_passes_test(is_Manager)
 def manager_page(request,id):
-    users = TemporaryUser.objects.all()
+    users = User.objects.all()
     faculty_all = Faculty.objects.filter(users=id)
     majors = Major.objects.filter(default_manager=id)
     request.session['myuser_id'] = id
@@ -142,12 +142,18 @@ def manage_profile(request):
 @user_passes_test(is_Manager)
 def Manage_personnel(request):
     myuser_id = request.session.get('myuser_id')
-    users = TemporaryUser.objects.all()
+    users = User.objects.all()
     faculty_all = Faculty.objects.filter(users=myuser_id)
     majors = Major.objects.filter(default_manager=myuser_id)
     major_from_session = request.session.get('major')
     if  major_from_session:
-        users = User.objects.filter(roles__name='Manager')
+        users_Manager = User.objects.filter(roles__name='Manager', major__major=major_from_session)
+        users_Interviewer = User.objects.filter(roles__name='Interviewer', major__major=major_from_session)
+        users_Admin = User.objects.filter(roles__name='Admin', major__major=major_from_session)
+        users = users_Manager.union(users_Interviewer)
+        users_admin_ids = users_Admin.values_list('id', flat=True)
+        users = [user for user in users if user.id not in users_admin_ids]
+        default_managers = Major.objects.get(major=major_from_session).default_manager.all()
         return render(request,'manager/Manage_personnel.html',{'users': users,"s_major":major_from_session,'faculty_all':faculty_all,'majors':majors})
     return render(request,'manager/Manage_personnel.html',{'users': users,'faculty_all':faculty_all,'majors':majors})
 
@@ -155,7 +161,7 @@ def Manage_personnel(request):
 @user_passes_test(is_Manager)
 def Manage_User(request):
     myuser_id = request.session.get('myuser_id')
-    users = TemporaryUser.objects.all()
+    users = User.objects.all()
     faculty_all = Faculty.objects.filter(users=myuser_id)
     majors = Major.objects.filter(default_manager=myuser_id)
     major_from_session = request.session.get('major')
@@ -167,7 +173,7 @@ def Manage_User(request):
 @login_required
 @user_passes_test(is_Manager)
 def Manager_Announcement(request):
-    users = TemporaryUser.objects.all()
+    users = User.objects.all()
     faculty_all = Faculty.objects.all()
     faculty_from_session = request.session.get('faculty')
     major_from_session = request.session.get('major')
@@ -1622,3 +1628,28 @@ def delete_Schedule(request,id):
     delete_Sd = Schedule.objects.get(pk=id)
     delete_Sd.delete()
     return redirect('Announcement_page')
+
+
+
+
+def decrease_manager(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('id')
+        major_name = request.POST.get('major')
+        major  =  Major.objects.get(major=major_name)
+        manager  =  User.objects.get(pk=user_id)
+        major.default_manager.remove(manager)
+        major.save()
+
+    return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+
+def increase_manager(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('id')
+        major_name = request.POST.get('major')
+        major  =  Major.objects.get(major=major_name)
+        manager  =  User.objects.get(pk=user_id)
+        major.default_manager.add(manager)
+        major.save()
+
+    return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))

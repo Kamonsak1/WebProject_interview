@@ -86,6 +86,8 @@ urlpatterns = [
     path('add_announcement',add_announcement,name='add_announcement'),
     path('Manager_Status/<int:id>',Manager_StatusRound,name='Manager_StatusRound'),
     path('edit_Announcement',edit_Announcement,name='edit_Announcement'),
+    path('decrease_manager',decrease_manager,name='decrease_manager'),
+    path('increase_manager',increase_manager,name='increase_manager'),
 
 
     #Interviewer
