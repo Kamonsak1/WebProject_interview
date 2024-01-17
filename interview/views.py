@@ -65,7 +65,8 @@ def test(request):
 @user_passes_test(is_admin)
 def admin_page(request):
     Announcement_all = Announcement.objects.filter(role__name='Admin')
-    return render(request,'admin/Admin_page.html',{'am':Announcement_all})
+    Schedule_all = Schedule.objects.filter(role__name='Admin')
+    return render(request,'admin/Admin_page.html',{'Announcement':Announcement_all,'Schedule':Schedule_all})
 @login_required
 @user_passes_test(is_admin)
 def Announcement_page(request):

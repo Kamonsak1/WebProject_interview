@@ -10,3 +10,17 @@ function read_Announcement(title, content) {
       optionsDiv.style.display = "block";
   }
 }
+
+
+function read_schedule(title, content) {
+  var optionsDiv = document.getElementById("read_schedule");
+  document.getElementById('topic').innerHTML = title;
+  var formattedContent = content.replace(/\n/g, '<br>');
+  document.getElementById('content').innerHTML = formattedContent;
+
+  if (optionsDiv.style.display === "block") {
+      optionsDiv.style.display = "none";
+  } else {
+      optionsDiv.style.display = "block";
+  }
+}

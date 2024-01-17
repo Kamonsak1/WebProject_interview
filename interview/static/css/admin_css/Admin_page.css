@@ -19,6 +19,9 @@
 #read_Announcement{
     cursor: pointer; 
 }
+#read_schedule{
+    cursor: pointer; 
+}
 
 .topic_an{
     text-align: center;
