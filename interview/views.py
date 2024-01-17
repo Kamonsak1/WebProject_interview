@@ -383,17 +383,29 @@ def Student_room(request):
 
 
 def interview_status(request):
-    queue_time = 10
+    queue_time = "คุณยังไม่ได้มีการลงทะเบียน"
+    user_position = None
+    have_reg = InterviewStatus.objects.filter(user=request.user)
+    reg= None
+    if have_reg:
+        reg = InterviewStatus.objects.filter(user=request.user).order_by("reg_at").first()
+        round = reg.round
+        interview_statuses = InterviewStatus.objects.filter(status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"],round=round).order_by('reg_at')
+        for index, status in enumerate(interview_statuses):
+            if status.user == request.user:
+                user_position = index
+                break
+        queue_time = user_position*10
     link = None
     interviewing = InterviewNow.objects.filter(student=request.user)
     if interviewing:
-        student = InterviewNow.objects.filter(student=request.user).first()
+        student = InterviewNow.objects.get(student=request.user)
         link = InterviewLink.objects.get(user=student.interviewer)
         link = link.link
     data = []
     data.append({
         'link': link,
-        'queue_time': queue_time
+        'queue_time': queue_time,
     })
     return JsonResponse(data, safe=False)
 

@@ -51,7 +51,7 @@
         .then(response => response.json())
         .then(data => {
             let item = data[0]; // เข้าถึง object แรกใน array
-            let content = 'Queue Time: ' + item.queue_time + ' minutes' + "<br>"+ '<a href="' + item.link +'" target="_blank" >Meet</a>';
+            let content = 'Queue Time: ' + item.queue_time + ' minutes ' + item.queue_position + "<br>"+ '<a href="' + item.link +'" target="_blank" >Meet</a>';
             document.getElementById('status-area').innerHTML = content;
             // ตรวจสอบค่า queue_time และเล่นเสียงหากจำเป็น
             if (item.queue_time === 0) {
@@ -61,7 +61,7 @@
         .catch(error => console.error('Error:', error));
 }
 
-        setInterval(fetchAndUpdateData, 1000);
+        setInterval(fetchAndUpdateData, 5000);
         fetchAndUpdateData();
 
     </script>
