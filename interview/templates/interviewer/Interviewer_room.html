@@ -1,5 +1,10 @@
 {% extends 'Interviewer/base/n_base.html' %}
+{% load static %}
 
+{% block css_js %} 
+<link rel="stylesheet" href="{% static 'css/interviewer_css/interview_room.css' %}" />
+<script src="{% static 'js/interviewer/interview_room.js' %}"></script>
+{% endblock %} 
 {% block topic %}
 <div class="fs-8 mt-1 text-muted text-center">
   <span><i class="ti ti-book"></i> ห้องสัมภาษณ์</span>
@@ -141,11 +146,7 @@
           <input type="hidden" name="reset" id="reset" value="{{ docs.user.id }}">
           <button class="search-bordered btn btn-danger px-2 py-2 fs-7 fw-semibold" type="submit">Reset</button>
         </form>
-        <form class="me-2" method="post">
-          {% csrf_token %}
-          <input type="hidden" name="skip" id="skip" value="{{ docs.user.id }}">
-          <button class="search-bordered btn btn-info px-2 py-2 fs-7 fw-semibold" type="submit">ข้าม</button>
-        </form>
+        <button onclick="skip_confirm()" class="search-bordered btn btn-info px-2 py-2 fs-7 fw-semibold" type="submit">ข้าม</button>
         <form class="" method="post">
           {% csrf_token %}
           <input type="hidden" name="finish" id="finish" value="{{ docs.user.id }}">
@@ -154,5 +155,23 @@
       </div>
       </div>
       {% endif %}
+
+      <div class="container_confirm" id="skip_confirm">
+        <div class="text-end">
+        <a href="/Student_room">
+          <i class="fs-6 ti ti-x text-danger"></i>
+        </a>
+        <h1 class="text-center fs-6 fw-semibold text-primary">ต้องการข้ามใช่หรือไม่?</h1>
+        </div>
+        <form method="post" class="container mt-4">
+            {% csrf_token %}
+            <input type="hidden" name="skip" id="skip" value="{{ docs.user.id }}">
+            <div class="text-center">
+                <button type="submit" onclick="resetAudioPlayCount()" class="btn btn-info btn-lg me-2">ยืนยัน</button>
+                <a href="/Student_room" class="btn btn-danger btn-lg">ยกเลิก</a>
+            </div>
+        </form>
+    </div>
+
 </div>
 {% endblock %}

@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404
 import pandas as pd
 import random
 from django.contrib.auth import update_session_auth_hash
-from django.db.models import Q
+from django.db.models import Q,F
 import string
 from django.contrib.auth.hashers import make_password
 from datetime import datetime
@@ -381,6 +381,16 @@ def Student_register(request):
 @login_required
 @user_passes_test(is_Student)
 def Student_room(request):
+    if request.method == "POST" and "skip" in request.POST:
+        student_status = InterviewStatus.objects.get(user=request.user)
+        student_status.status = "ข้าม"
+        student_status.reg_at = datetime.now()
+        student_status.save()
+        if InterviewNow.objects.filter(student=request.user):
+            interviewing = InterviewNow.objects.get(student=request.user)
+            interviewing.student = None
+            interviewing.save()
+        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
     test = test = InterviewNow.objects.filter(student=request.user)
 
     context = {
@@ -392,12 +402,16 @@ def Student_room(request):
 def interview_status(request):
     queue_time = "คุณยังไม่ได้มีการลงทะเบียน"
     user_position = None
-    have_reg = InterviewStatus.objects.filter(user=request.user)
     reg= None
-    if have_reg:
-        reg = InterviewStatus.objects.filter(user=request.user).order_by("reg_at").first()
-        round = reg.round
-        interview_statuses = InterviewStatus.objects.filter(status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"],round=round).order_by('reg_at')
+    round_now = None
+    if InterviewStatus.objects.filter(user=request.user):
+        all_round = (InterviewStatus.objects.filter(user=request.user, status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"])
+                                                     .annotate(interview_time=F('round__interview_time')).order_by('interview_time'))
+        if all_round:
+            r = all_round.first()
+            reg = InterviewStatus.objects.get(status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"],user=request.user,round=r.round)
+        interview_statuses = InterviewStatus.objects.filter(status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"],round=reg.round).order_by('reg_at')
+        round_now = f"{interview_statuses.first().round.round_name} {interview_statuses.first().round.academic_year}"
         for index, status in enumerate(interview_statuses):
             if status.user == request.user:
                 user_position = index
@@ -413,6 +427,7 @@ def interview_status(request):
     data.append({
         'link': link,
         'queue_time': queue_time,
+        'round' : round_now,
     })
     return JsonResponse(data, safe=False)
 
