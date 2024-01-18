@@ -113,21 +113,18 @@
                   </a>
                 </div>
               <div class="text-center row">
-                {% if have_docs %}
                 {% for h in have_docs %}
                   <div class="col-lg-2">
                     <a class="search-bordered btn btn-secondary px-9 py-9" href="{{ h.document.url }}" target="_blank"><i class="ti fs-9 ti-clipboard-text"></i></a><br>
                     <h1 class="fs-6 fw-bolder mt-1">{{h.doc_name}}</h1>
                   </div>
                 {% endfor %}
-                {% else %}
                 {% for d in need_docs %}
                 <div class="col-lg-2">
                   <button class="search-bordered btn btn-muted px-9 py-9 " disabled><i class="ti fs-9 ti-clipboard-text"></i></button><br>
                   <h1 class="fs-6 fw-bolder mt-1">{{d}}</h1>
                 </div>
                 {% endfor %}
-                {% endif %}
               </div>
             </div>
           </div>
