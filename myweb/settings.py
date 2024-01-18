@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-bwy(%3w9p5%z^o-(=^4&p-p-%hemlv9ji2n!xiuc1ru3!e70w7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["178.128.106.158"]
+ALLOWED_HOSTS = []
 
 
 # Application definition    
@@ -109,7 +109,7 @@ DATABASES = {
        "USER": os.environ.get("DB_USER"),
         "PASSWORD": os.environ.get("DB_PASS"),
         "HOST": os.environ.get("DB_HOST"),
-        "PORT": 3306,
+        "PORT": os.environ.get("DB_PORT"),
     }
     
 }

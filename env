@@ -1,0 +1,8 @@
+DEBUG=True
+SECRET_KEY=django-insecure-bwy(%3w9p5%z^o-(=^4&p-p-%hemlv9ji2n!xiuc1ru3!e70w7
+MYSQL_DATABASE=mydb
+MYSQL_USER=myuser
+MYSQL_PASSWORD=1234
+MYSQL_ROOT_PASSWORD=1234
+DB_HOST=db
+DB_PORT=3306
