@@ -1,105 +1,139 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Interviewer | Main</title>
-    </head>
-    <body>
-        {% extends 'Interviewer/base/n_base.html' %}
+{% extends 'Interviewer/base/n_base.html' %}
+{% load static %}
+{% block css_js %} 
+<link rel="stylesheet" href="{% static 'css/interviewer_css/interview_page.css' %}" />
+<script src="{% static 'js/interviewer/interview_page.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+{% endblock %} 
+{% block topic %}
+<div class="fs-8 mt-1 text-muted text-center">
+    <span><i class="ti ti-user-x"></i> หน้าหลัก</span>
+  </div>
+{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="container-fluid">
+      <div class="card">
+          <div class="card-body">
+              <span>
+              <i class="ti ti-news fs-8"></i>
+              </span>
+              <span class="card-title fw-semibold mb-2 text-primary">ประกาศ</span>
+              {% for i in am %}
+              <div class="card mb-1">
+                  <div class="card-body p-2">
+                      <div id="read_Announcement" class="d-flex justify-content-between" onclick="read_Announcement(this.getAttribute('data-title'), this.getAttribute('data-content'))" data-id="{{ i.id }}" data-title="{{ i.title | escape }}" data-content="{{ i.announcement_content | escape }}">
 
-        {% block topic %}
-        <div class="fs-8 mt-1 text-muted text-center">
-            <span><i class="ti ti-home"></i> หน้าหลัก</span>
-        </div>
-        {% endblock %}
-        {% block content %}
-        <div class="container-fluid">
-            <div class="container-fluid">
-                <div class="card">
-                    <div class="card-body">
-                        <span>
-                        <i class="ti ti-news fs-8"></i>
-                        </span>
-                        <span class="card-title fw-semibold mb-2 text-primary">ประกาศ</span>
-                        {% for i in am %}
-                        <div class="card mb-1">
-                            <div class="card-body p-2">
-                                <h5 class="text_date" style="display: none;" data-post-date="{{ i.post_date }}"></h5>
-                                <h5 class="display_birth_date" style="display: inline-block; margin-right: 5px;"></h5>
-                                <h5 style="display: inline-block;">|{{ i.title }}</h5>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
+                          <div>    
+                          <h5 class="" style="display: none;" data-post-date="{{ i.post_date }}"></h5>
+                          <h5 class="display_birth_date" style="display: inline-block; margin-right: 5px;"></h5>
+                          <h5 style="display: inline-block;">{{ i.title }}</h5>
+                          
+                          </div>
+                  </div>
+              </div>
+              {% endfor %}
+          </div>
+      </div>
+  </div>
+</div>
 
-        <div class="container-fluid">
-            <div class="container-fluid">
-                <div class="card">
-                    <div class="card-body">
-                        <span>
-                            <i class="ti ti-calendar-event fs-8"></i>
-                        </span>
-                        <span class="card-title fw-semibold mb-2 text-primary">กำหนดการ</span>
+<div class="container-fluid">
+  <div class="container-fluid">
+      <div class="card">
+          <div class="card-body">
+              <span>
+                  <i class="ti ti-calendar-event fs-8"></i>
+              </span>
+              <span class="card-title fw-semibold mb-2 text-primary">กำหนดการ</span>
+              {% for i in s %}
+              <div class="card mb-1">
+                  <div class="card-body p-2">
+                      <div id="read_schedule" class="d-flex justify-content-between" onclick="read_schedule(this.getAttribute('data-title'), this.getAttribute('data-content'))" data-id="{{ i.id }}" data-title="{{ i.schedule_name | escape }}" data-content="{{ i.schedule_content | escape }}">
 
-                        <div class="card mb-1">
-                            <div class="card-body p-2">
-                                <h5>ทดสอบกำหนดการ 1</h5>
-                            </div>
-                        </div>
-                        <div class="card mb-1">
-                            <div class="card-body p-2">
-                                <h5>ทดสอบกำหนดการ 2</h5>
-                            </div>
-                        </div>
+                          <div>    
+                              <h5 class="text_date" style="display: none;" data-post-date="{{ i.end_date }}"></h5>
+                              <h5 class="display_birth_date" style="display: inline-block; margin-right: 5px;"></h5>
+                          <h5 style="display: inline-block;">|{{ i.schedule_name }} </h5>
+                          
+                          </div>
+                  </div>
+              </div>
+              {% endfor %}
+          </div>
+      </div>
+  </div>
 
-                    </div>
-                </div>
-            </div>
+  <script>
+      document.addEventListener('DOMContentLoaded', function() {
+       // ใช้ querySelectorAll เพื่อเข้าถึงทุก elements ที่มี class 'text_date'
+       var birthDateElements = document.querySelectorAll('.text_date');
+       
+       birthDateElements.forEach(function(birthDateElement) {
+           var birthDate = birthDateElement.getAttribute('data-post-date').trim();
+           display_hbd(birthDate, birthDateElement.nextElementSibling);
+       });
+   });
+   
+   function display_hbd(birth_date, displayElement) {
+       var months = {
+           'Jan.': 'ม.ค.',
+           'Feb.': 'ก.พ.',
+           'March': 'มี.ค.',
+           'April': 'เม.ย.',
+           'May.': 'พ.ค.',
+           'June': 'มิ.ย.',
+           'July': 'ก.ค.',
+           'Aug.': 'ส.ค.',
+           'Sept.': 'ก.ย.',
+           'Oct.': 'ต.ค.',
+           'Nov.': 'พ.ย.',
+           'Dec.': 'ธ.ค.'
+       };
+       var birth_date_split = birth_date.split(' ');
+       var hbd_day = birth_date_split[1].split(',')[0];
+       var new_year =  parseInt(birth_date_split[2])+543;
+       var new_HBD = hbd_day + ' ' + months[birth_date_split[0]] + ' ' + new_year;
+   
+       displayElement.innerText = new_HBD;
+   }
+   
+   
+     </script>
 
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                 // ใช้ querySelectorAll เพื่อเข้าถึงทุก elements ที่มี class 'text_date'
-                 var birthDateElements = document.querySelectorAll('.text_date');
-                 
-                 birthDateElements.forEach(function(birthDateElement) {
-                     var birthDate = birthDateElement.getAttribute('data-post-date').trim();
-                     display_hbd(birthDate, birthDateElement.nextElementSibling);
-                 });
-             });
-             
-             function display_hbd(birth_date, displayElement) {
-                 var months = {
-                     'Jan.': 'ม.ค.',
-                     'Feb.': 'ก.พ.',
-                     'March': 'มี.ค.',
-                     'April': 'เม.ย.',
-                     'May.': 'พ.ค.',
-                     'June': 'มิ.ย.',
-                     'July': 'ก.ค.',
-                     'Aug.': 'ส.ค.',
-                     'Sept.': 'ก.ย.',
-                     'Oct.': 'ต.ค.',
-                     'Nov.': 'พ.ย.',
-                     'Dec.': 'ธ.ค.'
-                 };
-                 var birth_date_split = birth_date.split(' ');
-                 var hbd_day = birth_date_split[1].split(',')[0];
-                 var new_year =  parseInt(birth_date_split[2])+543;
-                 var new_HBD = hbd_day + ' ' + months[birth_date_split[0]] + ' ' + new_year;
-             
-                 displayElement.innerText = new_HBD;
-             }
-             
-             
-               </script>
-        </div>
-        
+<div class="container_read" id="readAnnouncement" >
+    <div  class="topic">
+        <h3 ></h3>
+        <a href="#" onclick="close_Announcement()">
+            <i class="fs-6 ti ti-x text-danger"></i>
+        </a>
+    </div> 
+    <div class="topic_an">
+        <h1 id="topic"></h1>
+    </div>
+    <div class="content_an">
+        <p id="content"></p>
+    </div>
+    
+
+</div>
+<div class="container_read" id="readschedule" >
+    <div  class="topic">
+        <h3 ></h3>
+        <a href="#" onclick="close_schedule()">
+            <i class="fs-6 ti ti-x text-danger"></i>
+        </a>
+    </div> 
+    <div class="topic_an">
+        <h1 id="schedule_topic"></h1>
+    </div>
+    <div class="content_an">
+        <p id="schedule_content"></p>
+    </div>
 
 
-        {% endblock %}
-    </body>
-</html>
+</div>
+    
+
+</div>
+{% endblock %}

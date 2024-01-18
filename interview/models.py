@@ -148,6 +148,7 @@ class Round(models.Model):
 class Schedule(models.Model):
     start_date = models.DateField(default=datetime.now)
     end_date = models.DateField()
+    major = models.ManyToManyField(Major)
     round = models.ManyToManyField(Round)
     role = models.ManyToManyField(Role)
     schedule_name = models.CharField(max_length=200)
@@ -156,6 +157,7 @@ class Schedule(models.Model):
 class Announcement(models.Model):
     post_date = models.DateField(default=datetime.now) 
     expire_date = models.DateField(null=True,blank=True)
+    major = models.ManyToManyField(Major)
     round = models.ManyToManyField(Round)
     role = models.ManyToManyField(Role )
     title = models.CharField(max_length=200)

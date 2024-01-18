@@ -1,9 +1,16 @@
 {% extends 'student/base/n_base.html' %}
-
+{% load static %}
+{% block css_js %} 
+<link rel="stylesheet" href="{% static 'css/student_css/student_page.css' %}" />
+<script src="{% static 'js/student/student_page.js' %}"></script>
+{% endblock %} 
 {% block topic %}
 <div class="fs-8 mt-1 text-muted text-center">
     <span><i class="ti ti-home"></i> หน้าหลัก</span>
 </div>
+{% endblock %} 
+{% block content %}
+<div class="pt-14 px-2">
 <div class="container-fluid">
     <div class="container-fluid">
         <div class="card">
@@ -15,7 +22,14 @@
                 {% for i in am %}
                 <div class="card mb-1">
                     <div class="card-body p-2">
-                        <h5 style="display: inline-block;">|{{ i.title }}</h5>
+                        <div id="read_Announcement" class="d-flex justify-content-between" onclick="read_Announcement(this.getAttribute('data-title'), this.getAttribute('data-content'))" data-id="{{ i.id }}" data-title="{{ i.title | escape }}" data-content="{{ i.announcement_content | escape }}">
+  
+                            <div>    
+                            <h5 class="" style="display: none;" data-post-date="{{ i.post_date }}"></h5>
+                            <h5 class="display_birth_date" style="display: inline-block; margin-right: 5px;"></h5>
+                            <h5 style="display: inline-block;">{{ i.title }}</h5>
+                            
+                            </div>
                     </div>
                 </div>
                 {% endfor %}
@@ -32,18 +46,20 @@
                     <i class="ti ti-calendar-event fs-8"></i>
                 </span>
                 <span class="card-title fw-semibold mb-2 text-primary">กำหนดการ</span>
-
+                {% for i in s %}
                 <div class="card mb-1">
                     <div class="card-body p-2">
-                        <h5>ทดสอบกำหนดการ 1</h5>
+                        <div id="read_schedule" class="d-flex justify-content-between" onclick="read_schedule(this.getAttribute('data-title'), this.getAttribute('data-content'))" data-id="{{ i.id }}" data-title="{{ i.schedule_name | escape }}" data-content="{{ i.schedule_content | escape }}">
+  
+                            <div>    
+                                <h5 class="text_date" style="display: none;" data-post-date="{{ i.end_date }}"></h5>
+                                <h5 class="display_birth_date" style="display: inline-block; margin-right: 5px;"></h5>
+                            <h5 style="display: inline-block;">|{{ i.schedule_name }} </h5>
+                            
+                            </div>
                     </div>
                 </div>
-                <div class="card mb-1">
-                    <div class="card-body p-2">
-                        <h5>ทดสอบกำหนดการ 2</h5>
-                    </div>
-                </div>
-
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -81,13 +97,40 @@
      
          displayElement.innerText = new_HBD;
      }
-     
-     
        </script>
+
+<div class="container_read" id="readAnnouncement" >
+    <div  class="topic">
+        <h3 ></h3>
+        <a href="#" onclick="close_Announcement()">
+            <i class="fs-6 ti ti-x text-danger"></i>
+        </a>
+    </div> 
+    <div class="topic_an">
+        <h1 id="topic"></h1>
+    </div>
+    <div class="content_an">
+        <p id="content"></p>
+    </div>
+    
+
+</div>
+<div class="container_read" id="readschedule" >
+    <div  class="topic">
+        <h3 ></h3>
+        <a href="#" onclick="close_schedule()">
+            <i class="fs-6 ti ti-x text-danger"></i>
+        </a>
+    </div> 
+    <div class="topic_an">
+        <h1 id="schedule_topic"></h1>
+    </div>
+    <div class="content_an">
+        <p id="schedule_content"></p>
+    </div>
+
+
 </div>
 
-
-<div class="pt-14 px-2">
-    <!-- asdsad
 </div>
 {% endblock %}

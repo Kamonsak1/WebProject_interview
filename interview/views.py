@@ -141,11 +141,12 @@ def manager_page(request,id):
     faculty_all = Faculty.objects.filter(users=id)
     majors = Major.objects.filter(default_manager=id)
     request.session['myuser_id'] = id
-    Announcement_all = Announcement.objects.filter(role__name='Manager')
     major_from_session = request.session.get('major')
     if  major_from_session:
-        return render(request,'manager/Manager_page.html',{'users': users,"s_major":major_from_session,'faculty_all':faculty_all,'majors':majors,'am':Announcement_all})
-    return render(request,'manager/Manager_page.html',{'users': users,'faculty_all':faculty_all,'majors':majors ,'am':Announcement_all})
+        Announcement_all = Announcement.objects.filter(role__name='Manager',major__major=major_from_session)
+        Schedule_all = Schedule.objects.filter(role__name='Manager',major__major=major_from_session)
+        return render(request,'manager/Manager_page.html',{'users': users,"s_major":major_from_session,'faculty_all':faculty_all,'majors':majors,'am':Announcement_all,'s':Schedule_all})
+    return render(request,'manager/Manager_page.html',{'users': users,'faculty_all':faculty_all,'majors':majors })
 @login_required
 @user_passes_test(is_Manager)
 def manage_profile(request):
@@ -219,8 +220,10 @@ def Manager_Status(request):
 @login_required
 @user_passes_test(is_Interviewer)
 def interviewer_page(request):
+
     Announcement_all = Announcement.objects.filter(role__name='Interviewer')
-    return render(request,'interviewer/Interviewer_page.html',{'am':Announcement_all})
+    Schedule_all = Schedule.objects.filter(role__name='Interviewer')
+    return render(request,'interviewer/Interviewer_page.html',{'am':Announcement_all,'s':Schedule_all})
 @login_required
 @user_passes_test(is_Interviewer)
 def Interviewer_Profile(request):
@@ -355,7 +358,8 @@ def Interviewer_room(request):
 @user_passes_test(is_Student)
 def student_page(request):
     Announcement_all = Announcement.objects.filter(role__name='Student')
-    return render(request,'student/Student_page.html',{'am':Announcement_all})
+    Schedule_all = Schedule.objects.filter(role__name='Student')
+    return render(request,'student/Student_page.html',{'am':Announcement_all,'s':Schedule_all})
 @login_required
 @user_passes_test(is_Student)
 def Student_profile(request):
@@ -1534,6 +1538,7 @@ def add_announcement(request):
                     year = year.strip(")")
                     round = Round.objects.get(round_name=round_name,academic_year=year)
                     add_announcement.round.add(round)
+                    add_announcement.major.add(round.major)
         except ObjectDoesNotExist:
             pass
         try:
@@ -1570,13 +1575,13 @@ def edit_Announcement(request):
         edit_announcement.announcement_content = details
         edit_announcement.role.clear()
         edit_announcement.round.clear()
+        edit_announcement.major.clear()
         try:
             for role_name in checkboxgroup:
                 role_model = Role.objects.get(name=role_name)
                 edit_announcement.role.add(role_model)
         except ObjectDoesNotExist:
             pass
-        print(selected_rounds_str)
         try:
             for round in selected_rounds_str:
                 round_name, year = round.rsplit(" (",1)
@@ -1584,6 +1589,7 @@ def edit_Announcement(request):
                 year = year.strip(")")
                 round_model = Round.objects.get(round_name=round_name,academic_year=year)
                 edit_announcement.round.add(round_model)
+                edit_announcement.major.add(round_model.major)
 
         except ObjectDoesNotExist:
             pass
@@ -1611,6 +1617,7 @@ def addSchedule(request):
                     year = year.strip(")")
                     round = Round.objects.get(round_name=round_name,academic_year=year)
                     add_Schedule.round.add(round)
+                    add_Schedule.major.add(round.major)
         except ObjectDoesNotExist:
             pass
         try:
@@ -1635,6 +1642,7 @@ def edit_Schedule(request):
         edit_Schedule.schedule_content = details
         edit_Schedule.role.clear()
         edit_Schedule.round.clear()
+        edit_Schedule.major.clear()
         try:
             date = request.POST.get('expire_date')
             ndate = datetime.strptime(date, "%d/%m/%Y").date()
@@ -1654,6 +1662,7 @@ def edit_Schedule(request):
                 year = year.strip(")")
                 round_model = Round.objects.get(round_name=round_name,academic_year=year)
                 edit_Schedule.round.add(round_model)
+                edit_Schedule.major.add(round_model.major)
 
         except ObjectDoesNotExist:
             pass
