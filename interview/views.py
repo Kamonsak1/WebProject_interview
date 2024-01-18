@@ -29,7 +29,18 @@ from collections import defaultdict
 import re
 from .forms import *
 # Create your views here.
-
+def google_LOGIN_URL(request):
+    roles = set(request.user.roles.values_list('name', flat=True))
+    if 'Admin' in roles:
+        return redirect('Admin_page')
+    elif 'Manager' in roles:
+        return redirect('Manager_page')
+    elif 'Interviewer' in roles:
+        return redirect('Interviewer_page')
+    elif 'Student' in roles:
+        return redirect('Student_page')
+    return  HttpResponse('ไม่มีบทบาท')
+    
 def is_admin(user):
     if isinstance(user, User):
         return user.roles.filter(name='Admin').exists()

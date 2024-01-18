@@ -10,6 +10,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')), 
     path('auth/', include('social_django.urls', namespace='social')),
     path('test',test, name='test'),
+     path('google_LOGIN_URL',google_LOGIN_URL, name='google_LOGIN_URL'),
     path('ajax_load_major',ajax_load_major, name='ajax_load_major'),
     path('ajax_load_cities',ajax_load_cities, name='ajax_load_cities'),
     path('ajax_searchText',ajax_searchText, name='ajax_searchText'),
