@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404
 import pandas as pd
 import random
 from django.contrib.auth import update_session_auth_hash
-from django.db.models import Q,F,Func
+from django.db.models import Q,F
 import string
 from django.contrib.auth.hashers import make_password
 from datetime import datetime
@@ -308,10 +308,18 @@ def Interviewer_room(request):
 
     student = None
     need_docs = None
+    have_docs = []
+    temp_remove_list = []
     if link.round and interviewing :
         interviewing_now = InterviewNow.objects.get(interviewer=request.user)
         student = InterviewStatus.objects.get(round=link.round,user=interviewing_now.student)
         need_docs = link.round.documents.split(",")
+        for d in need_docs:
+            if Document.objects.filter(user=student.user,doc_name=d,round=link.round):
+                have_docs.append(Document.objects.get(user=student.user,doc_name=d,round=link.round))
+                temp_remove_list.append(d)
+        for d in temp_remove_list:
+            need_docs.remove(d)
     elif link.round and link.active:
         ready_student = InterviewStatus.objects.filter(round=link.round, status="พร้อมสอบ")
         skip_student = InterviewStatus.objects.filter(round=link.round, status="ข้าม")
@@ -324,12 +332,15 @@ def Interviewer_room(request):
             interviewing_now.save()
             student_status.status = "กำลังสอบ"
             student_status.save()
+    elif link.round:
+        need_docs = link.round.documents.split(",")
 
     context = {
         "docs" : student,
         "rounds" : combined_rounds,
         "link" : link,
         "not_selected" : not_selected_round,
+        "have_docs" : have_docs,
         "need_docs" : need_docs,
         "test" : InterviewNow.objects.get(interviewer=request.user),
     }
