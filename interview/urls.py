@@ -10,6 +10,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')), 
     path('auth/', include('social_django.urls', namespace='social')),
     path('test',test, name='test'),
+     path('google_LOGIN_URL',google_LOGIN_URL, name='google_LOGIN_URL'),
     path('ajax_load_major',ajax_load_major, name='ajax_load_major'),
     path('ajax_load_cities',ajax_load_cities, name='ajax_load_cities'),
     path('ajax_searchText',ajax_searchText, name='ajax_searchText'),
@@ -86,6 +87,8 @@ urlpatterns = [
     path('add_announcement',add_announcement,name='add_announcement'),
     path('Manager_Status/<int:id>',Manager_StatusRound,name='Manager_StatusRound'),
     path('edit_Announcement',edit_Announcement,name='edit_Announcement'),
+    path('decrease_manager',decrease_manager,name='decrease_manager'),
+    path('increase_manager',increase_manager,name='increase_manager'),
 
 
     #Interviewer
@@ -100,7 +103,7 @@ urlpatterns = [
     path('Student_profile',Student_profile, name='Student_profile'),
     path('Student_register',Student_register, name='Student_register'),
     path('Student_room',Student_room, name='Student_room'),
-    path('current-time/', current_time, name='current-time'),
+    path('interview-status/', interview_status, name='interview_status'),
     path('Student_evidence',Student_evidence, name='Student_evidence'),
     path('register_interview/<int:round_id>/', register_interview, name='register_interview'),
 

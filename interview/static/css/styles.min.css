@@ -6158,7 +6158,7 @@ fieldset:disabled .btn {
     --bs-card-border-width: 0px;
     --bs-card-border-color: #ebf1f6;
     --bs-card-border-radius: 7px;
-    --bs-card-box-shadow: rgba(145, 158, 171, 0.2) 0px 0px 2px 0px, rgba(145, 158, 171, 0.12) 0px 12px 24px -4px;
+    --bs-card-box-shadow: rgba(145, 158, 171, 0.2) 0px 0px 20px 0px, rgba(145, 158, 171, 0.12) 0px 12px 24px -4px;
     --bs-card-inner-border-radius: 7px;
     --bs-card-cap-padding-y: 15px;
     --bs-card-cap-padding-x: 30px;
@@ -11568,6 +11568,11 @@ fieldset:disabled .btn {
     padding-left: 20px !important
 }
 
+.px-10 {
+    padding-right: 35px !important;
+    padding-left: 35px !important
+}
+
 .py-0 {
     padding-top: 0 !important;
     padding-bottom: 0 !important
@@ -11616,6 +11621,11 @@ fieldset:disabled .btn {
 .py-9 {
     padding-top: 20px !important;
     padding-bottom: 20px !important
+}
+
+.py-10 {
+    padding-top: 35px !important;
+    padding-bottom: 35px !important
 }
 
 .pt-0 {
@@ -11946,8 +11956,16 @@ fieldset:disabled .btn {
     font-size: 1.25rem !important
 }
 
+.fs-7 {
+    font-size: 1.5rem !important
+}
+
 .fs-8 {
     font-size: calc(1.3125rem + 0.75vw) !important
+}
+
+.fs-9 {
+    font-size: 4rem !important
 }
 
 .fst-italic {

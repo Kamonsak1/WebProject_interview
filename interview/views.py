@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404
 import pandas as pd
 import random
 from django.contrib.auth import update_session_auth_hash
-from django.db.models import Q
+from django.db.models import Q,F
 import string
 from django.contrib.auth.hashers import make_password
 from datetime import datetime
@@ -29,7 +29,18 @@ from collections import defaultdict
 import re
 from .forms import *
 # Create your views here.
-
+def google_LOGIN_URL(request):
+    roles = set(request.user.roles.values_list('name', flat=True))
+    if 'Admin' in roles:
+        return redirect('Admin_page')
+    elif 'Manager' in roles:
+        return redirect('Manager_page')
+    elif 'Interviewer' in roles:
+        return redirect('Interviewer_page')
+    elif 'Student' in roles:
+        return redirect('Student_page')
+    return  HttpResponse('ไม่มีบทบาท')
+    
 def is_admin(user):
     if isinstance(user, User):
         return user.roles.filter(name='Admin').exists()
@@ -65,7 +76,8 @@ def test(request):
 @user_passes_test(is_admin)
 def admin_page(request):
     Announcement_all = Announcement.objects.filter(role__name='Admin')
-    return render(request,'admin/Admin_page.html',{'am':Announcement_all})
+    Schedule_all = Schedule.objects.filter(role__name='Admin')
+    return render(request,'admin/Admin_page.html',{'Announcement':Announcement_all,'Schedule':Schedule_all})
 @login_required
 @user_passes_test(is_admin)
 def Announcement_page(request):
@@ -116,11 +128,6 @@ def User_path(request):
     round_active = Round.objects.filter(active='True')
     return render(request,'admin/User.html', {'users': users,'faculty_all':faculty_all,"major_all":major_all,'round_active':round_active})
 
-# @login_required
-# @user_passes_test(is_admin)
-# def form_interview(request):
-#     return render(request,'admin/form_interview.html')
-
 @login_required
 @user_passes_test(is_admin)
 def admin_profile(request):
@@ -130,15 +137,16 @@ def admin_profile(request):
 @login_required
 @user_passes_test(is_Manager)
 def manager_page(request,id):
-    users = TemporaryUser.objects.all()
+    users = User.objects.all()
     faculty_all = Faculty.objects.filter(users=id)
     majors = Major.objects.filter(default_manager=id)
     request.session['myuser_id'] = id
-    Announcement_all = Announcement.objects.filter(role__name='Manager')
     major_from_session = request.session.get('major')
     if  major_from_session:
-        return render(request,'manager/Manager_page.html',{'users': users,"s_major":major_from_session,'faculty_all':faculty_all,'majors':majors,'am':Announcement_all})
-    return render(request,'manager/Manager_page.html',{'users': users,'faculty_all':faculty_all,'majors':majors ,'am':Announcement_all})
+        Announcement_all = Announcement.objects.filter(role__name='Manager',major__major=major_from_session)
+        Schedule_all = Schedule.objects.filter(role__name='Manager',major__major=major_from_session)
+        return render(request,'manager/Manager_page.html',{'users': users,"s_major":major_from_session,'faculty_all':faculty_all,'majors':majors,'am':Announcement_all,'s':Schedule_all})
+    return render(request,'manager/Manager_page.html',{'users': users,'faculty_all':faculty_all,'majors':majors })
 @login_required
 @user_passes_test(is_Manager)
 def manage_profile(request):
@@ -147,12 +155,18 @@ def manage_profile(request):
 @user_passes_test(is_Manager)
 def Manage_personnel(request):
     myuser_id = request.session.get('myuser_id')
-    users = TemporaryUser.objects.all()
+    users = User.objects.all()
     faculty_all = Faculty.objects.filter(users=myuser_id)
     majors = Major.objects.filter(default_manager=myuser_id)
     major_from_session = request.session.get('major')
     if  major_from_session:
-        users = User.objects.filter(roles__name='Manager')
+        users_Manager = User.objects.filter(roles__name='Manager', major__major=major_from_session)
+        users_Interviewer = User.objects.filter(roles__name='Interviewer', major__major=major_from_session)
+        users_Admin = User.objects.filter(roles__name='Admin', major__major=major_from_session)
+        users = users_Manager.union(users_Interviewer)
+        users_admin_ids = users_Admin.values_list('id', flat=True)
+        users = [user for user in users if user.id not in users_admin_ids]
+        default_managers = Major.objects.get(major=major_from_session).default_manager.all()
         return render(request,'manager/Manage_personnel.html',{'users': users,"s_major":major_from_session,'faculty_all':faculty_all,'majors':majors})
     return render(request,'manager/Manage_personnel.html',{'users': users,'faculty_all':faculty_all,'majors':majors})
 
@@ -160,7 +174,7 @@ def Manage_personnel(request):
 @user_passes_test(is_Manager)
 def Manage_User(request):
     myuser_id = request.session.get('myuser_id')
-    users = TemporaryUser.objects.all()
+    users = User.objects.all()
     faculty_all = Faculty.objects.filter(users=myuser_id)
     majors = Major.objects.filter(default_manager=myuser_id)
     major_from_session = request.session.get('major')
@@ -172,7 +186,7 @@ def Manage_User(request):
 @login_required
 @user_passes_test(is_Manager)
 def Manager_Announcement(request):
-    users = TemporaryUser.objects.all()
+    users = User.objects.all()
     faculty_all = Faculty.objects.all()
     faculty_from_session = request.session.get('faculty')
     major_from_session = request.session.get('major')
@@ -206,8 +220,10 @@ def Manager_Status(request):
 @login_required
 @user_passes_test(is_Interviewer)
 def interviewer_page(request):
+
     Announcement_all = Announcement.objects.filter(role__name='Interviewer')
-    return render(request,'interviewer/Interviewer_page.html',{'am':Announcement_all})
+    Schedule_all = Schedule.objects.filter(role__name='Interviewer')
+    return render(request,'interviewer/Interviewer_page.html',{'am':Announcement_all,'s':Schedule_all})
 @login_required
 @user_passes_test(is_Interviewer)
 def Interviewer_Profile(request):
@@ -215,6 +231,18 @@ def Interviewer_Profile(request):
 @login_required
 @user_passes_test(is_Interviewer)
 def Interviewer_room(request):
+    if InterviewLink.objects.filter(user=request.user):
+        pass
+    else:
+        new_link = InterviewLink(user=request.user,link="")
+        new_link.save()
+    if InterviewNow.objects.filter(interviewer=request.user):
+        pass
+    else:
+        now = InterviewNow(interviewer=request.user)
+        now.save()
+
+
     user_rounds = Round.objects.filter(users=request.user)
     user_majors = Major.objects.filter(users=request.user)
     related_rounds = Round.objects.filter(major__in=user_majors)
@@ -232,14 +260,92 @@ def Interviewer_room(request):
         link.round = round
         link.save()
         return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+    
+    elif request.method == "POST" and "round_exit" in request.POST:
+        id = int(request.POST.get("round_exit"))
+        round = Round.objects.get(id=link.round.id)
+        link = InterviewLink.objects.get(id=id)
+        interviewing_now = InterviewNow.objects.filter(interviewer=request.user)
+        if interviewing_now:
+            now = InterviewNow.objects.filter(interviewer=request.user).first()
+            student_status = InterviewStatus.objects.filter(user=now.student,round=round)
+            now.student = None
+            now.save()
+            if student_status:
+                status = student_status.first()
+                status.status = "พร้อมสอบ"
+                status.save()
+        link.round = None
+        link.save()
+        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+    elif request.method == "POST" and "finish" in request.POST:
+        user_id = int(request.POST.get("finish"))
+        user = User.objects.get(id=user_id)
+        interviewing_now = InterviewNow.objects.get(interviewer=request.user)
+        interviewing_now.student = None
+        interviewing_now.save()
+        round = Round.objects.get(id=link.round.id)
+        student_status = InterviewStatus.objects.get(user=user,round=round)
+        student_status.status = "สอบเสร็จแล้ว"
+        student_status.save()
+        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+    elif request.method == "POST" and "skip" in request.POST:
+        user_id = int(request.POST.get("skip"))
+        user = User.objects.get(id=user_id)
+        interviewing_now = InterviewNow.objects.get(interviewer=request.user)
+        interviewing_now.student = None
+        interviewing_now.save()
+        round = Round.objects.get(id=link.round.id)
+        student_status = InterviewStatus.objects.get(user=user,round=round)
+        student_status.status = "ข้าม"
+        student_status.reg_at = datetime.now()
+        student_status.save()
+        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
-    user = User.objects.get(id=1)
-    docs = Document.objects.filter(user=user)
+    link = InterviewLink.objects.get(user=request.user)
+
+    interviewer_interviewing = InterviewNow.objects.get(interviewer=request.user)
+    interviewing = False
+    if interviewer_interviewing.student:
+        interviewing = True
+
+    student = None
+    need_docs = None
+    have_docs = []
+    temp_remove_list = []
+    if link.round and interviewing :
+        interviewing_now = InterviewNow.objects.get(interviewer=request.user)
+        student = InterviewStatus.objects.get(round=link.round,user=interviewing_now.student)
+        need_docs = link.round.documents.split(",")
+        for d in need_docs:
+            if Document.objects.filter(user=student.user,doc_name=d,round=link.round):
+                have_docs.append(Document.objects.get(user=student.user,doc_name=d,round=link.round))
+                temp_remove_list.append(d)
+        for d in temp_remove_list:
+            need_docs.remove(d)
+    elif link.round and link.active:
+        ready_student = InterviewStatus.objects.filter(round=link.round, status="พร้อมสอบ")
+        skip_student = InterviewStatus.objects.filter(round=link.round, status="ข้าม")
+        student = (ready_student | skip_student).distinct().order_by("reg_at").first()
+        need_docs = link.round.documents.split(",")
+        if student:
+            interviewing_now = InterviewNow.objects.get(interviewer=request.user)
+            student_status = InterviewStatus.objects.get(round=link.round,user=student.user)
+            interviewing_now.student = student.user
+            interviewing_now.save()
+            student_status.status = "กำลังสอบ"
+            student_status.save()
+    elif link.round:
+        need_docs = link.round.documents.split(",")
+
     context = {
-        "docs" : docs,
+        "docs" : student,
         "rounds" : combined_rounds,
-        "test" : link.round,
+        "link" : link,
         "not_selected" : not_selected_round,
+        "have_docs" : have_docs,
+        "need_docs" : need_docs,
+        "test" : InterviewNow.objects.get(interviewer=request.user),
     }
     return render(request,'interviewer/Interviewer_room.html', context)
 
@@ -252,7 +358,8 @@ def Interviewer_room(request):
 @user_passes_test(is_Student)
 def student_page(request):
     Announcement_all = Announcement.objects.filter(role__name='Student')
-    return render(request,'student/Student_page.html',{'am':Announcement_all})
+    Schedule_all = Schedule.objects.filter(role__name='Student')
+    return render(request,'student/Student_page.html',{'am':Announcement_all,'s':Schedule_all})
 @login_required
 @user_passes_test(is_Student)
 def Student_profile(request):
@@ -272,8 +379,8 @@ def Student_register(request):
         round = Round.objects.get(id=request.POST.get("round_id"))
         doc_name = request.POST.get("doc_name")
         file = request.FILES.get('file_name')
-        if Document.objects.filter(doc_name=doc_name,round=round):
-            document = Document.objects.get(doc_name=doc_name,round=round)
+        if Document.objects.filter(user=user,doc_name=doc_name,round=round):
+            document = Document.objects.get(user=user,doc_name=doc_name,round=round)
             document.document = file
             document.save()
         else:
@@ -289,14 +396,63 @@ def Student_register(request):
 @login_required
 @user_passes_test(is_Student)
 def Student_room(request):
-    time_now = datetime.now()
+    if request.method == "POST" and "skip" in request.POST:
+        round_split = request.POST.get("skip").split('|')
+        round = Round.objects.get(round_name=round_split[0],academic_year=round_split[1])
+        student_status = InterviewStatus.objects.get(user=request.user,round=round)
+        student_status.status = "ข้าม"
+        student_status.reg_at = datetime.now()
+        student_status.save()
+        if InterviewNow.objects.filter(student=request.user):
+            interviewing = InterviewNow.objects.get(student=request.user)
+            interviewing.student = None
+            interviewing.save()
+        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+    test = test = InterviewNow.objects.filter(student=request.user)
+
     context = {
-        "time" : time_now
+        "test" : test
     }
     return render(request,'student/Student_room.html', context)
-def current_time(request):
-    time_now = datetime.now()
-    return JsonResponse({"time": time_now.strftime('%Y-%m-%d %H:%M:%S')})
+
+
+def interview_status(request):
+    queue_time = "คุณยังไม่ได้มีการลงทะเบียน"
+    user_position = None
+    reg= None
+    round_now = None
+    if InterviewStatus.objects.filter(user=request.user):
+        all_round = (InterviewStatus.objects.filter(user=request.user, status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"])
+                                                     .annotate(interview_time=F('round__interview_time')).order_by('interview_time'))
+        if all_round:
+            r = all_round.first()
+            reg = InterviewStatus.objects.get(status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"],user=request.user,round=r.round)
+            interview_statuses = InterviewStatus.objects.filter(status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"],round=reg.round).order_by('reg_at')
+            round_now = f"{interview_statuses.first().round.round_name}|{interview_statuses.first().round.academic_year}"
+            for index, status in enumerate(interview_statuses):
+                if status.user == request.user:
+                    user_position = index
+                    break
+            queue_time = user_position*10
+        else:
+            queue_time = "คุณยังไม่ได้มีการลงทะเบียน"
+            round_now = "ยังไม่มีการลงทะเบียน"
+    else:
+        queue_time = "คุณยังไม่ได้มีการลงทะเบียน"
+        round_now = "ยังไม่มีการลงทะเบียน"
+    link = None
+    interviewing = InterviewNow.objects.filter(student=request.user)
+    if interviewing:
+        student = InterviewNow.objects.get(student=request.user)
+        link = InterviewLink.objects.get(user=student.interviewer)
+        link = link.link
+    data = []
+    data.append({
+        'link': link,
+        'queue_time': queue_time,
+        'round' : round_now,
+    })
+    return JsonResponse(data, safe=False)
 
 @login_required
 @user_passes_test(is_Student)
@@ -376,7 +532,8 @@ def confirm_email(request):
                                 # for  major in major_TemporaryUser:
                                 #      major.users.add(user)
                                 user.save()
-                                return redirect('social:begin', backend='google-oauth2')
+                                return redirect('/')
+                                #return redirect('social:begin', backend='google-oauth2')
                             else:
                                 return redirect('confirm_email')
                     else:
@@ -524,8 +681,8 @@ def add_TemporaryUser(request):
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         citizen_id = request.POST.get('citizen_id')
-        birth_date_str = request.POST.get('birth_date')
-        birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date() 
+        # birth_date_str = request.POST.get('birth_date')
+        # birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date() 
         round_sel = request.POST.get('round') 
         round = Round.objects.get(pk=round_sel)
 
@@ -548,7 +705,8 @@ def add_TemporaryUser(request):
                 citizen_id=citizen_id,
                 first_name=first_name,
                 last_name=last_name,
-                birth_date=birth_date,
+                #birth_date=birth_date,
+                password = citizen_id
             )
             round.TemporaryUser.add(check_temporary_user)
             role_model, _ = Role.objects.get_or_create(name='Student')
@@ -751,7 +909,7 @@ def add_TemporaryUser_by_file(request):
         else:
             pass
         try:
-            data = df[['เลขบัตรประชาชน','ชื่อ','วว/ดด/ปป']]
+            data = df[['เลขบัตรประชาชน','ชื่อ','วว/ดด/ปป']]#'วว/ดด/ปป'
         except Exception as e:
             return HttpResponse('คอลัมไม่ตรงตามที่ต้องการ')
         try:
@@ -787,17 +945,17 @@ def add_TemporaryUser_by_file(request):
                 last_name=(data.iloc[i]['นามสกุล'].strip())
             except Exception as e:
                 return HttpResponse('last_name ไม่ถูกต้อง')
-            try:
-                birth_date_str=(data.iloc[i]['วว/ดด/ปป'].strip())
-                birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date()
-            except Exception as e:
-                return HttpResponse('วว/ดด/ปป ไม่ถูกต้อง')           
+            # try:
+            #     birth_date_str=(data.iloc[i]['วว/ดด/ปป'].strip())
+            #     birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date()
+            # except Exception as e:
+            #     return HttpResponse('วว/ดด/ปป ไม่ถูกต้อง')           
             checkuser = User.objects.filter(citizen_id=citizen_id)
             if not checkuser.exists():
                 checkTemporaryUser = TemporaryUser.objects.filter(citizen_id=citizen_id)
                 
                 if not checkTemporaryUser.exists():
-                    Temporary_User = TemporaryUser.objects.create(citizen_id=citizen_id,first_name=first_name,last_name=last_name,birth_date=birth_date)
+                    Temporary_User = TemporaryUser.objects.create(citizen_id=citizen_id,first_name=first_name,last_name=last_name,password=citizen_id)#birth_date=birth_date
                     role=Role.objects.filter(name='Student').first()
                     role.TemporaryUser.add(Temporary_User)
                     Round_db = Round.objects.get(pk=round_sel)
@@ -1380,6 +1538,7 @@ def add_announcement(request):
                     year = year.strip(")")
                     round = Round.objects.get(round_name=round_name,academic_year=year)
                     add_announcement.round.add(round)
+                    add_announcement.major.add(round.major)
         except ObjectDoesNotExist:
             pass
         try:
@@ -1416,13 +1575,13 @@ def edit_Announcement(request):
         edit_announcement.announcement_content = details
         edit_announcement.role.clear()
         edit_announcement.round.clear()
+        edit_announcement.major.clear()
         try:
             for role_name in checkboxgroup:
                 role_model = Role.objects.get(name=role_name)
                 edit_announcement.role.add(role_model)
         except ObjectDoesNotExist:
             pass
-        print(selected_rounds_str)
         try:
             for round in selected_rounds_str:
                 round_name, year = round.rsplit(" (",1)
@@ -1430,6 +1589,7 @@ def edit_Announcement(request):
                 year = year.strip(")")
                 round_model = Round.objects.get(round_name=round_name,academic_year=year)
                 edit_announcement.round.add(round_model)
+                edit_announcement.major.add(round_model.major)
 
         except ObjectDoesNotExist:
             pass
@@ -1457,6 +1617,7 @@ def addSchedule(request):
                     year = year.strip(")")
                     round = Round.objects.get(round_name=round_name,academic_year=year)
                     add_Schedule.round.add(round)
+                    add_Schedule.major.add(round.major)
         except ObjectDoesNotExist:
             pass
         try:
@@ -1481,6 +1642,7 @@ def edit_Schedule(request):
         edit_Schedule.schedule_content = details
         edit_Schedule.role.clear()
         edit_Schedule.round.clear()
+        edit_Schedule.major.clear()
         try:
             date = request.POST.get('expire_date')
             ndate = datetime.strptime(date, "%d/%m/%Y").date()
@@ -1500,6 +1662,7 @@ def edit_Schedule(request):
                 year = year.strip(")")
                 round_model = Round.objects.get(round_name=round_name,academic_year=year)
                 edit_Schedule.round.add(round_model)
+                edit_Schedule.major.add(round_model.major)
 
         except ObjectDoesNotExist:
             pass
@@ -1511,3 +1674,28 @@ def delete_Schedule(request,id):
     delete_Sd = Schedule.objects.get(pk=id)
     delete_Sd.delete()
     return redirect('Announcement_page')
+
+
+
+
+def decrease_manager(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('id')
+        major_name = request.POST.get('major')
+        major  =  Major.objects.get(major=major_name)
+        manager  =  User.objects.get(pk=user_id)
+        major.default_manager.remove(manager)
+        major.save()
+
+    return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+
+def increase_manager(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('id')
+        major_name = request.POST.get('major')
+        major  =  Major.objects.get(major=major_name)
+        manager  =  User.objects.get(pk=user_id)
+        major.default_manager.add(manager)
+        major.save()
+
+    return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))

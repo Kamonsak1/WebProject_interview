@@ -88,14 +88,14 @@ class TemporaryUser(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=20, null=True, blank=True)
-    birth_date = models.DateField()
+    birth_date = models.DateField(default=timezone.now)
     password = models.CharField(max_length=128, blank=True)
 
-    def save(self, *args, **kwargs):
-        birth_year = self.birth_date.year
-        password = f"{self.birth_date.day:02d}{self.birth_date.month:02d}{birth_year}"
-        self.password = password
-        super(TemporaryUser, self).save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     birth_year = self.birth_date.year
+    #     password = f"{self.birth_date.day:02d}{self.birth_date.month:02d}{birth_year}"
+    #     self.password = password
+    #     super(TemporaryUser, self).save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
@@ -148,6 +148,7 @@ class Round(models.Model):
 class Schedule(models.Model):
     start_date = models.DateField(default=datetime.now)
     end_date = models.DateField()
+    major = models.ManyToManyField(Major)
     round = models.ManyToManyField(Round)
     role = models.ManyToManyField(Role)
     schedule_name = models.CharField(max_length=200)
@@ -156,6 +157,7 @@ class Schedule(models.Model):
 class Announcement(models.Model):
     post_date = models.DateField(default=datetime.now) 
     expire_date = models.DateField(null=True,blank=True)
+    major = models.ManyToManyField(Major)
     round = models.ManyToManyField(Round)
     role = models.ManyToManyField(Role )
     title = models.CharField(max_length=200)
@@ -201,3 +203,7 @@ class InterviewLink(models.Model):
 class RoundScore(models.Model):
     pattern = models.ForeignKey(ScorePattern, on_delete=models.CASCADE ,null = True,blank=True)
     Round = models.ForeignKey(Round, on_delete=models.CASCADE)
+
+class InterviewNow(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='interview_student',blank=True,null=True)
+    interviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='interviewer')

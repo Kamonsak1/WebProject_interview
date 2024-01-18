@@ -1,43 +1,148 @@
 {% extends 'student/base/n_base.html' %}
 {% load static %}
+
+{% block css_js %} 
+<link rel="stylesheet" href="{% static 'css/Student_css/interview_room.css' %}" />
+{% endblock %} 
+
 {% block topic %}
-<h1 class="text-3xl text-gray-100 mt-2 text-center">ห้องสัมภาษณ์</h1>
+<div class="fs-8 mt-1 text-muted text-center">
+    <span><i class="ti ti-book"></i> ห้องสัมภาษณ์</span>
+  </div>
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
 
+
     <audio id="myAudio">
         <source src="{% static 'audio/test.mp3' %}" type="audio/mpeg">
     </audio>
-    <span id="time-display">{{ time }}</span>
-    <button onclick="playAudio()" type="button">Play Audio</button>
-    <button onclick="pauseAudio()" type="button">Pause Audio</button> 
+
+    <div class="row mt-3 justify-content-center">
+        <div class="card col-lg-6">
+            <div class="card-body">
+                <div class="card-title mb-2 fs-7 d-flex" >
+                    <p class="fw-semibold">รอคิวสอบสัมภาษณ์ : </p>
+                    <div class="text-primary fw-medium" id="round_name"></div>
+                </div>
+                <div class="card mb-1 col-lg-5 text-center mx-auto">
+                    <div id="queue_time" style="margin-bottom: -20px;">
+                    </div>
+                    <div id="meet" class="card-body">
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center mt-2">
+                    <div id="skip-btn" ></div>
+                    <div id="join-btn" class=""></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
     <script>
-
+        let audioPlayCount = 0;
         var x = document.getElementById("myAudio"); 
+        x.volume = 0.8;
         console.log(x)
 
         function playAudio() { 
-        x.play(); 
-        } 
-
-        function pauseAudio() { 
-        x.pause(); 
-        } 
-
-        function updateTime() {
-            fetch('/current-time/')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('time-display').innerHTML = data.time;
-                    // playAudio();
-                })
-                    .catch(error => console.error('Error:', error));
+            if (audioPlayCount < 2) {
+                x.play();
+                audioPlayCount++;
             }
-    setInterval(updateTime, 1000);
-    window.onload = updateTime;
+        }
+        function resetAudioPlayCount() {
+            audioPlayCount = 0;
+        }
+
+        function skip_confirm() {
+            var optionsDiv = document.getElementById("skip_confirm");
+            if (optionsDiv.style.display === "block") {
+                optionsDiv.style.display = "none";
+            } else {
+                optionsDiv.style.display = "block";
+            }
+        }
+
+        function fetchAndUpdateData() {
+        fetch('/interview-status/')
+        .then(response => response.json())
+        .then(data => {
+            let item = data[0];
+
+            let skip_btn = '<button class=" search-bordered btn btn-primary px-4 p-2 fs-4 fw-bolder me-2" onclick="skip_confirm()">ข้าม</button>';
+            document.getElementById('skip-btn').innerHTML = skip_btn;
+
+            if (item.queue_time > 0 && item.queue_time < 20) {
+                let content = '<p class="fs-6 fw-bolder mt-2 mb-0 text-danger">' + item.queue_time + ' นาที</p>';
+                document.getElementById('queue_time').innerHTML = content;
+            } else if (item.queue_time === 0) {
+                let content = '<p class="fs-6 fw-bolder mt-2 mb-0 text-secondary">ถึงคิวสอบของคุณแล้ว</p>';
+                document.getElementById('queue_time').innerHTML = content;
+            } else if (item.queue_time > 20 ){
+                let content = '<p class="fs-6 fw-bolder mt-2 mb-0">' + item.queue_time + ' นาที</p>';
+                document.getElementById('queue_time').innerHTML = content;
+            } else {
+                let content = '<p class="fs-6 fw-bolder mt-2 mb-0">คุณยังไม่ได้ลงทะเบียน</p>';
+                document.getElementById('queue_time').innerHTML = content;
+            }
+            
+            if (item.round) {
+                if (item.round === "ยังไม่มีการลงทะเบียน" ) {
+                    let round = '<p class="fw-semibold">ยังไม่มีการลงทะเบียน</p>';
+                    document.getElementById('round_name').innerHTML = round;
+                    let skip_btn = '<button class=" search-bordered btn btn-primary px-4 p-2 fs-4 fw-bolder me-2" onclick="skip_confirm()" disabled>ข้าม</button>';
+                    document.getElementById('skip-btn').innerHTML = skip_btn;
+                } else {
+                    const text = item.round.split('|');
+                    let round = '<p>' + text[0] + " " + text[1] +'</p>';
+                    let round_to_action = '<input type="hidden" name="skip" id="skip" value="' + item.round + '">';
+                    document.getElementById('round_name').innerHTML = round;
+                    document.getElementById('round_to_action').innerHTML = round_to_action;
+                }
+            }
+
+            if (item.link) {
+                let link = '<a class="search-bordered btn btn-success px-9 py-9 " href="' + item.link +'" target="_blank" ><i class="ti fs-9 ti-brand-zoom"></i></a>';
+                let link2 = '<a class="search-bordered btn btn-success p-2 fs-4 fw-bolder" href="' + item.link +'" target="_blank" >เข้าสอบสัมภาษณ์</a>';
+                document.getElementById('meet').innerHTML = link;
+                document.getElementById('join-btn').innerHTML = link2;
+            } else {
+                let link = '<button class="search-bordered btn btn-muted px-9 py-9" disabled><i class="ti fs-9 ti-brand-zoom"></i></button>';
+                let link2 = '<button class="search-bordered btn btn-success p-2 fs-4 fw-bolder" disabled>เข้าสอบสัมภาษณ์</button>';
+                document.getElementById('meet').innerHTML = link;
+                document.getElementById('join-btn').innerHTML = link2;
+            }
+
+            if (item.queue_time === 0) {
+                playAudio();
+            }
+
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+        setInterval(fetchAndUpdateData, 5000);
+        fetchAndUpdateData();
 
     </script>
+
+<div class="container_confirm" id="skip_confirm">
+    <div class="text-end">
+    <a href="/Student_room">
+      <i class="fs-6 ti ti-x text-danger"></i>
+    </a>
+    <h1 class="text-center fs-6 fw-semibold text-primary">ต้องการข้ามใช่หรือไม่?</h1>
+    </div>
+    <form method="post" class="container mt-4">
+        {% csrf_token %}
+        <div id="round_to_action"></div>
+        <div class="text-center">
+            <button type="submit" onclick="resetAudioPlayCount()" class="btn btn-info btn-lg me-2">ยืนยัน</button>
+            <a href="/Student_room" class="btn btn-danger btn-lg">ยกเลิก</a>
+        </div>
+    </form>
+</div>
+</div>
 {% endblock %}
