@@ -7,10 +7,10 @@ services:
     env_file:
       - ./.env
     environment:
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+        MYSQL_USER: myuser
+        MYSQL_PASSWORD: 1234
+        MYSQL_ROOT_PASSWORD: 1234
+        MYSQL_DATABASE: mydb
     ports:
       - 3307:3306
   web:
@@ -25,13 +25,10 @@ services:
       - .:/app
     depends_on:
       - db
-    env_file:
-      - ./.env
     environment:
-      DB_HOST: ${DB_HOST}
-      DB_NAME: ${MYSQL_DATABASE}
-      DB_USER: ${MYSQL_USER}
-      DB_PASS: ${MYSQL_PASSWORD}
-      DB_PORT: ${DB_PORT}
+      - DB_HOST=db
+      - DB_NAME=mydb
+      - DB_USER=myuser
+      - DB_PASS=1234
 volumes:
   db_data:
