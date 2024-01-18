@@ -54,9 +54,9 @@
                                     <div id="read_schedule" class="d-flex justify-content-between" onclick="read_schedule(this.getAttribute('data-title'), this.getAttribute('data-content'))" data-id="{{ i.id }}" data-title="{{ i.schedule_name | escape }}" data-content="{{ i.schedule_content | escape }}">
 
                                         <div>    
-                                        <h5 class="text_date-" style="display: none;" data-post-date="{{ i.end_date }}"></h5>
-                                        <h5 class="display_birth_date" style="display: inline-block; margin-right: 5px;"></h5>
-                                        <h5 style="display: inline-block;">{{ i.schedule_name }} </h5>
+                                            <h5 class="text_date" style="display: none;" data-post-date="{{ i.end_date }}"></h5>
+                                            <h5 class="display_birth_date" style="display: inline-block; margin-right: 5px;"></h5>
+                                        <h5 style="display: inline-block;">|{{ i.schedule_name }} </h5>
                                         
                                         </div>
                                 </div>
@@ -115,6 +115,22 @@
                 </div>
                 <div class="content_an">
                     <p id="content"></p>
+                </div>
+                
+
+            </div>
+            <div class="container_read" id="readschedule" >
+                <div  class="topic">
+                    <h3 ></h3>
+                    <a href="Admin_page">
+                        <i class="fs-6 ti ti-x text-danger"></i>
+                    </a>
+                </div> 
+                <div class="topic_an">
+                    <h1 id="schedule_topic"></h1>
+                </div>
+                <div class="content_an">
+                    <p id="schedule_content"></p>
                 </div>
                 
 

@@ -517,7 +517,8 @@ def confirm_email(request):
                                 # for  major in major_TemporaryUser:
                                 #      major.users.add(user)
                                 user.save()
-                                return redirect('social:begin', backend='google-oauth2')
+                                return redirect('/')
+                                #return redirect('social:begin', backend='google-oauth2')
                             else:
                                 return redirect('confirm_email')
                     else:
@@ -665,8 +666,8 @@ def add_TemporaryUser(request):
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         citizen_id = request.POST.get('citizen_id')
-        birth_date_str = request.POST.get('birth_date')
-        birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date() 
+        # birth_date_str = request.POST.get('birth_date')
+        # birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date() 
         round_sel = request.POST.get('round') 
         round = Round.objects.get(pk=round_sel)
 
@@ -689,7 +690,8 @@ def add_TemporaryUser(request):
                 citizen_id=citizen_id,
                 first_name=first_name,
                 last_name=last_name,
-                birth_date=birth_date,
+                #birth_date=birth_date,
+                password = citizen_id
             )
             round.TemporaryUser.add(check_temporary_user)
             role_model, _ = Role.objects.get_or_create(name='Student')
@@ -892,7 +894,7 @@ def add_TemporaryUser_by_file(request):
         else:
             pass
         try:
-            data = df[['เลขบัตรประชาชน','ชื่อ','วว/ดด/ปป']]
+            data = df[['เลขบัตรประชาชน','ชื่อ','วว/ดด/ปป']]#'วว/ดด/ปป'
         except Exception as e:
             return HttpResponse('คอลัมไม่ตรงตามที่ต้องการ')
         try:
@@ -928,17 +930,17 @@ def add_TemporaryUser_by_file(request):
                 last_name=(data.iloc[i]['นามสกุล'].strip())
             except Exception as e:
                 return HttpResponse('last_name ไม่ถูกต้อง')
-            try:
-                birth_date_str=(data.iloc[i]['วว/ดด/ปป'].strip())
-                birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date()
-            except Exception as e:
-                return HttpResponse('วว/ดด/ปป ไม่ถูกต้อง')           
+            # try:
+            #     birth_date_str=(data.iloc[i]['วว/ดด/ปป'].strip())
+            #     birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date()
+            # except Exception as e:
+            #     return HttpResponse('วว/ดด/ปป ไม่ถูกต้อง')           
             checkuser = User.objects.filter(citizen_id=citizen_id)
             if not checkuser.exists():
                 checkTemporaryUser = TemporaryUser.objects.filter(citizen_id=citizen_id)
                 
                 if not checkTemporaryUser.exists():
-                    Temporary_User = TemporaryUser.objects.create(citizen_id=citizen_id,first_name=first_name,last_name=last_name,birth_date=birth_date)
+                    Temporary_User = TemporaryUser.objects.create(citizen_id=citizen_id,first_name=first_name,last_name=last_name,password=citizen_id)#birth_date=birth_date
                     role=Role.objects.filter(name='Student').first()
                     role.TemporaryUser.add(Temporary_User)
                     Round_db = Round.objects.get(pk=round_sel)
