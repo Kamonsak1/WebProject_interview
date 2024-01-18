@@ -5,4 +5,14 @@ function skip_confirm() {
     } else {
       optionsDiv.style.display = "block";
     }
-  }
+}
+
+function next_confirm() {
+    var optionsDiv = document.getElementById("next_confirm");
+    if (optionsDiv.style.display === "block") {
+      optionsDiv.style.display = "none";
+    } else {
+      optionsDiv.style.display = "block";
+    }
+}
+
