@@ -38,7 +38,6 @@
             </thead>
             <tbody>
                 {% for user in Interviewers %}
-                {{ user.user.id }}
                 <tr class="text-center">
                     <td class="text-start">{{ user.user.first_name }} {{ user.user.last_name }}</td>
                     <td>{{ user.user.email }}</td>

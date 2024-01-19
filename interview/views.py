@@ -2,6 +2,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import render  
 from django.urls import reverse
+import requests
 from interview.models import *
 from django.contrib.auth import login, logout,authenticate
 from django.contrib.auth.decorators import login_required,user_passes_test
@@ -323,6 +324,12 @@ def Interviewer_room(request):
         student_status.status = "ข้าม"
         student_status.reg_at = datetime.now()
         student_status.save()
+        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+    elif request.method == "POST" and "notify" in request.POST:
+        user_id = int(request.POST.get("notify"))
+        user = User.objects.get(id=user_id)
+        token = link.round.line_Token
+        send_line_notify(f'{user.first_name} {user.last_name}',token)
         return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
     link = InterviewLink.objects.get(user=request.user)
@@ -1808,3 +1815,10 @@ def increase_manager(request):
         major.save()
 
     return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+
+
+def send_line_notify(message,token):
+    url = 'https://notify-api.line.me/api/notify'
+    headers = {'content-type':'application/x-www-form-urlencoded', 'Authorization':'Bearer '+token}
+    msg = message + " กรุณาเข้าห้องสอบสัมภาษณ์ด้วยค่ะ"
+    requests.post(url, headers=headers, data = {'message':msg})

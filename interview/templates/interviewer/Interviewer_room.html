@@ -148,13 +148,15 @@
         </div> -->
         {% if docs %}
         <div class="d-flex justify-content-end mb-5 me-5 position-relative bottom-0 end-0">
+          <button onclick="notify_confirm()" class="search-bordered btn green px-4 py-2 fs-7 me-2 text-white fw-semibold" style="background-color: #06C755;" type="submit">Line Notify</button>
           <button onclick="skip_confirm()" class="search-bordered btn btn-info px-4 py-2 fs-7 me-2 fw-semibold" type="submit">ข้าม</button>
           <button onclick="next_confirm()" class="search-bordered btn btn-success px-3 py-2 fs-7 fw-semibold" type="submit">ดำเนินการต่อ</button>
         </div>
         {% else %}
         <div class="d-flex justify-content-end mb-5 me-5 position-relative bottom-0 end-0">
-          <button onclick="skip_confirm()" class="search-bordered btn btn-info px-4 py-2 fs-7 me-2 fw-semibold" type="submit" disabled>ข้าม</button>
-          <button onclick="next_confirm()" class="search-bordered btn btn-success px-3 py-2 fs-7 fw-semibold" type="submit" disabled>ดำเนินการต่อ</button>
+          <button class="search-bordered btn green px-4 py-2 fs-7 me-2 text-white fw-semibold" style="background-color: #06C755;" type="submit" disabled>Line Notify</button>
+          <button class="search-bordered btn btn-info px-4 py-2 fs-7 me-2 fw-semibold" type="submit" disabled>ข้าม</button>
+          <button class="search-bordered btn btn-success px-3 py-2 fs-7 fw-semibold" type="submit" disabled>ดำเนินการต่อ</button>
         </div>
         {% endif %}
       </div>
@@ -189,6 +191,23 @@
         <input type="hidden" name="round_exit" value="{{ link.id }}">
         <div class="text-center">
           <button type="submit" onclick="resetRefreshCount()" class="btn btn-info btn-lg me-2">ยืนยัน</button>
+          <a href="/Interviewer_room" class="btn btn-danger btn-lg">ยกเลิก</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="container_confirm" id="notify_student">
+      <div class="text-end">
+        <a href="/Interviewer_room">
+          <i class="fs-6 ti ti-x text-danger"></i>
+        </a>
+        <h1 class="text-center fs-6 fw-semibold text-primary">ต้องการแจ้งเตือนนักเรียนหรือไม่?</h1>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="notify" value="{{ docs.user.id }}">
+        <div class="text-center">
+          <button type="submit" class="btn btn-info btn-lg me-2">ยืนยัน</button>
           <a href="/Interviewer_room" class="btn btn-danger btn-lg">ยกเลิก</a>
         </div>
       </form>

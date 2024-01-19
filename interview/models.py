@@ -136,8 +136,8 @@ class Round(models.Model):
     academic_year = models.CharField(max_length=20) 
     round_name = models.CharField(max_length=20)
     manager = models.ForeignKey(User, on_delete=models.CASCADE)
-    users = models.ManyToManyField(User, related_name='rounds_participated', blank=True)
-    TemporaryUser = models.ManyToManyField(TemporaryUser,related_name='rounds_participated', blank=True)
+    users = models.ManyToManyField(User, related_name='round_user', blank=True)
+    TemporaryUser = models.ManyToManyField(TemporaryUser,related_name='round_temp_user', blank=True)
     documents = models.CharField(max_length=200, null=True,blank=True)
     active = models.BooleanField(default=False,null=True,blank=True)
     interview_time = models.CharField(max_length=50, null=True, blank=True)
@@ -198,7 +198,6 @@ class InterviewLink(models.Model):
     link = models.CharField(max_length=300)
     active = models.BooleanField(default=False,null=True,blank=True)
     round = models.ForeignKey(Round, on_delete=models.CASCADE, related_name='interview_round',blank=True,null=True)
-    interviewing = models.BooleanField(default=False)
 
 
 class RoundScore(models.Model):
