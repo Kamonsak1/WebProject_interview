@@ -415,6 +415,11 @@ def Student_room(request):
     }
     return render(request,'student/Student_room.html', context)
 
+def convert_to_datetime(time_str):
+    date_str, time_str = time_str.split()
+    day, month, year = map(int, date_str.split('/'))
+    start_time = time_str.split('-')[0]
+    return datetime(year, month, day, int(start_time[:2]), int(start_time[3:]))
 
 def interview_status(request):
     queue_time = "คุณยังไม่ได้มีการลงทะเบียน"
@@ -422,10 +427,17 @@ def interview_status(request):
     reg= None
     round_now = None
     if InterviewStatus.objects.filter(user=request.user):
-        all_round = (InterviewStatus.objects.filter(user=request.user, status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"])
-                                                     .annotate(interview_time=F('round__interview_time')).order_by('interview_time'))
-        if all_round:
-            r = all_round.first()
+        time_string_id = []
+        all_time = InterviewStatus.objects.filter(user=request.user, status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"])
+        for time in all_time:
+            time_string_id.append((time.id,time.round.interview_time))
+        datetimes_with_id = [(id, convert_to_datetime(ts)) for id, ts in time_string_id]
+        sorted_datetimes_with_id = sorted(datetimes_with_id, key=lambda x: x[1])
+        sorted_id = sorted_datetimes_with_id[0][0]
+        current_round = InterviewStatus.objects.filter(user=request.user,id=sorted_id)
+
+        if current_round:
+            r = InterviewStatus.objects.get(user=request.user,id=sorted_id)
             reg = InterviewStatus.objects.get(status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"],user=request.user,round=r.round)
             interview_statuses = InterviewStatus.objects.filter(status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"],round=reg.round).order_by('reg_at')
             round_now = f"{interview_statuses.first().round.round_name}|{interview_statuses.first().round.academic_year}"

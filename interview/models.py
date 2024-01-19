@@ -141,6 +141,7 @@ class Round(models.Model):
     documents = models.CharField(max_length=200, null=True,blank=True)
     active = models.BooleanField(default=False,null=True,blank=True)
     interview_time = models.CharField(max_length=50, null=True, blank=True)
+    line_Token = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return self.round_name
