@@ -439,14 +439,18 @@ def interview_status(request):
             r = InterviewStatus.objects.get(user=request.user,id=sorted_id)
             reg = InterviewStatus.objects.get(status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"],user=request.user,round=r.round)
             interview_statuses = InterviewStatus.objects.filter(status__in=["พร้อมสอบ", "ข้าม"],round=reg.round).order_by('reg_at')
+            check = InterviewStatus.objects.filter(round=reg.round).order_by('reg_at').first()
             round_now = f"{reg.round.round_name}|{reg.round.academic_year}"
-            for index, status in enumerate(interview_statuses):
-                if status.user == request.user:
-                    user_position = index + 1
-                    queue_time = user_position*10
-                    break
-            if InterviewStatus.objects.filter(status="กำลังสอบ",user=request.user,round=r.round):
-                queue_time = 0
+            if check.status != "กำลังสอบ" or check.status != "สอบเสร็จแล้ว":
+                queue_time = "ยังไม่เริ่มสอบ"
+            else:
+                for index, status in enumerate(interview_statuses):
+                    if status.user == request.user:
+                        user_position = index + 1
+                        queue_time = user_position*10
+                        break
+                if InterviewStatus.objects.filter(status="กำลังสอบ",user=request.user,round=r.round):
+                    queue_time = 0
         else:
             queue_time = "คุณยังไม่ได้มีการลงทะเบียน"
             round_now = "ยังไม่มีการลงทะเบียน"
