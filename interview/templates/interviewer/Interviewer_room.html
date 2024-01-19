@@ -67,7 +67,7 @@
                 <form method="post">
                   {% csrf_token %}
                   <input type="hidden" name="round" id="round" value="{{r.id}}">
-                  <button type="submit" class="btn btn-info mt-2 px-2 py-2">เลือก</button>
+                  <button type="submit" onclick="resetRefreshCount()" class="btn btn-info mt-2 px-2 py-2">เลือก</button>
                 </form>
               </div>
             </ul>
@@ -83,7 +83,8 @@
 
     {% else %}
 
-
+    
+    <!-- <meta http-equiv="refresh" content="1;"> -->
     <form class="col d-flex mt-3 justify-content-center" method="post">
       {% csrf_token %}
       <input type="hidden" name="round_exit" value="{{ link.id }}">
@@ -166,7 +167,7 @@
         {% csrf_token %}
         <input type="hidden" name="skip" id="skip" value="{{ docs.user.id }}">
         <div class="text-center">
-          <button type="submit" onclick="resetAudioPlayCount()" class="btn btn-info btn-lg me-2">ยืนยัน</button>
+          <button type="submit" onclick="resetRefreshCount()" class="btn btn-info btn-lg me-2">ยืนยัน</button>
           <a href="/Interviewer_room" class="btn btn-danger btn-lg">ยกเลิก</a>
         </div>
       </form>
@@ -183,11 +184,28 @@
         {% csrf_token %}
         <input type="hidden" name="finish" id="finish" value="{{ docs.user.id }}">
         <div class="text-center">
-          <button type="submit" class="btn btn-info btn-lg me-2">ยืนยัน</button>
+          <button type="submit" onclick="resetRefreshCount()" class="btn btn-info btn-lg me-2">ยืนยัน</button>
           <a href="/Interviewer_room" class="btn btn-danger btn-lg">ยกเลิก</a>
         </div>
       </form>
     </div>
-
 </div>
+
+
+<script>
+
+window.onload = function() {
+  setTimeout(function() {
+    let refreshCount = localStorage.getItem('refreshCount') || 0;
+    if (refreshCount < 2) {
+      localStorage.setItem('refreshCount', ++refreshCount);
+      window.location.reload();
+    }
+  }, 500);
+};
+
+function resetRefreshCount() {
+            localStorage.setItem('refreshCount', 0);}
+</script>
+
 {% endblock %}

@@ -335,8 +335,7 @@ def Interviewer_room(request):
             interviewing_now.save()
             student_status.status = "กำลังสอบ"
             student_status.save()
-    elif link.round:
-        need_docs = link.round.documents.split(",")
+
 
     context = {
         "docs" : student,
@@ -439,13 +438,15 @@ def interview_status(request):
         if current_round:
             r = InterviewStatus.objects.get(user=request.user,id=sorted_id)
             reg = InterviewStatus.objects.get(status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"],user=request.user,round=r.round)
-            interview_statuses = InterviewStatus.objects.filter(status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"],round=reg.round).order_by('reg_at')
-            round_now = f"{interview_statuses.first().round.round_name}|{interview_statuses.first().round.academic_year}"
+            interview_statuses = InterviewStatus.objects.filter(status__in=["พร้อมสอบ", "ข้าม"],round=reg.round).order_by('reg_at')
+            round_now = f"{reg.round.round_name}|{reg.round.academic_year}"
             for index, status in enumerate(interview_statuses):
                 if status.user == request.user:
-                    user_position = index
+                    user_position = index + 1
+                    queue_time = user_position*10
                     break
-            queue_time = user_position*10
+            if InterviewStatus.objects.filter(status="กำลังสอบ",user=request.user,round=r.round):
+                queue_time = 0
         else:
             queue_time = "คุณยังไม่ได้มีการลงทะเบียน"
             round_now = "ยังไม่มีการลงทะเบียน"

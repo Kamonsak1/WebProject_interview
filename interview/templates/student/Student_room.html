@@ -80,7 +80,7 @@
             } else if (item.queue_time === 0) {
                 let content = '<p class="fs-6 fw-bolder mt-2 mb-0 text-secondary">ถึงคิวสอบของคุณแล้ว</p>';
                 document.getElementById('queue_time').innerHTML = content;
-            } else if (item.queue_time > 20 ){
+            } else if (item.queue_time === 20 && item.queue_time > 20 ){
                 let content = '<p class="fs-6 fw-bolder mt-2 mb-0">' + item.queue_time + ' นาที</p>';
                 document.getElementById('queue_time').innerHTML = content;
             } else {
