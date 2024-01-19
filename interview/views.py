@@ -201,6 +201,14 @@ def Manager_interview(request):
     user_rounds = Round.objects.filter(manager=request.user)
 
     return render(request,'manager/Manager_interview.html',{'rounds': user_rounds})
+def Manager_data_investigator(request,id):
+    round = Round.objects.get(id=id)
+    UserInRound = InterviewStatus.objects.filter(round=round).order_by("reg_at")
+    context = {
+        "Users" : UserInRound,
+        "round" : round,
+    }
+    return render(request,'manager/Manager_data_investigator.html',context)
 @login_required
 @user_passes_test(is_Manager)
 def Manager_Score(request):
@@ -737,7 +745,53 @@ def add_TemporaryUser(request):
             return redirect('TemporaryUser')    
             
     return redirect("TemporaryUser")
-    
+
+
+def add_TemporaryUser_test(request):
+    if request.method == "POST":     
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        citizen_id = request.POST.get('citizen_id')
+        # birth_date_str = request.POST.get('birth_date')
+        # birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date() 
+        round_sel = request.POST.get('round') 
+        round = Round.objects.get(pk=round_sel)
+
+        try:
+            check_user = User.objects.get(citizen_id=citizen_id)
+            return redirect('TemporaryUser') 
+        except User.DoesNotExist:
+            pass
+
+        try:
+            check_temporary_user = User.objects.get(username=citizen_id)
+            round.users.add(check_temporary_user)
+            faculty_instance = Faculty.objects.get(faculty=round.major.faculty.faculty)
+            faculty_instance.users.add(check_temporary_user)
+            major_instance = Major.objects.get(major=round.major.major)
+            major_instance.users.add(check_temporary_user)
+            return redirect('TemporaryUser') 
+        except User.DoesNotExist:
+            check_temporary_user = User.objects.create(
+                username=citizen_id,
+                first_name=first_name,
+                last_name=last_name,
+                #birth_date=birth_date,
+                password = make_password(citizen_id)
+            )
+            round.users.add(check_temporary_user)
+            role_model, _ = Role.objects.get_or_create(name='Student')
+            role_model.users.add(check_temporary_user)
+            faculty_instance = Faculty.objects.get(faculty=round.major.faculty.faculty)
+            faculty_instance.users.add(check_temporary_user)
+            major_instance = Major.objects.get(major=round.major.major)
+            major_instance.users.add(check_temporary_user)
+            check_temporary_user.save()
+            
+            return redirect('TemporaryUser')    
+            
+    return redirect("TemporaryUser")
+
 @login_required
 @user_passes_test(is_admin)    
 def delete_TemporaryUser(request,id):

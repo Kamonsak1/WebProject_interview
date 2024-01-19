@@ -185,7 +185,7 @@
             </div>
     </div>
     <div class="container_add" id="add_TemporaryUser">
-        <form action="{% url 'add_TemporaryUser' %}" method="post" data-cities-url="{% url 'ajax_load_cities' %}" id="add_test">
+        <form action="{% url 'add_TemporaryUser_test' %}" method="post" data-cities-url="{% url 'ajax_load_cities' %}" id="add_test">
             {% csrf_token %}
             <div  class="topic">
                 <h3 >สร้างผู้ใช้งาน</h3>
