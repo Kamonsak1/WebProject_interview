@@ -393,15 +393,18 @@ def student_page(request):
 @user_passes_test(is_Student)
 def Student_profile(request):
     return render(request,'student/Student_profile.html')
+
 @login_required
 @user_passes_test(is_Student)
 def Student_register(request):
-    
     user_rounds = Round.objects.filter(users=request.user)
     user_majors = Major.objects.filter(users=request.user)
     related_rounds = Round.objects.filter(major__in=user_majors)
     combined_rounds = user_rounds | related_rounds
     registered_rounds = InterviewStatus.objects.filter(user=request.user).values_list('round', flat=True)
+    
+    uploaded_docs = Document.objects.filter(user=request.user).values_list('round', flat=True)
+
 
     if request.method == 'POST':
         user = request.user
@@ -416,10 +419,11 @@ def Student_register(request):
             document = Document(user=user,round=round,doc_name=doc_name,document=file)
             document.save()
         return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
-    
+
     context = {
         'rounds': combined_rounds.distinct(),
         'registered_rounds': registered_rounds,
+        'uploaded_docs': uploaded_docs,
         }
     return render(request,'student/Student_register.html',context)
 @login_required
