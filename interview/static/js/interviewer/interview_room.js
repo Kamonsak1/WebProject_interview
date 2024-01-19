@@ -16,3 +16,11 @@ function next_confirm() {
     }
 }
 
+function exit_confirm() {
+  var optionsDiv = document.getElementById("exit_round");
+  if (optionsDiv.style.display === "block") {
+    optionsDiv.style.display = "none";
+  } else {
+    optionsDiv.style.display = "block";
+  }
+}

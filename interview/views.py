@@ -297,6 +297,21 @@ def Interviewer_room(request):
         student_status.status = "สอบเสร็จแล้ว"
         student_status.save()
         return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+    elif request.method == "POST" and "finish_leave" in request.POST:
+        user_id = int(request.POST.get("finish_leave"))
+        user = User.objects.get(id=user_id)
+        interviewing_now = InterviewNow.objects.get(interviewer=request.user)
+        interviewing_now.student = None
+        interviewing_now.save()
+        round = Round.objects.get(id=link.round.id)
+        student_status = InterviewStatus.objects.get(user=user,round=round)
+        student_status.status = "สอบเสร็จแล้ว"
+        student_status.save()
+        link.round = None
+        link.save()
+        interviewing_now.student = None
+        interviewing_now.save()
+        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
     elif request.method == "POST" and "skip" in request.POST:
         user_id = int(request.POST.get("skip"))
         user = User.objects.get(id=user_id)
@@ -432,39 +447,37 @@ def interview_status(request):
     queue_time = "คุณยังไม่ได้มีการลงทะเบียน"
     user_position = None
     reg= None
-    round_now = None
+    round_now = "ยังไม่มีการลงทะเบียน"
     if InterviewStatus.objects.filter(user=request.user):
         time_string_id = []
+        current_round = None
         all_time = InterviewStatus.objects.filter(user=request.user, status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"])
-        for time in all_time:
-            time_string_id.append((time.id,time.round.interview_time))
-        datetimes_with_id = [(id, convert_to_datetime(ts)) for id, ts in time_string_id]
-        sorted_datetimes_with_id = sorted(datetimes_with_id, key=lambda x: x[1])
-        sorted_id = sorted_datetimes_with_id[0][0]
-        current_round = InterviewStatus.objects.filter(user=request.user,id=sorted_id)
+        if all_time:
+            for time in all_time:
+                time_string_id.append((time.id,time.round.interview_time))
+            datetimes_with_id = [(id, convert_to_datetime(ts)) for id, ts in time_string_id]
+            sorted_datetimes_with_id = sorted(datetimes_with_id, key=lambda x: x[1])
+            sorted_id = sorted_datetimes_with_id[0][0]
+            current_round = InterviewStatus.objects.filter(user=request.user,id=sorted_id)
 
         if current_round:
             r = InterviewStatus.objects.get(user=request.user,id=sorted_id)
-            reg = InterviewStatus.objects.get(status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"],user=request.user,round=r.round)
-            interview_statuses = InterviewStatus.objects.filter(status__in=["พร้อมสอบ", "ข้าม"],round=reg.round).order_by('reg_at')
-            check = InterviewStatus.objects.filter(round=reg.round).order_by('reg_at').first()
-            round_now = f"{reg.round.round_name}|{reg.round.academic_year}"
-            if check.status != "กำลังสอบ" or check.status != "สอบเสร็จแล้ว":
-                queue_time = "ยังไม่เริ่มสอบ"
-            else:
-                for index, status in enumerate(interview_statuses):
-                    if status.user == request.user:
-                        user_position = index + 1
-                        queue_time = user_position*10
-                        break
-                if InterviewStatus.objects.filter(status="กำลังสอบ",user=request.user,round=r.round):
-                    queue_time = 0
-        else:
-            queue_time = "คุณยังไม่ได้มีการลงทะเบียน"
-            round_now = "ยังไม่มีการลงทะเบียน"
-    else:
-        queue_time = "คุณยังไม่ได้มีการลงทะเบียน"
-        round_now = "ยังไม่มีการลงทะเบียน"
+            reg = InterviewStatus.objects.filter(status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"],user=request.user,round=r.round)
+            if reg:
+                reg = InterviewStatus.objects.get(status__in=["พร้อมสอบ", "กำลังสอบ", "ข้าม"],user=request.user,round=r.round)
+                interview_statuses = InterviewStatus.objects.filter(status__in=["พร้อมสอบ", "ข้าม"],round=reg.round).order_by('reg_at')
+                check = InterviewStatus.objects.filter(round=reg.round).order_by('reg_at').first()
+                round_now = f"{reg.round.round_name}|{reg.round.academic_year}"
+                if check.status == "พร้อมสอบ":
+                    queue_time = "ยังไม่เริ่มสอบ"
+                else:
+                    for index, status in enumerate(interview_statuses):
+                        if status.user == request.user:
+                            user_position = index + 1
+                            queue_time = user_position*10
+                            break
+                    if InterviewStatus.objects.filter(status="กำลังสอบ",user=request.user,round=r.round):
+                        queue_time = 0
     link = None
     interviewing = InterviewNow.objects.filter(student=request.user)
     if interviewing:
@@ -475,6 +488,7 @@ def interview_status(request):
     data.append({
         'link': link,
         'queue_time': queue_time,
+        'queue_position': user_position,
         'round' : round_now,
     })
     return JsonResponse(data, safe=False)
@@ -1627,9 +1641,33 @@ def delete_Announcement(request,id):
 
 def Manager_StatusRound(request,id):
     round = Round.objects.get(id=id)
-    UserInRound = InterviewStatus.objects.filter(round=round).order_by("reg_at")
+    Interviewers =  InterviewLink.objects.filter(round=round)
+    StudentInRound = InterviewStatus.objects.filter(round=round).order_by("reg_at")
+
+    if request.method == "POST" and "round_exit" in request.POST:
+        round_id = int(request.POST.get("round_exit"))
+        interviewer_id = int(request.POST.get("interviewer_id"))
+        round = Round.objects.get(id=round_id)
+        interviewer = User.objects.get(id=interviewer_id)
+        interviewing_now = InterviewNow.objects.filter(interviewer=interviewer)
+        interviewer_link = InterviewLink.objects.get(user=interviewer)
+        if interviewing_now:
+            now = InterviewNow.objects.get(interviewer= interviewer)
+            student_status = InterviewStatus.objects.filter(user=now.student,round=round)
+            now.student = None
+            now.save()
+            if student_status:
+                status = student_status.first()
+                status.status = "พร้อมสอบ"
+                status.save()
+        interviewer_link.round = None
+        interviewer_link.active = False
+        interviewer_link.save()
+        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+    
     context = {
-        "Users" : UserInRound,
+        "Students" : StudentInRound,
+        "Interviewers" : Interviewers,
         "round" : round,
     }
     return render(request, "manager/Manager_StatusRound.html", context)

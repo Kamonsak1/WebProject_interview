@@ -71,20 +71,22 @@
         .then(data => {
             let item = data[0];
 
-            let skip_btn = '<button class=" search-bordered btn btn-primary px-4 p-2 fs-4 fw-bolder me-2" onclick="skip_confirm()">ข้าม</button>';
-            document.getElementById('skip-btn').innerHTML = skip_btn;
+            // let skip_btn = '<button class=" search-bordered btn btn-primary px-4 p-2 fs-4 fw-bolder me-2" onclick="skip_confirm()">ข้าม</button>';
+            // document.getElementById('skip-btn').innerHTML = skip_btn;
 
             if (item.queue_time > 0 && item.queue_time < 20) {
-                let content = '<p class="fs-6 fw-bolder mt-2 mb-0 text-danger">' + item.queue_time + ' นาที</p>';
+                let content = '<div class="d-flex justify-content-center"><p class="fs-6 fw-bolder mt-2 mb-0">อีก '+ item.queue_position + ' คิว : </p>'+
+                              '<p class="fs-6 fw-bolder mt-2 mb-0 text-danger"> ประมาณ '+ item.queue_time + ' นาที</p></div>';
                 document.getElementById('queue_time').innerHTML = content;
             } else if (item.queue_time === 0) {
                 let content = '<p class="fs-6 fw-bolder mt-2 mb-0 text-secondary">ถึงคิวสอบของคุณแล้ว</p>';
                 document.getElementById('queue_time').innerHTML = content;
-            } else if (item.queue_time === 20 && item.queue_time > 20 ){
-                let content = '<p class="fs-6 fw-bolder mt-2 mb-0">' + item.queue_time + ' นาที</p>';
+            } else if (item.queue_time === 20 || item.queue_time > 20 ){   
+                let content = '<div class="d-flex justify-content-center"><p class="fs-6 fw-bolder mt-2 mb-0">อีก '+ item.queue_position + ' คิว : </p>'+
+                              '<p class="fs-6 fw-bolder mt-2 mb-0"> ประมาณ '+ item.queue_time + ' นาที</p></div>';
                 document.getElementById('queue_time').innerHTML = content;
             } else {
-                let content = '<p class="fs-6 fw-bolder mt-2 mb-0">คุณยังไม่ได้ลงทะเบียน</p>';
+                let content = '<p class="fs-6 fw-bolder mt-2 mb-0">'+ item.queue_time +'</p>';
                 document.getElementById('queue_time').innerHTML = content;
             }
             
@@ -92,8 +94,8 @@
                 if (item.round === "ยังไม่มีการลงทะเบียน" ) {
                     let round = '<p class="fw-semibold">ยังไม่มีการลงทะเบียน</p>';
                     document.getElementById('round_name').innerHTML = round;
-                    let skip_btn = '<button class=" search-bordered btn btn-primary px-4 p-2 fs-4 fw-bolder me-2" onclick="skip_confirm()" disabled>ข้าม</button>';
-                    document.getElementById('skip-btn').innerHTML = skip_btn;
+                    // let skip_btn = '<button class=" search-bordered btn btn-primary px-4 p-2 fs-4 fw-bolder me-2" onclick="skip_confirm()" disabled>ข้าม</button>';
+                    // document.getElementById('skip-btn').innerHTML = skip_btn;
                 } else {
                     const text = item.round.split('|');
                     let round = '<p>' + text[0] + " " + text[1] +'</p>';
