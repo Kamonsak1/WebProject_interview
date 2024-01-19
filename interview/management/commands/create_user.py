@@ -16,13 +16,15 @@ class Command(BaseCommand):
             {'username': 'phaichayon', 'email': 'user7@example.com', 'password': 'phaichayon','first_name':'ดร.ไพชยนต์' ,'last_name':'คงไชย'},
             {'username': 'supawadee', 'email': 'user8@example.com', 'password': 'supawadee','first_name':'ผศ.ดร.สุภาวดี' ,'last_name':'หิรัญพงศ์สิน'},
             {'username': 'tossaporn', 'email': 'user9@example.com', 'password': 'tossaporn','first_name':'ดร.ทศพร' ,'last_name':'อเลิร์ป'},
+            {'username': '64114540025', 'email': 'kamonsak.ba.64@ubu.ac.th', 'password': '64114540025','first_name':'นายกมลศักดิ์' ,'last_name':'บรรพตะธิ'},
+            {'username': '64114540506', 'email': 'ronnapong.pi.64@ubu.ac.th', 'password': '64114540506','first_name':'นายรณพงษ์' ,'last_name':'ไพชยนต์'},
         ]
 
-        # Get the Admin role
-        r_ad = Role.objects.get(name='Admin')
-        r_ma = Role.objects.get(name='Manager')
-        r_in = Role.objects.get(name='Interviewer')
-        r_st = Role.objects.get(name='Student')
+        admin = ['64114540506','64114540025']
+        r_ad = Role.objects.get_or_create(name='Admin')
+        r_ma = Role.objects.get_or_create(name='Manager')
+        r_in = Role.objects.get_or_create(name='Interviewer')
+        r_st = Role.objects.get_or_create(name='Student')
         f,asd = Faculty.objects.get_or_create(faculty='วิทยาศาสตร์')
         m,ewqe = Major.objects.get_or_create(faculty=f,major='วิทยาการข้อมูลและนวัตกรรมซอฟต์แวร์')
         for user in users_to_create:
@@ -34,7 +36,10 @@ class Command(BaseCommand):
                 )
 
                 new_user_m, created = User.objects.get_or_create(username=user['username'])
-                new_user_m.is_staff = False
+                if new_user_m.user['username'] in '64114540025':
+                    new_user_m.is_staff = True
+                else:
+                    new_user_m.is_staff = False
                 new_user_m.first_name = user['first_name']
                 new_user_m.last_name = user['last_name']
                 new_user_m.save()
