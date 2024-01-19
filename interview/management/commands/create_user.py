@@ -36,7 +36,7 @@ class Command(BaseCommand):
                 )
 
                 new_user_m, created = User.objects.get_or_create(username=user['username'])
-                if new_user_m.user['username'] in '64114540025':
+                if new_user_m.user['username'] in admin:
                     new_user_m.is_staff = True
                 else:
                     new_user_m.is_staff = False
