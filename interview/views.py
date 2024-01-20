@@ -1743,6 +1743,16 @@ def Manager_StatusRound(request,id):
     Interviewers =  InterviewLink.objects.filter(round=round)
     StudentInRound = InterviewStatus.objects.filter(round=round).order_by("reg_at")
 
+    interviewers_data = []
+    for interviewer_link in Interviewers:
+        interviewer = interviewer_link.user
+        interview_now = InterviewNow.objects.filter(interviewer=interviewer).first()
+        student = interview_now.student if interview_now else None
+        interviewers_data.append({
+            "interview_link": interviewer_link,
+            "student": student
+        })
+
     if request.method == "POST" and "round_exit" in request.POST:
         round_id = int(request.POST.get("round_exit"))
         interviewer_id = int(request.POST.get("interviewer_id"))
@@ -1766,7 +1776,7 @@ def Manager_StatusRound(request,id):
     
     context = {
         "Students" : StudentInRound,
-        "Interviewers" : Interviewers,
+        "Interviewers" : interviewers_data,
         "round" : round,
     }
     return render(request, "manager/Manager_StatusRound.html", context)
