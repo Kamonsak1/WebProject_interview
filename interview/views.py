@@ -39,7 +39,7 @@ def google_LOGIN_URL(request):
     elif 'Interviewer' in roles:
         return redirect('Interviewer_room')
     elif 'Student' in roles:
-        return redirect('Student_page')
+        return redirect('Student_register')
     return  HttpResponse('ไม่มีบทบาท')
     
 def is_admin(user):
