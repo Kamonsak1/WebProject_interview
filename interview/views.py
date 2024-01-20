@@ -384,6 +384,7 @@ def Interviewer_room(request):
         student_status.status = "สอบเสร็จแล้ว"
         student_status.save()
         link.round = None
+        link.active = False
         link.save()
         interviewing_now.student = None
         interviewing_now.save()
@@ -404,7 +405,8 @@ def Interviewer_room(request):
         user_id = int(request.POST.get("notify"))
         user = User.objects.get(id=user_id)
         token = link.round.line_Token
-        send_line_notify(f'{user.first_name} {user.last_name}',token)
+        meet = link.link
+        send_line_notify(f'{user.first_name} {user.last_name}',token,meet)
         return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
     link = InterviewLink.objects.get(user=request.user)
@@ -545,6 +547,15 @@ def interview_status(request):
             sorted_datetimes_with_id = sorted(datetimes_with_id, key=lambda x: x[1])
             sorted_id = sorted_datetimes_with_id[0][0]
             current_round = InterviewStatus.objects.filter(user=request.user,id=sorted_id)
+        elif InterviewStatus.objects.filter(user=request.user, status__in=["สอบเสร็จแล้ว"]):
+            for time in InterviewStatus.objects.filter(user=request.user, status__in=["สอบเสร็จแล้ว"]):
+                time_string_id.append((time.id,time.round.interview_time))
+            datetimes_with_id = [(id, convert_to_datetime(ts)) for id, ts in time_string_id]
+            sorted_datetimes_with_id = sorted(datetimes_with_id, key=lambda x: x[1],reverse=True)
+            sorted_id = sorted_datetimes_with_id[0][0]
+            current_round = InterviewStatus.objects.get(user=request.user,id=sorted_id)
+            round_now = f"{current_round.round.round_name}|{current_round.round.academic_year}"
+            queue_time = "สอบเสร็จแล้ว"
 
         if current_round:
             r = InterviewStatus.objects.get(user=request.user,id=sorted_id)
@@ -1466,7 +1477,7 @@ def register_interview(request, round_id):
         user=request.user, round=round,
         defaults={'status': 'พร้อมสอบ'}
     )
-    return redirect('/Student_register')
+    return redirect('/Student_room')
 
 def add_Major_manager(request):
     if request.method =='POST':
@@ -1898,10 +1909,10 @@ def increase_manager(request):
     return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
 
-def send_line_notify(message,token):
+def send_line_notify(message,token,meet):
     url = 'https://notify-api.line.me/api/notify'
     headers = {'content-type':'application/x-www-form-urlencoded', 'Authorization':'Bearer '+token}
-    msg = message + " กรุณาเข้าห้องสอบสัมภาษณ์ด้วยค่ะ"
+    msg = message + " กรุณาเข้าห้องสอบสัมภาษณ์ Google Meet: " + meet + " ด้วยครับ"
     requests.post(url, headers=headers, data = {'message':msg})
 
 
