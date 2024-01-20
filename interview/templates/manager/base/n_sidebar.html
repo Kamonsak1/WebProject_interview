@@ -5,6 +5,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="{% static 'css/styles.min.css' %}" />
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
       </head>
 <body>
     <!-- Sidebar Start -->
@@ -27,6 +28,7 @@
 
         {% if s_major %}
            {{ s_major }}
+           {{ s_round }}
         {% endif %}
       
         <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
@@ -53,7 +55,7 @@
       <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
         <ul id="sidebarnav">
 
-          <li class="sidebar-item mt-3">
+          <!-- <li class="sidebar-item mt-3">
             <a class="sidebar-link" href="{% url 'Manager_page' id=user.id %}" aria-expanded="false">
               <span>
                 <i class="ti ti-home"></i>
@@ -69,7 +71,7 @@
               </span>
               <span class="hide-menu fs-4">ข้อมูลส่วนตัว</span>
             </a>
-          </li>
+          </li> -->
 
           <li class="sidebar-item">
             <a class="sidebar-link" href="{% url 'Manage_personnel'%}" aria-expanded="false">
@@ -125,6 +127,7 @@
             </a>
           </li>
 
+
           <li class="sidebar-item">
             <a class="sidebar-link" href="{% url 'Manager_Print_Interview'%}" aria-expanded="false">
               <span>
@@ -133,16 +136,18 @@
               <span class="hide-menu fs-4">พิมพ์ผลสัมภาษณ์</span>
             </a>
           </li>
-          
           <form action="{% url 'chang_major' %}" method="post" >
             {% csrf_token %}
             <div class="faculty_major">
-                <select name="major" id="id_faculty_selection" style="width: 100%;">
+                <select name="major" id="id_faculty_selection" style="width: 100% ; text-align: center;">
                     <option value="">สาขา</option>
                     {% for major in majors %}
                     <option value="{{major}}">{{major.major}}</option>
                     {% endfor %}
                 </select>
+                <select   name="round" id="id_round_second" style="width: 100%; text-align: center;">
+                  <option >รอบ</option>
+              </select>
                 <button type="submit" style="width: 100%;">เปลี่ยนสาขา</button>
             </div>
        
@@ -157,7 +162,7 @@
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script>
       $("#id_faculty_selection").change(function () {
-          const url = $("#add_test").attr("data-cities-url");  
+          const url = "{% url 'ajax_select_round' %}"; 
           const facultyname = $(this).val(); 
   
           $.ajax({                       
@@ -166,7 +171,7 @@
                   'faculty': facultyname      
               },
               success: function (data) {   
-                  $("#id_major_selection").html(data); 
+                  $("#id_round_second").html(data); 
               }
           });
       });

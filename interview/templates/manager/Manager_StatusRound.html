@@ -1,19 +1,59 @@
 {% extends 'manager/base/n_base.html' %}
+{% load static %}
 
+{% block css_js %} 
+<link rel="stylesheet" href="{% static 'css/manager_css/Status.css' %}" />
+<script src="{% static 'js/manager/Status.js' %}"></script>
+{% endblock %} 
 {% block topic %}
 <h1 class="text-3xl text-gray-100 mt-2 text-center">สถานะการสัมภาษณ์</h1>
+<meta http-equiv="refresh" content="30;">
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
     <div class="d-flex justify-content-between">
-        <div class="d-flex">
-            <h4 class="fs-5 text-primary mt-auto">{{ round.round_name }} ({{ round.academic_year }})</h4> 
-            <h4 class="fs-5 text-dark ms-2 mt-auto">{{ round.major }}</h4>
+        <div class="d-flex ">
+            <h4 class="fs-5 text-primary mt-auto fw-bolder">{{ round.round_name }} ({{ round.academic_year }})</h4> 
+            <h4 class="fs-5 text-dark ms-2 mt-auto fw-bolder">{{ round.major }}</h4>
         </div>
         <div>
             <h4 class="fs-5 fw-bolder text-success mt-auto me-3">{{ round.interview_time }}</h4>
         </div>
     </div>
+
+    <div class="d-flex justify-content-start">
+        <div class="d-flex">
+            <h4 class="fs-5 text-muted mt-auto">อาจารย์ :</h4> 
+        </div>
+    </div>
+        <table class="table table-bordered table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center fs-5 fw-medium">ชื่อ-นามสกุล</th>
+                    <th class="text-center fs-5 fw-medium">Email</th>
+                    <th class="text-center fs-5 fw-medium">สถานะพร้อม</th>
+                    <th class="text-center fs-5 fw-medium">ลิงค์การสัมภาษณ์</th>
+                    <th class="text-center fs-5 fw-medium">จัดการ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in Interviewers %}
+                <tr class="text-center">
+                    <td class="text-start">{{ user.user.first_name }} {{ user.user.last_name }}</td>
+                    <td>{{ user.user.email }}</td>
+                    <td >{% if user.active %}พร้อม{% else %}ไม่พร้อม{% endif %}</td>
+                    <td>{{ user.link }}</td>
+                    <td><button onclick="kick_round('{{ user.user.id }}')" class="btn btn-primary p-1 m-1">เชิญออก</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-start">
+            <div class="d-flex">
+                <h4 class="fs-5 text-muted mt-auto">นักเรียน :</h4> 
+            </div>
+        </div>
         <table class="table table-bordered table-hover">
             <thead class="thead-dark">
                 <tr>
@@ -24,7 +64,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for user in Users %}
+                {% for user in Students %}
                 <tr class="text-center">
                     <td class="text-start">{{ user.user.first_name }} {{ user.user.last_name }}</td>
                     <td>{{ user.user.email }}</td>
@@ -34,5 +74,24 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        <div class="container_exitround" id="exit_round">
+            <div class="text-end">
+              <a href="/Manager_Status/{{ round.id }}">
+                <i class="fs-6 ti ti-x text-danger"></i>
+              </a>
+              <h1 class="text-center fs-6 fw-semibold text-primary">ต้องการเชิญออกใช่หรือไม่?</h1>
+            </div>
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="round_exit" value="{{ round.id }}">
+              <input type="hidden" name="interviewer_id" id="interviewer_id"  value="">
+              <div class="text-center">
+                <button type="submit" class="btn btn-info btn-lg me-2">ยืนยัน</button>
+                <a href="/Manager_Status/{{ round.id }}" class="btn btn-danger btn-lg">ยกเลิก</a>
+              </div>
+            </form>
+          </div>
+
     </div>
 {% endblock %}

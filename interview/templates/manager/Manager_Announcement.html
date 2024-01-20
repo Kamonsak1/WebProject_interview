@@ -1,10 +1,315 @@
 {% extends 'manager/base/n_base.html' %}
+{% load static %}
 
+{% block css_js %} 
+<link rel="stylesheet" href="{% static 'css/admin_css/Announcement.css' %}" />
+<script src="{% static 'js/admin_page/Announcement.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+{% endblock %} 
 {% block topic %}
 <h1 class="text-3xl text-gray-100 mt-2 text-center">ประกาศ</h1>
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
-    <!-- ตำแหน่งเนื้อหาของหน้าหลัก -->
-</div>
+    <div class="container-fluid">
+      <div class="container-fluid">
+          <div class="card">
+              <div class="card-body">
+                  <div class=" d-flex justify-content-between">
+                    <i class="ti ti-news fs-8">
+                      <span class="card-title fw-semibold mb-2 text-primary">ประกาศ</span>
+                    </i>
+                    <span class="card-title fw-semibold mb-2 text-primary" onclick="add_Announcement()" id="Announcement">+</span>
+                  </div>
+                  {% for i in a %}
+                  <div class="card mb-1">
+                      <div class="card-body p-2">
+                          <div  class=" d-flex justify-content-between" >
+                          <div>    
+                          <h5 class="text_date-" style="display: none;" data-post-date="{{ i.post_date }}"></h5>
+                          <h5 class="display_birth_date" style="display: inline-block; margin-right: 5px;"></h5>
+                          <h5 style="display: inline-block;">{{ i.title }}</h5>
+                          
+                          </div>
+                          <span><i class="ti ti-edit" id="icon_edit" 
+                          onclick="edit_Announcement(
+                              '{{ i.id }}',
+                              '{{ i.title }}',
+                              '{{ i.expire_date }}',
+                              '{{ i.announcement_content|escapejs }}',
+                              '{% for role in i.role.all %}{{role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}',
+                              '{% for round in i.round.all %}{{ round.round_name }} ({{ round.academic_year }}){% if not forloop.last %}, {% endif %}{% endfor %}', )"></i> </span>
+                          </div>
+                      </div>
+                  </div>
+                  {% endfor %}
+                  
+              </div>
+          </div>
+      </div>
+  </div>
+  
+  <div class="container-fluid">
+      <div class="container-fluid">
+          <div class="card">
+              <div class="card-body">
+                  <div class=" d-flex justify-content-between">
+                  <i class="ti ti-news fs-8">
+                      <span class="card-title fw-semibold mb-2 text-primary">กำหนดการ</span>
+                  </i>
+                  <span class="card-title fw-semibold mb-2 text-primary" onclick="add_Schedule()" id="Schedule">+</span>
+                  </div>
+                  {% for i in s %}
+                  <div class="card mb-1">
+                      <div class="card-body p-2">
+                          <div  class=" d-flex justify-content-between" >
+                          <div>    
+                          <h5 class="text_date" style="display: none;" data-post-date="{{ i.end_date }}"></h5>
+                          <h5 class="display_birth_date" style=" font-weight: bold; margin-right: 5px;"></h5>
+                          <h5 style="padding-left: 40px;">{{ i.schedule_name }}</h5>
+                          
+                          </div>
+                          <span><i class="ti ti-edit" id="icon_edit" 
+                          onclick="edit_Schedule('{{ i.id }}',
+                          '{{ i.schedule_name }}',
+                          '{{ i.end_date }}',
+                          '{{ i.schedule_content|escapejs }}',
+                          '{% for role in i.role.all %}{{role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}',
+                          '{% for round in i.round.all %}{{ round.round_name }} ({{ round.academic_year }}){% if not forloop.last %}, {% endif %}{% endfor %}', )"></i> </span>
+                          </div>
+                      </div>
+                  </div>
+                  {% endfor %}
+                  
+              </div>
+          </div>
+          </div>
+      </div>
+  </div>
+  
+  <div class="container_addSchedule" id="add_Schedule" >
+      <form action="" method="post">
+          {% csrf_token %}
+          <div  class="topic">
+            <h3 >เพิ่มกำหนดการ</h3>
+            <a href="Manager_Announcement">
+                <i class="fs-6 ti ti-x text-danger"></i>
+            </a>
+        </div>       
+          <div class="input_data">
+            <label for="">หัวข้อประกาศ</label> 
+            <input type="text" name="topic" id="" placeholder="หัวข้อ" required>
+    
+            <label for="">เนื้อหาประกาศ</label> 
+            <textarea name="details" placeholder="เนื้อหา" required></textarea>
+            <label for="">กำหนดการ</label> 
+            <button type="button"  onclick="select_calendar()">เลือกวันที่</button>
+            <div id="selectedDate" >วันที่เลือก: ไม่มี</div >
+            <input hidden type="text" name="expire_date" id="inputselectedDate" >
+          </div>
+            <div  class="title_role">
+              <h3 >บทบาทที่ต้องการให้เห็น</h3>
+            </div> 
+          <div class="checkbox-container">
+          
+              <input type="checkbox" id="checkbox6" name="checkboxgroup" value="Manager" >
+              <label for="checkbox2" class="checkbox-label">Manager</label>
+          
+              <input type="checkbox" id="checkbox7" name="checkboxgroup" value="Interviewer" >
+              <label for="checkbox3" class="checkbox-label">Interviewer</label>
+          
+              <input type="checkbox" id="checkbox8" name="checkboxgroup" value="Student" >
+              <label for="checkbox4" class="checkbox-label">Student</label>
+          </div>   
+
+          <div class="bt">
+              <button  type="submit">เพิ่ม</button>
+          </div>        
+        </form>
+  </div>
+  
+  <div class="container_editSchedule" id="edit_Schedule" >
+    <form action="" method="post">
+        {% csrf_token %}
+        <div  class="topic">
+          <h3 >แก้ไขกำหนดการ</h3>
+          <a href="Manager_Announcement">
+              <i class="fs-6 ti ti-x text-danger"></i>
+          </a>
+      </div>       
+        <div class="input_data">
+          <input type="hidden" name="Schedule_id" id="Schedule_id" >
+          <label for="">หัวข้อประกาศ</label> 
+          <input type="text" name="topic" id="schedule_name" placeholder="หัวข้อ">
+  
+          <label for="">เนื้อหาประกาศ</label> 
+          <textarea name="details" placeholder="เนื้อหา" id="schedule_content" ></textarea>
+          <label for="">กำหนดการ</label> 
+          <button type="button"  onclick="select_calendar()">เลือกวันที่</button>
+          <div id="selectedDate_edit">วันที่เลือก: ไม่มี</div>
+          <input hidden type="text" name="expire_date" id="inputselectedDate_edit" >
+        </div>
+          <div  class="title_role">
+            <h3 >บทบาทที่ต้องการให้เห็น</h3>
+          </div> 
+        <div class="checkbox-container">
+        
+            <input type="checkbox" id="checkbox_2" name="checkboxgroup" value="Manager" >
+            <label for="checkbox2" class="checkbox-label">Manager</label>
+        
+            <input type="checkbox" id="checkbox_3" name="checkboxgroup" value="Interviewer" >
+            <label for="checkbox3" class="checkbox-label">Interviewer</label>
+        
+            <input type="checkbox" id="checkbox_4" name="checkboxgroup" value="Student" >
+            <label for="checkbox4" class="checkbox-label">Student</label>
+        </div>   
+        <div class="bt">
+          <button  type="submit">แก้ไขข้อมูล</button>
+          <button type="button"><a href="#" id="deleteLink_Schedule" style="color: black;">ลบประกาศ</a></button>
+  
+        </div>         
+      </form>
+  </div>
+  
+  <div class="container_sele_y_m" id="select_calendar">
+      <div class="container_calendar">
+          <div class="sele_y_m">
+              <select id="year" onchange="updateCalendar()"></select>
+              <select id="month" onchange="updateCalendar()"></select>
+          </div>
+  
+          <div id="calendar"></div>
+      </div>  
+      
+  </div>
+  
+  <div  class="container_edit" id="edit_Announcement" >
+      <form action="" method="post">
+          {% csrf_token %}
+          <div  class="topic">
+              <h3 >แก้ไขประกาศ</h3>
+              <a href="Manager_Announcement">
+                  <i class="fs-6 ti ti-x text-danger"></i>
+              </a>         
+          </div>   
+          <div class="input_data">
+              <input type="hidden" name="Announcement_id" id="round_id" >
+              <label for="">หัวข้อประกาศ</label> 
+              <input type="text" name="topic" id="edit_topic" placeholder="หัวข้อ">
+      
+              <label for="">เนื้อหาประกาศ</label> 
+              <textarea name="details" id="edit_content" placeholder="เนื้อหา" ></textarea>
+              <label hidden for="">ประกาศถึงวันที่</label> 
+              <input hidden ="text" name="expire_date" id="edit_post_date" placeholder="วว/ดด/ปป">    
+          </div>
+          <div  class="title_role">
+              <h3 >บทบาทที่ต้องการให้เห็น</h3>
+          </div> 
+          <div class="checkbox-container">
+          
+              <input type="checkbox" id="checkbox2" name="checkboxgroup" value="Manager" >
+              <label for="checkbox2" class="checkbox-label">Manager</label>
+          
+              <input type="checkbox" id="checkbox3" name="checkboxgroup" value="Interviewer" >
+              <label for="checkbox3" class="checkbox-label">Interviewer</label>
+          
+              <input type="checkbox" id="checkbox4" name="checkboxgroup" value="Student" >
+              <label for="checkbox4" class="checkbox-label">Student</label>
+          </div>
+          <div class="title_role">
+              <h3 class="title">รอบที่ต้องการให้เห็น</h3>
+              <select name="" id="edit_selectRound" class="select-round" onchange="editRoundInfo() ">
+                <option value="">เลือกรอบ</option>
+                {% for round in round %}
+                    <option value="{{ round.round_name }} ({{ round.academic_year }})">{{ round.round_name }} ({{ round.academic_year }})</option>
+                {% endfor %}
+            </select>
+          </div>
+            <div class="title_round" id="edit_round">
+    
+            </div>
+            <input type="hidden" id="edit_selectedRoundsInput" name="edit_selectedRounds" value="">   
+            <div class="bt">
+              <button  type="submit">แก้ไขข้อมูล</button>
+              <button type="button"><a href="#" id="deleteLink_Announcement" style="color: black;">ลบประกาศ</a></button>
+  
+            </div>  
+  
+      </form>
+  </div>  
+  
+  <div class="container_add" id="add_Announcement" >
+    <form action="" method="post">
+        {% csrf_token %}
+        <div  class="topic">
+          <h3 >เพิ่มประกาศ</h3>
+          <a href="Manager_Announcement">
+              <i class="fs-6 ti ti-x text-danger"></i>
+          </a>
+      </div>       
+        <div class="input_data">
+          <label for="">หัวข้อประกาศ</label> 
+          <input type="text" name="topic" id="" placeholder="หัวข้อ" required>
+  
+          <label for="">เนื้อหาประกาศ</label> 
+          <textarea name="details" placeholder="เนื้อหา" required></textarea>
+          <div  class="title_role">
+            <h3 >บทบาทที่ต้องการให้เห็น</h3>
+          </div> 
+        <div class="checkbox-container">
+        
+            <input type="checkbox" id="checkbox6" name="checkboxgroup" value="Manager" >
+            <label for="checkbox2" class="checkbox-label">Manager</label>
+        
+            <input type="checkbox" id="checkbox7" name="checkboxgroup" value="Interviewer" >
+            <label for="checkbox3" class="checkbox-label">Interviewer</label>
+        
+            <input type="checkbox" id="checkbox8" name="checkboxgroup" value="Student" >
+            <label for="checkbox4" class="checkbox-label">Student</label>
+        </div>
+          <div class="bt">
+            <button  type="submit">เพิ่ม</button>
+          </div>        
+      </form>
+  </div>
+  
+  
+    <script>
+      createYearOptions();
+      createMonthOptions();
+      updateCalendar();
+     document.addEventListener('DOMContentLoaded', function() {
+      var birthDateElements = document.querySelectorAll('.text_date');
+      
+      birthDateElements.forEach(function(birthDateElement) {
+          var birthDate = birthDateElement.getAttribute('data-post-date').trim();
+          display_hbd(birthDate, birthDateElement.nextElementSibling);
+      });
+  });
+  
+  function display_hbd(birth_date, displayElement) {
+      var months = {
+          'Jan.': 'ม.ค.',
+          'Feb.': 'ก.พ.',
+          'March': 'มี.ค.',
+          'April': 'เม.ย.',
+          'May.': 'พ.ค.',
+          'June': 'มิ.ย.',
+          'July': 'ก.ค.',
+          'Aug.': 'ส.ค.',
+          'Sept.': 'ก.ย.',
+          'Oct.': 'ต.ค.',
+          'Nov.': 'พ.ย.',
+          'Dec.': 'ธ.ค.'
+      };
+      var birth_date_split = birth_date.split(' ');
+      var hbd_day = birth_date_split[1].split(',')[0];
+      var new_year =  parseInt(birth_date_split[2])+543;
+      var new_HBD = hbd_day + ' ' + months[birth_date_split[0]] + ' ' + new_year;
+  
+      displayElement.innerText = new_HBD;
+  }
+    </script>
+  
+  </div>
 {% endblock %}

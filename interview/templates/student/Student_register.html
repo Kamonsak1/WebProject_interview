@@ -12,7 +12,6 @@
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
-    
     {% for r in rounds %}
     <div class="card w-100">
         <div class="card-body mini-card-body d-flex justify-content-between">
@@ -24,7 +23,9 @@
             <div class="d-flex">
                 <h4 class="fs-5 fw-bolder text-success mt-auto me-5">{{ r.interview_time }}</h4>
                 <button class="btn btn-secondary btn-sm fs-3 mx-1" onclick="upload('{{ r.documents }}', '{{ r.id }}')">อัปโหลดเอกสาร</button>
-            {% if r.active and r.id not in registered_rounds %}
+            {% if r.id not in uploaded_docs %}
+                <button class="btn btn-secondary" disabled>กรุณาอัปโหลดหลักฐาน</button>
+            {% elif r.active and r.id not in registered_rounds %}
                 <form method="post" action="{% url 'register_interview' r.id %}">
                     {% csrf_token %}
                     <input type="hidden" name="round_id" value="{{ r.id }}">
@@ -56,9 +57,10 @@
                 <input type="file" name="file_name" id="file_name" class="fs-4">
             </div>
             <div class="text-center">
-                <button type="submit" class="btn btn-info btn-lg mt-3">ยืนยัน</button>
+                <button type="submit" onclick="finish()" class="btn btn-info btn-lg mt-3">ยืนยัน</button>
             </div>
         </form>
     </div>
+
 </div>
 {% endblock %}

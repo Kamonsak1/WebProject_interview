@@ -14,6 +14,7 @@ urlpatterns = [
     path('ajax_load_major',ajax_load_major, name='ajax_load_major'),
     path('ajax_load_cities',ajax_load_cities, name='ajax_load_cities'),
     path('ajax_searchText',ajax_searchText, name='ajax_searchText'),
+    path('ajax_select_round',ajax_select_round, name='ajax_select_round'),
 
     #Siteuser
     path('profile_changname',profile_changname, name='profile_changname'),
@@ -40,6 +41,8 @@ urlpatterns = [
     path('add_Major',add_Major, name='add_Major'),
     path('delete_Major/<int:id>',delete_Major ,name='delete_Major'),
     path('add_TemporaryUser',add_TemporaryUser, name='add_TemporaryUser'),
+    path('add_TemporaryUser_test',add_TemporaryUser_test, name='add_TemporaryUser_test'),
+
     path('delete_TemporaryUser/<int:id>',delete_TemporaryUser,name='delete_TemporaryUser'),
     path('delete_User/<int:id>',delete_User,name='delete_User'),
     path('add_InterviewRound',add_InterviewRound, name='add_InterviewRound'),
@@ -89,6 +92,7 @@ urlpatterns = [
     path('edit_Announcement',edit_Announcement,name='edit_Announcement'),
     path('decrease_manager',decrease_manager,name='decrease_manager'),
     path('increase_manager',increase_manager,name='increase_manager'),
+    path('Manager_data_investigator/<int:id>',Manager_data_investigator,name='Manager_data_investigator'),
 
 
     #Interviewer
