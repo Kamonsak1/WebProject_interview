@@ -14,6 +14,7 @@ urlpatterns = [
     path('ajax_load_major',ajax_load_major, name='ajax_load_major'),
     path('ajax_load_cities',ajax_load_cities, name='ajax_load_cities'),
     path('ajax_searchText',ajax_searchText, name='ajax_searchText'),
+    path('ajax_select_round',ajax_select_round, name='ajax_select_round'),
 
     #Siteuser
     path('profile_changname',profile_changname, name='profile_changname'),

@@ -1,0 +1,5 @@
+<!-- dropdown-list.html -->
+<option value="" style="width: 100%;"" >รอบ</option>
+{% for round in majors %}
+    <option value="{{ round.round_name }}">{{ round.round_name }}</option>
+{% endfor %}

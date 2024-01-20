@@ -143,11 +143,12 @@ def manager_page(request,id):
     majors = Major.objects.filter(default_manager=id)
     request.session['myuser_id'] = id
     major_from_session = request.session.get('major')
-    if  major_from_session:
+    round_from_session = request.session.get('round')
+    if  major_from_session and round_from_session:
         Announcement_all = Announcement.objects.filter(role__name='Manager',major__major=major_from_session)
         Schedule_all = Schedule.objects.filter(role__name='Manager',major__major=major_from_session)
-        return render(request,'manager/Manager_page.html',{'users': users,"s_major":major_from_session,'faculty_all':faculty_all,'majors':majors,'am':Announcement_all,'s':Schedule_all})
-    return render(request,'manager/Manager_page.html',{'users': users,'faculty_all':faculty_all,'majors':majors })
+        return render(request,'manager/Manager_page.html',{'users': users,"s_major":major_from_session,"s_round":round_from_session,'faculty_all':faculty_all,'majors':majors,'am':Announcement_all,'s':Schedule_all})
+    return render(request,'manager/Manager_page.html',{'faculty_all':faculty_all,'majors':majors })
 @login_required
 @user_passes_test(is_Manager)
 def manage_profile(request):
@@ -156,52 +157,85 @@ def manage_profile(request):
 @user_passes_test(is_Manager)
 def Manage_personnel(request):
     myuser_id = request.session.get('myuser_id')
-    users = User.objects.all()
     faculty_all = Faculty.objects.filter(users=myuser_id)
     majors = Major.objects.filter(default_manager=myuser_id)
     major_from_session = request.session.get('major')
-    if  major_from_session:
+    round_from_session = request.session.get('round')
+    if  major_from_session and round_from_session:
         users_Manager = User.objects.filter(roles__name='Manager', major__major=major_from_session)
         users_Interviewer = User.objects.filter(roles__name='Interviewer', major__major=major_from_session)
         users_Admin = User.objects.filter(roles__name='Admin', major__major=major_from_session)
         users = users_Manager.union(users_Interviewer)
         users_admin_ids = users_Admin.values_list('id', flat=True)
         users = [user for user in users if user.id not in users_admin_ids]
-        default_managers = Major.objects.get(major=major_from_session).default_manager.all()
-        return render(request,'manager/Manage_personnel.html',{'users': users,"s_major":major_from_session,'faculty_all':faculty_all,'majors':majors})
-    return render(request,'manager/Manage_personnel.html',{'users': users,'faculty_all':faculty_all,'majors':majors})
+        context = {
+        "s_major" : major_from_session,
+        "users" : users,
+        "faculty_all" : faculty_all,
+        "majors" : majors,
+        "s_round" : round_from_session,
+        }
+        return render(request,'manager/Manage_personnel.html',context)
+    return render(request,'manager/Manage_personnel.html',{'faculty_all':faculty_all,'majors':majors})
 
 @login_required
 @user_passes_test(is_Manager)
 def Manage_User(request):
     myuser_id = request.session.get('myuser_id')
-    users = User.objects.all()
     faculty_all = Faculty.objects.filter(users=myuser_id)
     majors = Major.objects.filter(default_manager=myuser_id)
     major_from_session = request.session.get('major')
-    if  major_from_session:
-        users = User.objects.filter(roles__name='Student',major__major=major_from_session)
-        return render(request,'manager/Manage_User.html',{'users': users,"s_major":major_from_session,'faculty_all':faculty_all,'majors':majors})
+    round_from_session = request.session.get('round')
+    if  major_from_session and round_from_session:
+        users = User.objects.filter(roles__name='Student',major__major=major_from_session,round_user__round_name=round_from_session)
+        context = {
+        "s_major" : major_from_session,
+        "users" : users,
+        "faculty_all" : faculty_all,
+        "majors" : majors,
+        "s_round" : round_from_session,
+        }
+        return render(request,'manager/Manage_User.html',context)
     return render(request,'manager/Manage_User.html',{'faculty_all':faculty_all,'majors':majors,})
 
 @login_required
 @user_passes_test(is_Manager)
 def Manager_Announcement(request):
-    users = User.objects.all()
-    faculty_all = Faculty.objects.all()
-    faculty_from_session = request.session.get('faculty')
+    myuser_id = request.session.get('myuser_id')
+    faculty_all = Faculty.objects.filter(users=myuser_id)
+    majors = Major.objects.filter(default_manager=myuser_id)
     major_from_session = request.session.get('major')
-    if faculty_from_session  and  major_from_session:
+    round_from_session = request.session.get('round')
+    if  major_from_session and round_from_session:
+        context = {
+        "s_major" : major_from_session,
+        "faculty_all" : faculty_all,
+        "majors" : majors,
+        "s_round" : round_from_session,
+        }
 
-
-        return render(request,'manager/Manager_Announcement.html',{'users': users,'s_faculty':faculty_from_session,"s_major":major_from_session,'faculty_all':faculty_all})
-    return render(request,'manager/Manager_Announcement.html',{'users': users,'faculty_all':faculty_all})
+        return render(request,'manager/Manager_Announcement.html',context)
+    return render(request,'manager/Manager_Announcement.html',{'faculty_all':faculty_all,'majors':majors})
 @login_required
 @user_passes_test(is_Manager)
 def Manager_interview(request):
-    user_rounds = Round.objects.filter(manager=request.user)
+    myuser_id = request.session.get('myuser_id')
+    faculty_all = Faculty.objects.filter(users=myuser_id)
+    majors = Major.objects.filter(default_manager=myuser_id)
+    major_from_session = request.session.get('major')
+    round_from_session = request.session.get('round')
+    if  major_from_session and round_from_session:
+        user_rounds = Round.objects.filter(manager=request.user)
+        context = {
+        "s_major" : major_from_session,
+        "faculty_all" : faculty_all,
+        "majors" : majors,
+        "s_round" : round_from_session,
+        'rounds': user_rounds
+        }
+        return render(request,'manager/Manager_interview.html',context)
 
-    return render(request,'manager/Manager_interview.html',{'rounds': user_rounds})
+    return render(request,'manager/Manager_interview.html',{'faculty_all':faculty_all,'majors':majors})
 def Manager_data_investigator(request,id):
     round = Round.objects.get(id=id)
     UserInRound = InterviewStatus.objects.filter(round=round).order_by("reg_at")
@@ -213,17 +247,58 @@ def Manager_data_investigator(request,id):
 @login_required
 @user_passes_test(is_Manager)
 def Manager_Score(request):
-    user_rounds = Round.objects.filter(manager=request.user)
-    return render(request,'manager/Manager_Score.html',{'rounds': user_rounds})
+    myuser_id = request.session.get('myuser_id')
+    faculty_all = Faculty.objects.filter(users=myuser_id)
+    majors = Major.objects.filter(default_manager=myuser_id)
+    major_from_session = request.session.get('major')
+    round_from_session = request.session.get('round')
+    if  major_from_session and round_from_session:
+        user_rounds = Round.objects.filter(manager=request.user)
+        context = {
+        "s_major" : major_from_session,
+        "faculty_all" : faculty_all,
+        "majors" : majors,
+        "s_round" : round_from_session,
+        'rounds': user_rounds
+        }
+        return render(request,'manager/Manager_Score.html',context)
+    return render(request,'manager/Manager_Score.html',{'faculty_all':faculty_all,'majors':majors})
 @login_required
 @user_passes_test(is_Manager)
 def Manager_Print_Interview(request):
-    return render(request,'manager/Manager_Print_Interview.html')
+    myuser_id = request.session.get('myuser_id')
+    faculty_all = Faculty.objects.filter(users=myuser_id)
+    majors = Major.objects.filter(default_manager=myuser_id)
+    major_from_session = request.session.get('major')
+    round_from_session = request.session.get('round')
+    if  major_from_session and round_from_session:
+        context = {
+        "s_major" : major_from_session,
+        "faculty_all" : faculty_all,
+        "majors" : majors,
+        "s_round" : round_from_session,
+        }
+        return render(request,'manager/Manager_Print_Interview.html',context)
+    return render(request,'manager/Manager_Print_Interview.html',{'faculty_all':faculty_all,'majors':majors})
 @login_required
 @user_passes_test(is_Manager)
 def Manager_Status(request):
-    user_rounds = Round.objects.filter(manager=request.user)
-    return render(request,'manager/Manager_Status.html', {'rounds': user_rounds})
+    myuser_id = request.session.get('myuser_id')
+    faculty_all = Faculty.objects.filter(users=myuser_id)
+    majors = Major.objects.filter(default_manager=myuser_id)
+    major_from_session = request.session.get('major')
+    round_from_session = request.session.get('round')
+    if  major_from_session and round_from_session:
+        user_rounds = Round.objects.filter(manager=request.user)
+        context = {
+        "s_major" : major_from_session,
+        "faculty_all" : faculty_all,
+        "majors" : majors,
+        "s_round" : round_from_session,
+        'rounds': user_rounds
+        }
+        return render(request,'manager/Manager_Status.html', context)
+    return render(request,'manager/Manager_Status.html', {'faculty_all':faculty_all,'majors':majors})
 
 #Interviewer
 @login_required
@@ -1413,7 +1488,9 @@ def chang_major(request):
     myuser_id = request.session.get('myuser_id')
     if request.method =="POST":
         ma = request.POST.get('major')
+        round = request.POST.get('round')
         request.session['major'] = ma
+        request.session['round'] = round
         return redirect('Manager_page',id=myuser_id)
     
     return render(request, 'manager/Manager_page.html')
@@ -1826,3 +1903,10 @@ def send_line_notify(message,token):
     headers = {'content-type':'application/x-www-form-urlencoded', 'Authorization':'Bearer '+token}
     msg = message + " กรุณาเข้าห้องสอบสัมภาษณ์ด้วยค่ะ"
     requests.post(url, headers=headers, data = {'message':msg})
+
+
+def ajax_select_round(request):
+    faculty_name = request.GET.get('faculty')  
+    major_object = Major.objects.get(major=faculty_name)
+    round = Round.objects.filter(major__major=major_object)
+    return render(request, 'manager/dropdown-list.html', {"majors": round})
