@@ -15,6 +15,7 @@ urlpatterns = [
     path('ajax_load_cities',ajax_load_cities, name='ajax_load_cities'),
     path('ajax_searchText',ajax_searchText, name='ajax_searchText'),
     path('ajax_select_round',ajax_select_round, name='ajax_select_round'),
+    path('snedpaw_to_student',snedpaw_to_student, name='snedpaw_to_student'),
 
     #Siteuser
     path('profile_changname',profile_changname, name='profile_changname'),
