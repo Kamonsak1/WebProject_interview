@@ -62,9 +62,9 @@
                         '{{ user.last_name }}',
                         '{{user.birth_date}}',
                         '{{user.roles.all}}',
-                        '{{user.email}}','{% for round in user.rounds_participated.all %}{{ round.major }}{% if not forloop.last %}, {% endif %}{% endfor %}',
-                        '{% for round in user.rounds_participated.all %}{{ round.major.faculty.faculty }}{% if not forloop.last %}, {% endif %}{% endfor %}',
-                        '{{ user.rounds_participated.all|join:',' }}',
+                        '{{user.email}}','{% for round in user.round_user.all %}{{ round.major }}{% if not forloop.last %}, {% endif %}{% endfor %}',
+                        '{% for round in user.round_user.all %}{{ round.major.faculty.faculty }}{% if not forloop.last %}, {% endif %}{% endfor %}',
+                        '{{ user.round_user.all|join:',' }}',
                         '{{user.phone_number}}',
                         '{{user.address}}',
                         '{{user.postcode}}',)">ดูข้อมูล</a>

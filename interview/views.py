@@ -37,9 +37,9 @@ def google_LOGIN_URL(request):
     elif 'Manager' in roles:
         return redirect('Manager_page')
     elif 'Interviewer' in roles:
-        return redirect('Interviewer_page')
+        return redirect('Interviewer_room')
     elif 'Student' in roles:
-        return redirect('Student_page')
+        return redirect('Student_register')
     return  HttpResponse('ไม่มีบทบาท')
     
 def is_admin(user):
@@ -384,6 +384,7 @@ def Interviewer_room(request):
         student_status.status = "สอบเสร็จแล้ว"
         student_status.save()
         link.round = None
+        link.active = False
         link.save()
         interviewing_now.student = None
         interviewing_now.save()
@@ -404,7 +405,8 @@ def Interviewer_room(request):
         user_id = int(request.POST.get("notify"))
         user = User.objects.get(id=user_id)
         token = link.round.line_Token
-        send_line_notify(f'{user.first_name} {user.last_name}',token)
+        meet = link.link
+        send_line_notify(f'{user.first_name} {user.last_name}',token,meet)
         return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
     link = InterviewLink.objects.get(user=request.user)
@@ -545,6 +547,15 @@ def interview_status(request):
             sorted_datetimes_with_id = sorted(datetimes_with_id, key=lambda x: x[1])
             sorted_id = sorted_datetimes_with_id[0][0]
             current_round = InterviewStatus.objects.filter(user=request.user,id=sorted_id)
+        elif InterviewStatus.objects.filter(user=request.user, status__in=["สอบเสร็จแล้ว"]):
+            for time in InterviewStatus.objects.filter(user=request.user, status__in=["สอบเสร็จแล้ว"]):
+                time_string_id.append((time.id,time.round.interview_time))
+            datetimes_with_id = [(id, convert_to_datetime(ts)) for id, ts in time_string_id]
+            sorted_datetimes_with_id = sorted(datetimes_with_id, key=lambda x: x[1],reverse=True)
+            sorted_id = sorted_datetimes_with_id[0][0]
+            current_round = InterviewStatus.objects.get(user=request.user,id=sorted_id)
+            round_now = f"{current_round.round.round_name}|{current_round.round.academic_year}"
+            queue_time = "สอบเสร็จแล้ว"
 
         if current_round:
             r = InterviewStatus.objects.get(user=request.user,id=sorted_id)
@@ -1466,7 +1477,7 @@ def register_interview(request, round_id):
         user=request.user, round=round,
         defaults={'status': 'พร้อมสอบ'}
     )
-    return redirect('/Student_register')
+    return redirect('/Student_room')
 
 def add_Major_manager(request):
     if request.method =='POST':
@@ -1732,6 +1743,16 @@ def Manager_StatusRound(request,id):
     Interviewers =  InterviewLink.objects.filter(round=round)
     StudentInRound = InterviewStatus.objects.filter(round=round).order_by("reg_at")
 
+    interviewers_data = []
+    for interviewer_link in Interviewers:
+        interviewer = interviewer_link.user
+        interview_now = InterviewNow.objects.filter(interviewer=interviewer).first()
+        student = interview_now.student if interview_now else None
+        interviewers_data.append({
+            "interview_link": interviewer_link,
+            "student": student
+        })
+
     if request.method == "POST" and "round_exit" in request.POST:
         round_id = int(request.POST.get("round_exit"))
         interviewer_id = int(request.POST.get("interviewer_id"))
@@ -1755,7 +1776,7 @@ def Manager_StatusRound(request,id):
     
     context = {
         "Students" : StudentInRound,
-        "Interviewers" : Interviewers,
+        "Interviewers" : interviewers_data,
         "round" : round,
     }
     return render(request, "manager/Manager_StatusRound.html", context)
@@ -1898,10 +1919,10 @@ def increase_manager(request):
     return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
 
-def send_line_notify(message,token):
+def send_line_notify(message,token,meet):
     url = 'https://notify-api.line.me/api/notify'
     headers = {'content-type':'application/x-www-form-urlencoded', 'Authorization':'Bearer '+token}
-    msg = message + " กรุณาเข้าห้องสอบสัมภาษณ์ด้วยค่ะ"
+    msg = message + " กรุณาเข้าห้องสอบสัมภาษณ์ Google Meet: " + meet + " ด้วยครับ"
     requests.post(url, headers=headers, data = {'message':msg})
 
 
@@ -1939,8 +1960,7 @@ def snedpaw_to_student(request):
             {'username': '6701921680','email': 'rapeewit2548@gmail.com','password': 'rtvbkw','first_name':'นายรพีวิชญ์' ,'last_name':'บุญเกื้อ'},
             {'username': '6701921798','email': 'phiyada122005@gmail.com','password': 'dfcbyi','first_name':'นางสาวพิยดา' ,'last_name':'รักษาเชื้อ'},
             {'username': '6701921924','email': 'tonnamsocial2549@gmail.com','password': 'pcmobb','first_name':'นายภัครพล' ,'last_name':'คำภู'},  
-            {'username': '6701921960','email': 'Akkharac123@gmail.com','password': 'ktqopb','first_name':'นายอัครชัย' ,'last_name':'พูลสวัสดิ์'},
-            {'username': 'ไอ้ควายพีระ','email': '64010213046@msu.ac.th','password': 'มึงเข้าไม่ได้หรอก','first_name':'ไอ้โง่' ,'last_name':'อยากโดนตีน'}, ]
+            {'username': '6701921960','email': 'Akkharac123@gmail.com','password': 'ktqopb','first_name':'นายอัครชัย' ,'last_name':'พูลสวัสดิ์'}, ]
     for user in users_stuedbt:
         subject = 'สอบสัมภาษณ์วันที่ 21/01/2567'
         message = f'{user["first_name"]} {user["last_name"]} สามารถเข้าสู่ระบบด้วย  Username: {user["username"]}   Password: {user["password"]}'
