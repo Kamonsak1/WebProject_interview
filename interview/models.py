@@ -171,6 +171,9 @@ class Document(models.Model):
     round = models.ForeignKey(Round, on_delete=models.CASCADE)
     doc_name = models.CharField(max_length=100,blank=True,null=True)
     document = models.FileField(upload_to=user_directory_path)
+    def __str__(self):
+        return f"{self.doc_name} - {self.user.username}"
+
 
 class ScorePattern(models.Model):
     pattern_name = models.CharField(max_length=100)

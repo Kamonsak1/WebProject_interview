@@ -225,7 +225,7 @@ def Manager_interview(request):
     major_from_session = request.session.get('major')
     round_from_session = request.session.get('round')
     if  major_from_session and round_from_session:
-        user_rounds = Round.objects.filter(manager=request.user)
+        user_rounds = Round.objects.all()
         context = {
         "s_major" : major_from_session,
         "faculty_all" : faculty_all,
@@ -253,7 +253,7 @@ def Manager_Score(request):
     major_from_session = request.session.get('major')
     round_from_session = request.session.get('round')
     if  major_from_session and round_from_session:
-        user_rounds = Round.objects.filter(manager=request.user)
+        user_rounds = Round.objects.all()
         context = {
         "s_major" : major_from_session,
         "faculty_all" : faculty_all,
@@ -289,7 +289,7 @@ def Manager_Status(request):
     major_from_session = request.session.get('major')
     round_from_session = request.session.get('round')
     if  major_from_session and round_from_session:
-        user_rounds = Round.objects.filter(manager=request.user)
+        user_rounds = Round.objects.all()
         context = {
         "s_major" : major_from_session,
         "faculty_all" : faculty_all,
@@ -721,9 +721,9 @@ def log_in(request):
                 elif user.roles.filter(name='Manager').exists():
                     return redirect('Manager_page')         
                 elif user.roles.filter(name='Interviewer').exists():
-                    return redirect('Interviewer_page') 
+                    return redirect('Interviewer_room') 
                 elif user.roles.filter(name='Student').exists():
-                    return redirect('Student_page')      
+                    return redirect('Student_register')      
                 else :
                     return redirect('index')
             else:
@@ -1961,7 +1961,8 @@ def snedpaw_to_student(request):
             {'username': '6701921798','email': 'phiyada122005@gmail.com','password': 'dfcbyi','first_name':'นางสาวพิยดา' ,'last_name':'รักษาเชื้อ'},
             {'username': '6701921924','email': 'tonnamsocial2549@gmail.com','password': 'pcmobb','first_name':'นายภัครพล' ,'last_name':'คำภู'},  
             {'username': '6701921960','email': 'Akkharac123@gmail.com','password': 'ktqopb','first_name':'นายอัครชัย' ,'last_name':'พูลสวัสดิ์'}, ]
-    for user in users_stuedbt:
+    xe =[]
+    for user in xe:
         subject = 'สอบสัมภาษณ์วันที่ 21/01/2567'
         message = f'{user["first_name"]} {user["last_name"]} สามารถเข้าสู่ระบบด้วย  Username: {user["username"]}   Password: {user["password"]}'
         from_email = settings.EMAIL_HOST_USER
