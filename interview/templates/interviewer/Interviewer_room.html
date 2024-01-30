@@ -27,8 +27,8 @@
               </form>
                 <form class="col d-flex" action="/add_meetlink" method="post">
                   {% csrf_token %}
-                  <h1 class="fs-5 fw-bolder mt-1">Meet : </h1>
-                  <input class="mx-2 search-bordered fs-4" style="width: 80%;" type="text" name="link" id="link" value="{{ link.link }}">
+                  <h1 class="fs-5 fw-bolder mt-1">ลิงค์ห้องสัมภาษณ์ : </h1>
+                  <input class="mx-2 search-bordered fs-4" style="width: 70%;" type="text" name="link" id="link" value="{{ link.link }}">
                   <button class="search-bordered btn btn-secondary px-2 py-1" type="submit"><i class="ti fs-6 ti-device-floppy"></i></button>
                 </form>
               {% endfor %}
@@ -84,7 +84,7 @@
     {% else %}
 
     
-    <meta http-equiv="refresh" content="60;">
+    <!-- <meta http-equiv="refresh" content="60;"> -->
     <div class="col d-flex mt-3 justify-content-center">
       <h1 class="fs-6 fw-bolder mt-1">รอบ : {{ link.round.round_name }} {{ link.round.academic_year }}</h1>
       <button onclick="exit_confirm()" class="btn fs-3 px-2 mx-2 btn-primary" type="submit">เปลี่ยน</button>
@@ -92,7 +92,7 @@
 
       <div class="row mt-3 ">
 
-        <div class="col-lg-12 d-flex align-items-strech">
+        <div class="col-lg-8 d-flex align-items-strech">
           <div class="card w-100 d-flex flex-column">
             <div class="card-body">
 
@@ -129,7 +129,7 @@
           </div>
         </div>
 
-        <!-- <div class="col-lg-4 d-flex align-items-strech">
+        <div class="col-lg-4 d-flex align-items-strech">
           <div class="card w-100 d-flex flex-column">
             <div class="card-body">
               <div class="d-sm-flex d-block align-items-center mb-9">
@@ -139,33 +139,43 @@
                   </div>
                 </div>
               </div>
+              {% if all_scoretopic %}
+              <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="test_score" id="test_score" value="{{ all_scoretopic.first.pattern_id.id }}">
+                {% for score in all_scoretopic %}
+                <div class="row mt-1">
+                  <div class="col-8">
+                    <h1 class="fs-5 fw-medium text-secondary">{{ score.topic_name }}</h1>
+                  </div>
+                    <div class="col d-flex justify-content-between">
+                      <input class="search-bordered fs-5 " type="number" id="input{{ score.id }}" name="input{{ score.id}}" min="0" max="{{ score.max_score}}" style="width: 40%;">
+                      <h1 class="fs-5 fw-bolder text-muted">/</h1>
+                      <h1 class="fs-5 fw-semibold text-success">{{ score.max_score}}</h1>
+                    </div>
+                </div>
+                <h1 class="text-muted fw-light fs-4 ms-2"><i class="ti ti-info-circle"></i> {{ score.score_detail }}</h1>
+                {% endfor %}
+              </form>
+              {% else %}
               <div class="text-center">
                 <a class="search-bordered btn btn-danger px-9 py-9 "><i class="ti fs-9 ti-x"></i></a><br>
                 <h1 class="fs-6 text-danger fw-bolder mt-1">ไม่พบเกณฑ์การให้คะแนน</h1>
               </div>
+              {% endif %}
             </div>
           </div>
-        </div> -->
-        
-        
+        </div>
+
+
         {% if docs %}
-        <div class="d-flex justify-content-between mb-5 me-5 position-relative bottom-0 end-0">
-          <form class="col d-flex" method="post" action="{% url 'toggle_status_active' link.id %}">
-            {% csrf_token %}
-            <input type="hidden" name="link_id" value="{{ link.id }}">
-            <button class="search-bordered btn px-3 py-2 fs-7 fw-semiboldะ {% if link.active %}btn-danger{% else %}btn-success{% endif %}" type="submit">{{ link.active|yesno:"เปลี่ยนสถานะ,เปลี่ยนสถานะ" }}</button>
-          </form>
+        <div class="d-flex justify-content-end mb-5 me-5 position-relative bottom-0 end-0">
           <button onclick="notify_confirm()" class="search-bordered btn green px-4 py-2 fs-7 me-2 text-white fw-semibold" style="background-color: #06C755;" type="submit">Line Notify</button>
           <button onclick="skip_confirm()" class="search-bordered btn btn-info px-4 py-2 fs-7 me-2 fw-semibold" type="submit">ข้าม</button>
           <button onclick="next_confirm()" class="search-bordered btn btn-success px-3 py-2 fs-7 fw-semibold" type="submit">ดำเนินการต่อ</button>
         </div>
         {% else %}
         <div class="d-flex justify-content-end mb-5 me-5 position-relative bottom-0 end-0">
-          <form class="col d-flex" method="post" action="{% url 'toggle_status_active' link.id %}">
-            {% csrf_token %}
-            <input type="hidden" name="link_id" value="{{ link.id }}">
-            <button class="search-bordered btn px-3 py-2 fs-7 fw-semiboldะ {% if link.active %}btn-danger{% else %}btn-success{% endif %}" type="submit">{{ link.active|yesno:"เปลี่ยนสถานะ,เปลี่ยนสถานะ" }}</button>
-          </form>
           <button class="search-bordered btn green px-4 py-2 fs-7 me-2 text-white fw-semibold" style="background-color: #06C755;" type="submit" disabled>Line Notify</button>
           <button class="search-bordered btn btn-info px-4 py-2 fs-7 me-2 fw-semibold" type="submit" disabled>ข้าม</button>
           <button class="search-bordered btn btn-success px-3 py-2 fs-7 fw-semibold" type="submit" disabled>ดำเนินการต่อ</button>
@@ -233,14 +243,20 @@
         <h1 class="text-center fs-6 fw-semibold text-primary">ดำเนินการต่อหรือไม่?</h1>
       </div>
       <div class="container mt-4 d-flex justify-content-center">
-        <form method="post">
+        <form method="post" id="other-form-id">
           {% csrf_token %}
           <input type="hidden" name="finish_leave" id="finish_leave" value="{{ docs.user.id }}">
-            <button type="submit" onclick="resetRefreshCount()" class="btn btn-danger btn-lg me-2">เสร็จสิ้นและออก</button>
+          {% for score in all_scoretopic %}
+          <input class="search-bordered fs-5" type="hidden" id="input{{ score.id }}" name="input{{ score.id }}" readonly min="0" max="{{ score.max_score }}" style="width: 40%;">
+          {% endfor %}
+          <button type="submit" onclick="resetRefreshCount()" class="btn btn-danger btn-lg me-2">เสร็จสิ้นและออก</button>
         </form>
-        <form method="post">
+        <form method="post" id="other-form-ids">
           {% csrf_token %}
           <input type="hidden" name="finish" id="finish" value="{{ docs.user.id }}">
+          {% for score in all_scoretopic %}
+          <input class="search-bordered fs-5" type="hidden" id="input{{ score.id }}" name="input{{ score.id }}" readonly min="0" max="{{ score.max_score }}" style="width: 40%;">
+          {% endfor %}
             <button type="submit" onclick="resetRefreshCount()" class="btn btn-success btn-lg me-2">คนต่อไป</button>
             <a href="/Interviewer_room" class="btn btn-info btn-lg">ยกเลิก</a>
         </form>
@@ -263,6 +279,48 @@ window.onload = function() {
 
 function resetRefreshCount() {
             localStorage.setItem('refreshCount', 0);}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var inputValues = {};
+    var otherForm = document.getElementById('other-form-id');
+    var otherForms = document.getElementById('other-form-ids');
+    // ฟังก์ชันสำหรับอัพเดทค่าในตัวแปร inputValues
+function updateInputValues(event) {
+        inputValues[event.target.id] = event.target.value;
+        console.log(inputValues);
+        updateOtherForm1(); // อัปเดต form ที่สองทันทีหลังจากมีการเปลี่ยนแปลง
+        updateOtherForm2();
+    }
+
+    // ฟังก์ชันสำหรับอัพเดทค่าใน form ที่สอง
+function updateOtherForm1() {
+    for (var id in inputValues) {
+        var selectorId = id; // ปรับแต่ง ID ให้เริ่มด้วยตัวอักษร
+        var otherInput = otherForm.querySelector(`input#${selectorId}`);
+        console.log(otherForm.querySelector(`input#${selectorId}`));
+        if (otherInput) {
+            otherInput.value = inputValues[id];
+        }
+    }
+}
+
+function updateOtherForm2() {
+    for (var id in inputValues) {
+        var selectorId = id; // ปรับแต่ง ID ให้เริ่มด้วยตัวอักษร
+        var otherInput = otherForms.querySelector(`input#${selectorId}`);
+        console.log(otherForm.querySelector(`input#${selectorId}`));
+        if (otherInput) {
+            otherInput.value = inputValues[id];
+        }
+    }
+}
+
+    // เพิ่ม event listener ให้กับทุก input ประเภท 'number' ใน form แรก
+    var inputs = document.querySelectorAll('form input[type="number"]');
+    inputs.forEach(function(input) {
+        input.addEventListener('change', updateInputValues);
+    });
+});
 </script>
 
 {% endblock %}

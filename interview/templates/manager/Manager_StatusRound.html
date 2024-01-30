@@ -49,7 +49,7 @@
                     <td >{% if user.interview_link.active %}พร้อม{% else %}ไม่พร้อม{% endif %}</td>
                     <td>{{ user.interview_link.link }}</td>
                     <td>{{ user.student.first_name }} {{ user.student.last_name }}</td>
-                    <td><button onclick="kick_round('{{ user.user.id }}')" class="btn btn-primary p-1 m-1">เชิญออก</button></td>
+                    <td><button onclick="kick_round('{{ user.interview_link.user.id }}')" class="btn btn-primary p-1 m-1">เชิญออก</button></td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -184,7 +184,8 @@ class ScoreTopic(models.Model):
 
 class Score(models.Model):
     topic = models.ForeignKey(ScoreTopic, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='student_score',null=True,blank=True)
+    interviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='interview_score',null=True,blank=True)
     score = models.PositiveIntegerField()
 
 class InterviewStatus(models.Model):

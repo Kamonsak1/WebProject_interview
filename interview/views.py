@@ -365,6 +365,14 @@ def Interviewer_room(request):
     elif request.method == "POST" and "finish" in request.POST:
         user_id = int(request.POST.get("finish"))
         user = User.objects.get(id=user_id)
+        pattern = RoundScore.objects.filter(Round=link.round).first()
+        all_scoretopic = ScoreTopic.objects.filter(pattern_id=pattern.pattern)
+        for score in all_scoretopic:
+            value = request.POST.get("input"+str(score.id))
+            print(score,user,link.user,value)
+            if value: 
+                save_score = Score(topic=score, student=user, interviewer=link.user, score=value)
+                save_score.save()
         interviewing_now = InterviewNow.objects.get(interviewer=request.user)
         interviewing_now.student = None
         interviewing_now.save()
@@ -374,8 +382,17 @@ def Interviewer_room(request):
         student_status.save()
         return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
     elif request.method == "POST" and "finish_leave" in request.POST:
+        
         user_id = int(request.POST.get("finish_leave"))
         user = User.objects.get(id=user_id)
+        pattern = RoundScore.objects.filter(Round=link.round).first()
+        all_scoretopic = ScoreTopic.objects.filter(pattern_id=pattern.pattern)
+        for score in all_scoretopic:
+            value = request.POST.get("input"+str(score.id))
+            print(score,user,link.user,value)
+            if value: 
+                save_score = Score(topic=score, student=user, interviewer=link.user, score=value)
+                save_score.save()
         interviewing_now = InterviewNow.objects.get(interviewer=request.user)
         interviewing_now.student = None
         interviewing_now.save()
@@ -417,6 +434,7 @@ def Interviewer_room(request):
         interviewing = True
 
     student = None
+    all_scoretopic = None
     need_docs = None
     have_docs = []
     temp_remove_list = []
@@ -430,6 +448,9 @@ def Interviewer_room(request):
                 temp_remove_list.append(d)
         for d in temp_remove_list:
             need_docs.remove(d)
+        if RoundScore.objects.filter(Round=link.round):
+            pattern = RoundScore.objects.filter(Round=link.round).first()
+            all_scoretopic = ScoreTopic.objects.filter(pattern_id=pattern.pattern)
     elif link.round and link.active:
         ready_student = InterviewStatus.objects.filter(round=link.round, status="พร้อมสอบ")
         skip_student = InterviewStatus.objects.filter(round=link.round, status="ข้าม")
@@ -451,7 +472,7 @@ def Interviewer_room(request):
         "not_selected" : not_selected_round,
         "have_docs" : have_docs,
         "need_docs" : need_docs,
-        "test" : InterviewNow.objects.get(interviewer=request.user),
+        "all_scoretopic" : all_scoretopic,
     }
     return render(request,'interviewer/Interviewer_room.html', context)
 
@@ -1460,7 +1481,7 @@ def toggle_round_active(request, round_id):
     return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
 @login_required
-@user_passes_test(is_Manager)
+@user_passes_test(is_Interviewer)
 def toggle_status_active(request, link_id):
     link = get_object_or_404(InterviewLink, id=link_id)
     link.active = not link.active
@@ -1922,7 +1943,7 @@ def increase_manager(request):
 def send_line_notify(message,token,meet):
     url = 'https://notify-api.line.me/api/notify'
     headers = {'content-type':'application/x-www-form-urlencoded', 'Authorization':'Bearer '+token}
-    msg = message + " กรุณาเข้าห้องสอบสัมภาษณ์ Google Meet: " + meet + " ด้วยครับ"
+    msg = message + " กรุณาเข้าห้องสอบสัมภาษณ์ ลิงค์ : " + meet + " ด้วยครับ"
     requests.post(url, headers=headers, data = {'message':msg})
 
 
