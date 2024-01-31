@@ -106,7 +106,7 @@ def Interview(request):
     return render(request,'admin/Interview.html',context)
 @login_required
 @user_passes_test(is_admin)
-def Score(request):
+def Admin_Score(request):
     main_pattern = ScorePattern.objects.filter(main_pattern=True)
     context = {
         'main_pattern': main_pattern,
@@ -371,7 +371,7 @@ def Interviewer_room(request):
             value = request.POST.get("input"+str(score.id))
             print(score,user,link.user,value)
             if value: 
-                save_score = Score(topic=score, student=user, interviewer=link.user, score=value)
+                save_score = Score(topic=score, student=user, interviewer=link.user, score=int(value))
                 save_score.save()
         interviewing_now = InterviewNow.objects.get(interviewer=request.user)
         interviewing_now.student = None
@@ -389,9 +389,11 @@ def Interviewer_room(request):
         all_scoretopic = ScoreTopic.objects.filter(pattern_id=pattern.pattern)
         for score in all_scoretopic:
             value = request.POST.get("input"+str(score.id))
-            print(score,user,link.user,value)
             if value: 
-                save_score = Score(topic=score, student=user, interviewer=link.user, score=value)
+                score_point = int(value)
+                print(score,user,link.user,score_point)
+                print(type(score),type(user),type(link.user),type(score_point))
+                save_score = Score(topic=score, student=user, interviewer=link.user, score=score_point)
                 save_score.save()
         interviewing_now = InterviewNow.objects.get(interviewer=request.user)
         interviewing_now.student = None
