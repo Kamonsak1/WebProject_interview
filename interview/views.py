@@ -471,6 +471,8 @@ def Interviewer_room(request):
         if RoundScore.objects.filter(Round=link.round):
             pattern = RoundScore.objects.filter(Round=link.round).first()
             all_scoretopic = ScoreTopic.objects.filter(pattern_id=pattern.pattern)
+        
+
     elif link.round and link.active:
         ready_student = InterviewStatus.objects.filter(round=link.round, status="พร้อมสอบ")
         skip_student = InterviewStatus.objects.filter(round=link.round, status="ข้าม")
@@ -484,6 +486,23 @@ def Interviewer_room(request):
             student_status.status = "กำลังสอบ"
             student_status.save()
 
+    data_student = None
+    data_interviewer = None
+    number_of_student = InterviewStatus.objects.filter(round=link.round).count()
+    number_of_interviewer = InterviewLink.objects.filter(round=link.round).count()
+    if link.round:
+        data_student = {
+            'labels': ["สอบเสร็จแล้ว", "กำลังสอบ", "พร้อมสอบ", "ข้าม"],
+            'data': [InterviewStatus.objects.filter(round=link.round,status="สอบเสร็จแล้ว").count(),
+                    InterviewStatus.objects.filter(round=link.round,status="กำลังสอบ").count(),
+                    InterviewStatus.objects.filter(round=link.round,status="พร้อมสอบ").count(),
+                    InterviewStatus.objects.filter(round=link.round,status="ข้าม").count()],
+        }
+        data_interviewer = {
+                'labels': ["พร้อมสัมภาษณ์", "ไม่พร้อมสัมภาษณ์"],
+                'data': [InterviewLink.objects.filter(round=link.round,active=True).count(),
+                        InterviewLink.objects.filter(round=link.round,active=False).count(),],
+                }
 
     context = {
         "docs" : student,
@@ -493,6 +512,10 @@ def Interviewer_room(request):
         "have_docs" : have_docs,
         "need_docs" : need_docs,
         "all_scoretopic" : all_scoretopic,
+        'data_student': data_student,
+        'data_interviewer': data_interviewer,
+        "number_of_student" : number_of_student,
+        "number_of_interviewer" : number_of_interviewer,
     }
     return render(request,'interviewer/Interviewer_room.html', context)
 
