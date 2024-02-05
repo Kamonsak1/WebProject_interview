@@ -63,6 +63,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    prefix = models.CharField(max_length=20)
 
     objects = CustomUserManager()
 
@@ -82,6 +83,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         User = get_user_model()
         return User.objects.authenticate_with_google(email=email,)
 
+class report_temporaryUser(models.Model):
+    citizen_id = models.CharField(max_length=13, unique=True)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    password = models.CharField(max_length=128, blank=True)
+    prefix = models.CharField(max_length=20,null=True, blank=True)
+    email = models.EmailField(unique=True, blank=True, null=True )
+    round_name = models.CharField(max_length=20)
 
 class TemporaryUser(models.Model):
     citizen_id = models.CharField(max_length=13, unique=True)
@@ -90,6 +99,7 @@ class TemporaryUser(models.Model):
     phone_number = models.CharField(max_length=20, null=True, blank=True)
     birth_date = models.DateField(default=timezone.now)
     password = models.CharField(max_length=128, blank=True)
+    prefix = models.CharField(max_length=20,null=True, blank=True)
 
     # def save(self, *args, **kwargs):
     #     birth_year = self.birth_date.year
@@ -138,9 +148,9 @@ class Round(models.Model):
     manager = models.ForeignKey(User, on_delete=models.CASCADE)
     users = models.ManyToManyField(User, related_name='round_user', blank=True)
     TemporaryUser = models.ManyToManyField(TemporaryUser,related_name='round_temp_user', blank=True)
-    documents = models.CharField(max_length=200, null=True,blank=True)
-    active = models.BooleanField(default=False,null=True,blank=True)
-    interview_time = models.CharField(max_length=50, null=True, blank=True)
+    documents = models.CharField(max_length=200)
+    active = models.BooleanField(default=False)
+    interview_time = models.CharField(max_length=50)
     line_Token = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
@@ -169,7 +179,7 @@ def user_directory_path(instance, filename):
 class Document(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     round = models.ForeignKey(Round, on_delete=models.CASCADE)
-    doc_name = models.CharField(max_length=100,blank=True,null=True)
+    doc_name = models.CharField(max_length=100)
     document = models.FileField(upload_to=user_directory_path)
 
 class ScorePattern(models.Model):
@@ -180,29 +190,29 @@ class ScoreTopic(models.Model):
     pattern_id = models.ForeignKey(ScorePattern, on_delete=models.CASCADE, related_name="Score_pattern")
     topic_name = models.CharField(max_length=100)
     max_score = models.PositiveIntegerField()
-    score_detail = models.CharField(max_length=500 , null=True,blank=True)
+    score_detail = models.CharField(max_length=500)
 
 class Score(models.Model):
     topic = models.ForeignKey(ScoreTopic, on_delete=models.CASCADE)
-    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='student_score',null=True,blank=True)
-    interviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='interview_score',null=True,blank=True)
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='student_score')
+    interviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='interview_score')
     score = models.PositiveIntegerField()
 
 class InterviewStatus(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='interview_status')
     status = models.CharField(max_length=100)
     round = models.ForeignKey(Round, on_delete=models.CASCADE)
-    reg_at = models.DateTimeField(auto_now_add=True,blank=True ,null= True)
+    reg_at = models.DateTimeField(auto_now_add=True)
 
 class InterviewLink(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='interview_link')
     link = models.CharField(max_length=300)
-    active = models.BooleanField(default=False,null=True,blank=True)
-    round = models.ForeignKey(Round, on_delete=models.CASCADE, related_name='interview_round',blank=True,null=True)
+    active = models.BooleanField(default=False)
+    round = models.ForeignKey(Round, on_delete=models.CASCADE, related_name='interview_round')
 
 
 class RoundScore(models.Model):
-    pattern = models.ForeignKey(ScorePattern, on_delete=models.CASCADE ,null = True,blank=True)
+    pattern = models.ForeignKey(ScorePattern, on_delete=models.CASCADE)
     Round = models.ForeignKey(Round, on_delete=models.CASCADE)
 
 class InterviewNow(models.Model):

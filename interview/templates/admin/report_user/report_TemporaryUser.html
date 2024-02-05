@@ -1,0 +1,41 @@
+{% extends 'admin/base/n_base.html' %}
+{% load static %}
+
+{% block css_js %} 
+<link rel="stylesheet" href="{% static 'css/admin_css/TemporaryUser.css' %}" />
+<script src="{% static 'js/admin_page/TemporaryUser.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+{% endblock %} 
+
+
+{% block topic %}
+<div class="fs-8 mt-1 text-muted text-center">
+    <span>ข้อมูลที่จะเพิ่มต่อไปนี้</span>
+  </div>
+{% endblock %}
+{% block content %}
+<div style="display: flex;">
+    <div style="flex: 1;">
+      <h1>รายชื่อใหม่</h1>
+      {% for user in data_list %}
+        {{ user.citizen_id }} {{ user.prefix }} {{ user.first_name }} {{ user.last_name }} {{ user.email }} <br>
+      {% endfor %}
+    </div>
+  
+    <div style="flex: 1;">
+      <h1>รายชื่อที่มีอยู่แล้ว</h1>
+      {% for user in data_duplicates %}
+        {{ user.citizen_id }} {{ user.prefix }} {{ user.first_name }} {{ user.last_name }} {{ user.email }} <br>
+      {% endfor %}
+    </div>
+
+    
+  </div>
+  <div style="margin-top: 20px;">
+    <form action="{% url 'add_TUser' %}" method="post">
+        {% csrf_token %}
+        <button style="margin-right: 10px;">ยืนยันเพิ่มข้อมูล</button>
+    </form>
+    <a href="{% url 'TemporaryUser' %}"><button>ยกเลิก</button></a>
+  </div>
+{% endblock %}

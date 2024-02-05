@@ -29,6 +29,11 @@ from django.contrib.auth.hashers import check_password
 from collections import defaultdict
 import re
 from .forms import *
+import os
+import shutil
+import zipfile
+from django.http import HttpResponse
+from io import BytesIO
 # Create your views here.
 def google_LOGIN_URL(request):
     roles = set(request.user.roles.values_list('name', flat=True))
@@ -93,6 +98,19 @@ def FacultyMajor(request):
     users = User.objects.filter(roles__name='Manager')
 
     return render(request,'admin/FacultyMajor.html',{"faculty":faculty_all,'users':users})
+
+def report_TemporaryUser(request):
+    data_list=report_temporaryUser.objects.all()
+    duplicate_emails = request.session.get('duplicate_emails', [])
+    users_with_duplicates = []
+    users_without_duplicates = []
+    for user in data_list:
+        if user.email in duplicate_emails:
+            users_with_duplicates.append(user)
+        else:
+            users_without_duplicates.append(user)
+    return render(request,'admin/report_user/report_TemporaryUser.html',{"data_list":users_without_duplicates,"data_duplicates":users_with_duplicates})
+
 @login_required
 @user_passes_test(is_admin)
 def Interview(request):
@@ -1100,7 +1118,36 @@ def edit_InterviewRound(request):
         round_edited.save()
         
     return redirect('/Interview')
+def add_TUser(request):
+    if request.method == 'POST':
+        data_list=report_temporaryUser.objects.all()
+        for item in data_list:
+            if not User.objects.filter(email=item.email).exists():
+                new_user = User(
+                    username=item.citizen_id,
+                    first_name=item.first_name,
+                    last_name=item.last_name,
+                    email=item.email,
+                    prefix=item.prefix
+                )
+                new_user.save()
+                Round_db = Round.objects.get(pk=item.round_name)
+                Round_db.users.add(new_user)  
+                faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
+                faculty_instance.users.add(new_user)
+                major_instance = Major.objects.get(major=Round_db.major.major)
+                major_instance.users.add(new_user) 
+            else:
+                old_user = User.objects.get(email=item.email)
+                Round_db = Round.objects.get(pk=item.round_name)
+                Round_db.users.add(old_user)  
+                faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
+                faculty_instance.users.add(old_user)
+                major_instance = Major.objects.get(major=Round_db.major.major)
+                major_instance.users.add(old_user) 
+            
 
+        return redirect('TemporaryUser')
 @login_required
 @user_passes_test(is_admin)
 def add_TemporaryUser_by_file(request):
@@ -1114,94 +1161,93 @@ def add_TemporaryUser_by_file(request):
         else:
             pass
         try:
-            data = df[['เลขบัตรประชาชน','ชื่อ','วว/ดด/ปป']]#'วว/ดด/ปป'
+            data = df[['APPLICANTCODE','PREFIXNAME','APPLICANTNAME','APPLICANTSURNAME','EMAIL']]
+            report_temporaryUser.objects.all().delete()
         except Exception as e:
             return HttpResponse('คอลัมไม่ตรงตามที่ต้องการ')
-        try:
-            data['คำนำหน้า'] = data['ชื่อ'].str.extract(r'(นาย|นางสาว)')
-        except Exception as e:
-            return HttpResponse('ชื่อไม่ถูกต้อง')
-        try:
-            data['นามสกุล'] = data['ชื่อ'].str.split(expand=True)[1]
-        except Exception as e:
-            return HttpResponse('นามสกุลไม่ถูกต้อง')
-        try:
-            data['first_name'] = data['ชื่อ'].str.split(expand=True)[0]
-        except Exception as e:
-            return HttpResponse('first_name ไม่ถูกต้อง')
-        
-
-
+        duplicate_emails = []
+        for index, row in data.iterrows():    
+                    email = row['EMAIL']     
+                    user_with_email = User.objects.filter(email=email).first()      
+                    if user_with_email:
+                        duplicate_emails.append(email)    
+                    report_temporaryUser.objects.create(
+                        citizen_id=row['APPLICANTCODE'],
+                        first_name=row['APPLICANTNAME'],
+                        last_name=row['APPLICANTSURNAME'],
+                        prefix=row['PREFIXNAME'],
+                        email=row['EMAIL'],
+                        round_name=round_sel
+                    )
+        request.session['duplicate_emails'] = duplicate_emails
+        return redirect('report_TemporaryUser')
 
         user_old = []
         TemporaryUser_old = []
-        
-        for i in range(len(data)):
-            try:
-                citizen_id = str(data.iloc[i]['เลขบัตรประชาชน']).strip()
-            except Exception as e:
-                citizen_id = str(data.iloc[i]['เลขบัตรประชาชน']).strip()
-                return HttpResponse('เลขบัตรประชาชนไม่ถูกต้อง',citizen_id)
-            try:
-                first_name=(data.iloc[i]['first_name'].strip())
-            except Exception as e:
-                return HttpResponse('first_name ไม่ถูกต้อง')
-            try:
-                last_name=(data.iloc[i]['นามสกุล'].strip())
-            except Exception as e:
-                return HttpResponse('last_name ไม่ถูกต้อง')
+        # for i in range(len(data)):
+        #     try:
+        #         citizen_id = str(data.iloc[i]['เลขบัตรประชาชน']).strip()
+        #     except Exception as e:
+        #         citizen_id = str(data.iloc[i]['เลขบัตรประชาชน']).strip()
+        #         return HttpResponse('เลขบัตรประชาชนไม่ถูกต้อง',citizen_id)
+        #     try:
+        #         first_name=(data.iloc[i]['first_name'].strip())
+        #     except Exception as e:
+        #         return HttpResponse('first_name ไม่ถูกต้อง')
+        #     try:
+        #         last_name=(data.iloc[i]['นามสกุล'].strip())
+        #     except Exception as e:
+        #         return HttpResponse('last_name ไม่ถูกต้อง')
             # try:
             #     birth_date_str=(data.iloc[i]['วว/ดด/ปป'].strip())
             #     birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date()
             # except Exception as e:
             #     return HttpResponse('วว/ดด/ปป ไม่ถูกต้อง')           
-            checkuser = User.objects.filter(citizen_id=citizen_id)
-            if not checkuser.exists():
-                checkTemporaryUser = TemporaryUser.objects.filter(citizen_id=citizen_id)
+            # checkuser = User.objects.filter(citizen_id=citizen_id)
+            # if not checkuser.exists():
+            #     checkTemporaryUser = TemporaryUser.objects.filter(citizen_id=citizen_id)
                 
-                if not checkTemporaryUser.exists():
-                    Temporary_User = TemporaryUser.objects.create(citizen_id=citizen_id,first_name=first_name,last_name=last_name,password=citizen_id)#birth_date=birth_date
-                    role=Role.objects.filter(name='Student').first()
-                    role.TemporaryUser.add(Temporary_User)
-                    Round_db = Round.objects.get(pk=round_sel)
-                    Round_db.TemporaryUser.add(Temporary_User)  
-                    faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
-                    faculty_instance.TemporaryUser.add(Temporary_User)
-                    major_instance = Major.objects.get(major=Round_db.major.major)
-                    major_instance.TemporaryUser.add(Temporary_User) 
+            #     if not checkTemporaryUser.exists():
+            #         Temporary_User = TemporaryUser.objects.create(citizen_id=citizen_id,first_name=first_name,last_name=last_name,password=citizen_id)#birth_date=birth_date
+            #         role=Role.objects.filter(name='Student').first()
+            #         role.TemporaryUser.add(Temporary_User)
+            #         Round_db = Round.objects.get(pk=round_sel)
+            #         Round_db.TemporaryUser.add(Temporary_User)  
+            #         faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
+            #         faculty_instance.TemporaryUser.add(Temporary_User)
+            #         major_instance = Major.objects.get(major=Round_db.major.major)
+            #         major_instance.TemporaryUser.add(Temporary_User) 
                     
-                else:
-                    TemporaryUser_old.append(data.iloc[i]['ชื่อ'])
-                    user_id = checkTemporaryUser.first().id
-                    checkRound = Round.objects.filter(round_name=round,TemporaryUser=user_id)
-                    if not checkRound.exists():
-                        Round_db = Round.objects.get(pk=round_sel)
-                        Round_db.TemporaryUser.add(user_id)  
-                        faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
-                        faculty_instance.TemporaryUser.add(Temporary_User)
-                        major_instance = Major.objects.get(major=Round_db.major.major)
-                        major_instance.TemporaryUser.add(Temporary_User)                   
-                    else:
-                        pass
-                        #return HttpResponse(usernames[0]+'อยู่ใน' + faculty + 'แล้ว')
-            else:
-                user_old.append(data.iloc[i]['ชื่อ'])
-                user_id = checkuser.first().id
-                checkRound = Round.objects.filter(round_name=round,users=user_id)
-                if not checkRound.exists():
-                    Round_db = Round.objects.get(pk=round_sel)
-                    Round_db.users.add(user_id)
-                    faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
-                    faculty_instance.users.add(Temporary_User)
-                    major_instance = Major.objects.get(major=Round_db.major.major)
-                    major_instance.users.add(Temporary_User)                     
-                else:
-                    pass
-                    #return HttpResponse(usernames[0]+'อยู่ใน' + faculty + 'แล้ว')
+            #     else:
+            #         TemporaryUser_old.append(data.iloc[i]['ชื่อ'])
+            #         user_id = checkTemporaryUser.first().id
+            #         checkRound = Round.objects.filter(round_name=round,TemporaryUser=user_id)
+            #         if not checkRound.exists():
+            #             Round_db = Round.objects.get(pk=round_sel)
+            #             Round_db.TemporaryUser.add(user_id)  
+            #             faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
+            #             faculty_instance.TemporaryUser.add(Temporary_User)
+            #             major_instance = Major.objects.get(major=Round_db.major.major)
+            #             major_instance.TemporaryUser.add(Temporary_User)                   
+            #         else:
+            #             pass
+            #             #return HttpResponse(usernames[0]+'อยู่ใน' + faculty + 'แล้ว')
+            # else:
+            #     user_old.append(data.iloc[i]['ชื่อ'])
+            #     user_id = checkuser.first().id
+            #     checkRound = Round.objects.filter(round_name=round,users=user_id)
+            #     if not checkRound.exists():
+            #         Round_db = Round.objects.get(pk=round_sel)
+            #         Round_db.users.add(user_id)
+            #         faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
+            #         faculty_instance.users.add(Temporary_User)
+            #         major_instance = Major.objects.get(major=Round_db.major.major)
+            #         major_instance.users.add(Temporary_User)                     
+            #     else:
+            #         pass
+            #         #return HttpResponse(usernames[0]+'อยู่ใน' + faculty + 'แล้ว')
 
-        print('เจอข้อมูลเดิม',user_old)
-        print('เจอข้อมูลเดิม',TemporaryUser_old)
-    return redirect('TemporaryUser')
+    #return redirect('TemporaryUser')
 
 @login_required
 @user_passes_test(is_admin)
@@ -1954,3 +2000,36 @@ def ajax_select_round(request):
     major_object = Major.objects.get(major=faculty_name)
     round = Round.objects.filter(major__major=major_object)
     return render(request, 'manager/dropdown-list.html', {"majors": round})
+
+def backup_data(request):
+        folder_path ="./backup_data"
+        backup_folder = "./backup_data"
+        os.makedirs(backup_folder, exist_ok=True) 
+        folder_path1 = "./db/mydb" 
+        folder_path2 = "./media"
+
+        destination1 = os.path.join(backup_folder, 'mydb')
+        shutil.copytree(folder_path1, destination1)
+        destination2 = os.path.join(backup_folder, 'media')
+        shutil.copytree(folder_path2, destination2)
+
+        response = HttpResponse(content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename=backup_data.zip'
+        buffer = BytesIO()
+        with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for foldername, subfolders, filenames in os.walk(backup_folder):
+                for filename in filenames:
+                    file_path = os.path.join(foldername, filename)
+                    zip_path = os.path.relpath(file_path, backup_folder)
+                    zipf.write(file_path, zip_path)
+
+        buffer.seek(0)
+        response.write(buffer.read())
+        try:
+            shutil.rmtree(folder_path)
+        except FileNotFoundError:
+            print(f"ไม่พบโฟลเดอร์ {folder_path}")
+        except Exception as e:
+            print(f"เกิดข้อผิดพลาดในการลบโฟลเดอร์ {folder_path}: {str(e)}")
+
+        return response

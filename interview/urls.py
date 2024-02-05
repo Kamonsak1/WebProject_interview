@@ -15,6 +15,7 @@ urlpatterns = [
     path('ajax_load_cities',ajax_load_cities, name='ajax_load_cities'),
     path('ajax_searchText',ajax_searchText, name='ajax_searchText'),
     path('ajax_select_round',ajax_select_round, name='ajax_select_round'),
+    path('backup_data',backup_data, name='backup_data'),
 
     #Siteuser
     path('profile_changname',profile_changname, name='profile_changname'),
@@ -33,6 +34,8 @@ urlpatterns = [
     path('Interview',Interview, name='Interview'),
     path('Score',Admin_Score, name='Score'),
     path('TemporaryUser',TemporaryUser_path, name='TemporaryUser'),
+    path('add_TUser',add_TUser, name='add_TUser'),
+    path('report_TemporaryUser',report_TemporaryUser,name='report_TemporaryUser'),
     path('User',User_path, name='User'),
     #path('form_interview',form_interview, name='form_interview'),
     path('profile',admin_profile, name='admin_profile'),
