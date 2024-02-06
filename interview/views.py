@@ -396,6 +396,9 @@ def Interviewer_room(request):
         user_id = int(request.POST.get("finish"))
         user = User.objects.get(id=user_id)
         Shortnote = request.POST.get("Shortnote")
+        evidence = Evidence.objects.get(student=user,round=link.round,interviewer=link.user)
+        evidence.Shortnote = Shortnote
+        evidence.save()
         pattern = RoundScore.objects.filter(Round=link.round).first()
         all_scoretopic = ScoreTopic.objects.filter(pattern_id=pattern.pattern)
         for score in all_scoretopic:
@@ -417,6 +420,9 @@ def Interviewer_room(request):
         user_id = int(request.POST.get("finish_leave"))
         Shortnote = request.POST.get("Shortnote")
         user = User.objects.get(id=user_id)
+        evidence = Evidence.objects.get(student=user,round=link.round,interviewer=link.user)
+        evidence.Shortnote = Shortnote
+        evidence.save()
         pattern = RoundScore.objects.filter(Round=link.round).first()
         all_scoretopic = ScoreTopic.objects.filter(pattern_id=pattern.pattern)
         for score in all_scoretopic:
