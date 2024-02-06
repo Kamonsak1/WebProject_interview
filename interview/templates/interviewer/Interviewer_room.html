@@ -24,7 +24,7 @@
                   {% else %}
                   <h1 class="fs-6 fw-bolder mt-1 text-danger">ไม่พร้อมสัมภาษณ์</h1>
                   {% endif %}
-                  <button class="btn fs-3 px-2 mx-2 {% if link.active %}btn-danger{% else %}btn-success{% endif %}" type="submit">{{ link.active|yesno:"เปลี่ยนสถานะ,เปลี่ยนสถานะ" }}</button>
+                  <button  onclick="resetRefreshCount()" class="btn fs-3 px-2 mx-2 {% if link.active %}btn-danger{% else %}btn-success{% endif %}" type="submit">{{ link.active|yesno:"เปลี่ยนสถานะ,เปลี่ยนสถานะ" }}</button>
               </form>
                 <form class="col d-flex" action="/add_meetlink" method="post">
                   {% csrf_token %}
@@ -133,7 +133,20 @@
         <div class="col-lg-4 d-flex align-items-strech">
           <div class="card w-100 d-flex flex-column">
             <div class="card-body">
-              <div class="d-sm-flex d-block align-items-center mb-9">
+              <div class="d-sm-flex d-block align-items-center">
+                <div class="card-title d-flex mb-3 mb-sm-0 justify-content-between">
+                  <div class="">
+                    <h5 class=" fw-semibold fs-6 pe-1">หลักฐานการสัมภาษณ์</h5>
+                  </div>
+                </div>
+              </div>
+              <form method="post" class="row justify-content-between mt-2" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="upload" id="upload" value="{{ docs.user.id }}">
+                <input type="file" class="col-8 search-bordered btn" name="file_name" id="file_name" class="fs-3" >
+                <button type="submit" class="fs-3 col-3 btn btn-secondary fs-4 fw-semibold search-bordered">อัปโหลด</button>
+              </form>
+              <div class="d-sm-flex d-block align-items-center mb-9 mt-3">
                 <div class="card-title d-flex mb-3 mb-sm-0 justify-content-between">
                   <div class="">
                     <h5 class=" fw-semibold fs-6 pe-1">การให้คะแนน</h5>
@@ -157,32 +170,39 @@
                 </div>
                 <h1 class="text-muted fw-light fs-4 ms-2"><i class="ti ti-info-circle"></i> {{ score.score_detail }}</h1>
                 {% endfor %}
-              </form>
-              {% else %}
+                {% else %}
               <div class="text-center">
                 <a class="search-bordered btn btn-danger px-9 py-9 "><i class="ti fs-9 ti-x"></i></a><br>
                 <h1 class="fs-6 text-danger fw-bolder mt-1">ไม่พบเกณฑ์การให้คะแนน</h1>
               </div>
               {% endif %}
+              <div class="mt-3">
+                <div class="d-flex">
+                  <h1 class="fs-5 me-2 fw-medium text-secondary">หมายเหตุ</h1>
+                  <input type="text" name="Shortnote" id="Shortnote" class="search-bordered w-100 fs-4">
+                </div>
+                <h1 class="text-muted fw-light fs-4 mt-2"><i class="ti ti-info-circle"></i> ข้อความอธิบายความน่าสนใจของผู้สอบ</h1>
+              </div>
+              </form>
             </div>
           </div>
         </div>
 
-        <div class="d-flex">
-          <canvas id="myChart1" width="350" height="300"></canvas>
-          <canvas id="myChart2" width="300" height="300"></canvas>
+        <div class="d-flex justify-content-center">
+          <canvas class="me-5" id="myChart1" width="350" height="300"></canvas>
+          <canvas class="ms-5" id="myChart2" width="300" height="300"></canvas>
         </div>
 
 
         {% if docs %}
         <div class="d-flex justify-content-end mb-5 me-5 position-relative bottom-0 end-0 mt-2">
-          <button onclick="notify_confirm()" class="search-bordered btn green px-4 py-2 fs-7 me-2 text-white fw-semibold" style="background-color: #06C755;" type="submit">Line Notify</button>
+          <button onclick="notify_confirm()" class="search-bordered btn green px-4 py-2 fs-7 me-2 text-white fw-semibold" style="background-color: #06C755;" type="submit">แจ้งเตือนด้วย LINE</button>
           <button onclick="skip_confirm()" class="search-bordered btn btn-info px-4 py-2 fs-7 me-2 fw-semibold" type="submit">ข้าม</button>
           <button onclick="next_confirm()" class="search-bordered btn btn-success px-3 py-2 fs-7 fw-semibold" type="submit">ดำเนินการต่อ</button>
         </div>
         {% else %}
         <div class="d-flex justify-content-end mb-5 me-5 position-relative bottom-0 end-0 mt-2">
-          <button class="search-bordered btn green px-4 py-2 fs-7 me-2 text-white fw-semibold" style="background-color: #06C755;" type="submit" disabled>Line Notify</button>
+          <button class="search-bordered btn green px-4 py-2 fs-7 me-2 text-white fw-semibold" style="background-color: #06C755;" type="submit" disabled>แจ้งเตือนด้วย LINE</button>
           <button class="search-bordered btn btn-info px-4 py-2 fs-7 me-2 fw-semibold" type="submit" disabled>ข้าม</button>
           <button class="search-bordered btn btn-success px-3 py-2 fs-7 fw-semibold" type="submit" disabled>ดำเนินการต่อ</button>
         </div>
@@ -252,6 +272,7 @@
         <form method="post" id="other-form-id">
           {% csrf_token %}
           <input type="hidden" name="finish_leave" id="finish_leave" value="{{ docs.user.id }}">
+          <input type="hidden" name="Shortnote" id="Shortnote" class="search-bordered w-100 fs-4">
           {% for score in all_scoretopic %}
           <input class="search-bordered fs-5" type="hidden" id="input{{ score.id }}" name="input{{ score.id }}" readonly min="0" max="{{ score.max_score }}" style="width: 40%;">
           {% endfor %}
@@ -259,7 +280,9 @@
         </form>
         <form method="post" id="other-form-ids">
           {% csrf_token %}
+          
           <input type="hidden" name="finish" id="finish" value="{{ docs.user.id }}">
+          <input type="hidden" name="Shortnote" id="Shortnote" class="search-bordered w-100 fs-4">
           {% for score in all_scoretopic %}
           <input class="search-bordered fs-5" type="hidden" id="input{{ score.id }}" name="input{{ score.id }}" readonly min="0" max="{{ score.max_score }}" style="width: 40%;">
           {% endfor %}
@@ -303,7 +326,6 @@ function updateOtherForm1() {
     for (var id in inputValues) {
         var selectorId = id; // ปรับแต่ง ID ให้เริ่มด้วยตัวอักษร
         var otherInput = otherForm.querySelector(`input#${selectorId}`);
-        console.log(otherForm.querySelector(`input#${selectorId}`));
         if (otherInput) {
             otherInput.value = inputValues[id];
         }
@@ -314,7 +336,6 @@ function updateOtherForm2() {
     for (var id in inputValues) {
         var selectorId = id; // ปรับแต่ง ID ให้เริ่มด้วยตัวอักษร
         var otherInput = otherForms.querySelector(`input#${selectorId}`);
-        console.log(otherForm.querySelector(`input#${selectorId}`));
         if (otherInput) {
             otherInput.value = inputValues[id];
         }
@@ -323,6 +344,8 @@ function updateOtherForm2() {
 
     // เพิ่ม event listener ให้กับทุก input ประเภท 'number' ใน form แรก
     var inputs = document.querySelectorAll('form input[type="number"]');
+    var Shortnote = document.getElementById('Shortnote');
+    Shortnote.addEventListener('change', updateInputValues)
     inputs.forEach(function(input) {
         input.addEventListener('change', updateInputValues);
     });
@@ -334,19 +357,19 @@ var myChart1 = new Chart(ctx1, {
         data: {
             labels: {{ data_student.labels | safe }},
             datasets: [{
-                label: 'สถานะนักเรียน : {{ number_of_student }} คน',
+                label: 'สถานะนักเรียน',
                 data: {{ data_student.data | safe }},
                 backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
                     'rgba(54, 162, 235, 0.2)',
                     'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(255, 99, 132, 0.2)',
                 ],
                 borderColor: [
-                    'rgba(255, 99, 132, 1)',
+                    'rgba(75, 192, 192, 1)',
                     'rgba(54, 162, 235, 1)',
                     'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 99, 132, 1)',
                 ],
                 borderWidth: 2
             }]
@@ -369,7 +392,7 @@ var myChart2 = new Chart(ctx2, {
         data: {
             labels: {{ data_interviewer.labels | safe }},
             datasets: [{
-                label: 'สถานะอาจารย์ : {{ number_of_interviewer }} คน',
+                label: 'สถานะอาจารย์',
                 data: {{ data_interviewer.data | safe }},
                 backgroundColor: [
                     'rgba(75, 192, 192, 0.2)',
@@ -397,53 +420,6 @@ var myChart2 = new Chart(ctx2, {
         }
     });
 
-// var ctx1 = document.getElementById('chart1').getContext('2d');
-//     var chart1 = new Chart(ctx1, {
-//         type: 'bar',
-//         data: {
-//             labels: {{ data1.labels | safe }},
-//             datasets: [{
-//                 label: '# of Votes',
-//                 data: {{ data1.data | safe }},
-//                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
-//                 borderColor: 'rgba(255, 99, 132, 1)',
-//                 borderWidth: 1
-//             }]
-//         },
-//         options: {
-//             responsive: false,
-//             maintainAspectRatio: false,
-//             scales: {
-//                 y: {
-//                     beginAtZero: true
-//                 }
-//             }
-//         }
-//     });
-
-//     var ctx2 = document.getElementById('chart2').getContext('2d');
-//     var chart2 = new Chart(ctx2, {
-//         type: 'pie',
-//         data: {
-//             labels: {{ data_interviewer.labels | safe }},
-//             datasets: [{
-//                 label: '# of Votes',
-//                 data: {{ data_interviewer.data | safe }},
-//                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
-//                 borderColor: 'rgba(255, 99, 132, 1)',
-//                 borderWidth: 1
-//             }]
-//         },
-//         options: {
-//             responsive: false,
-//             maintainAspectRatio: false,
-//             scales: {
-//                 y: {
-//                     beginAtZero: true
-//                 }
-//             }
-//         }
-//     });
 </script>
 
 {% endblock %}

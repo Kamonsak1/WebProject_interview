@@ -380,9 +380,22 @@ def Interviewer_room(request):
         link.round = None
         link.save()
         return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+    elif request.method == "POST" and "upload" in request.POST:
+        user_id = int(request.POST.get("upload"))
+        user = User.objects.get(id=user_id)
+        file = request.FILES.get('file_name')
+        if Evidence.objects.filter(student=user,round=link.round,interviewer=link.user):
+            evidence = Evidence.objects.get(student=user,round=link.round,interviewer=link.user)
+            evidence.document = file
+            evidence.save()
+        else:
+            evidence = Evidence(student=user,round=link.round,interviewer=link.user,document=file)
+            evidence.save()
+        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
     elif request.method == "POST" and "finish" in request.POST:
         user_id = int(request.POST.get("finish"))
         user = User.objects.get(id=user_id)
+        Shortnote = request.POST.get("Shortnote")
         pattern = RoundScore.objects.filter(Round=link.round).first()
         all_scoretopic = ScoreTopic.objects.filter(pattern_id=pattern.pattern)
         for score in all_scoretopic:
@@ -402,6 +415,7 @@ def Interviewer_room(request):
     elif request.method == "POST" and "finish_leave" in request.POST:
         
         user_id = int(request.POST.get("finish_leave"))
+        Shortnote = request.POST.get("Shortnote")
         user = User.objects.get(id=user_id)
         pattern = RoundScore.objects.filter(Round=link.round).first()
         all_scoretopic = ScoreTopic.objects.filter(pattern_id=pattern.pattern)
@@ -409,8 +423,6 @@ def Interviewer_room(request):
             value = request.POST.get("input"+str(score.id))
             if value: 
                 score_point = int(value)
-                print(score,user,link.user,score_point)
-                print(type(score),type(user),type(link.user),type(score_point))
                 save_score = Score(topic=score, student=user, interviewer=link.user, score=score_point)
                 save_score.save()
         interviewing_now = InterviewNow.objects.get(interviewer=request.user)

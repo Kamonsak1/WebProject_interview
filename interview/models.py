@@ -182,6 +182,15 @@ class Document(models.Model):
     doc_name = models.CharField(max_length=100)
     document = models.FileField(upload_to=user_directory_path)
 
+def evidence_path(instance, filename):
+    return 'Evidence/{0}/{1}/{2}'.format(instance.round.id,instance.interviewer.id, filename)
+class Evidence(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='evidence_student',blank=True,null=True)
+    interviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='evidence_interviewer')
+    round = models.ForeignKey(Round, on_delete=models.CASCADE)
+    document = models.FileField(upload_to=evidence_path)
+    Shortnote = models.CharField(max_length=500,blank=True,null=True)
+
 class ScorePattern(models.Model):
     pattern_name = models.CharField(max_length=100)
     main_pattern = models.BooleanField(default=False)
