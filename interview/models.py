@@ -164,6 +164,8 @@ class Schedule(models.Model):
     role = models.ManyToManyField(Role)
     schedule_name = models.CharField(max_length=200)
     schedule_content = models.TextField()
+    def __str__(self):
+        return self.schedule_name
 
 class Announcement(models.Model):
     post_date = models.DateField(default=datetime.now) 
@@ -173,6 +175,8 @@ class Announcement(models.Model):
     role = models.ManyToManyField(Role )
     title = models.CharField(max_length=200)
     announcement_content = models.TextField()
+    def __str__(self):
+        return self.title
 
 def user_directory_path(instance, filename):
     return 'Document/{0}/{1}'.format(instance.user.id, filename)
@@ -181,6 +185,8 @@ class Document(models.Model):
     round = models.ForeignKey(Round, on_delete=models.CASCADE)
     doc_name = models.CharField(max_length=100)
     document = models.FileField(upload_to=user_directory_path)
+    def __str__(self):
+        return self.doc_name
 
 def evidence_path(instance, filename):
     return 'Evidence/{0}/{1}/{2}'.format(instance.round.id,instance.interviewer.id, filename)
@@ -190,16 +196,22 @@ class Evidence(models.Model):
     round = models.ForeignKey(Round, on_delete=models.CASCADE)
     document = models.FileField(upload_to=evidence_path)
     Shortnote = models.CharField(max_length=500,blank=True,null=True)
+    def __str__(self):
+        return self.interviewer
 
 class ScorePattern(models.Model):
     pattern_name = models.CharField(max_length=100)
     main_pattern = models.BooleanField(default=False)
+    def __str__(self):
+        return self.pattern_name
 
 class ScoreTopic(models.Model):
     pattern_id = models.ForeignKey(ScorePattern, on_delete=models.CASCADE, related_name="Score_pattern")
     topic_name = models.CharField(max_length=100)
     max_score = models.PositiveIntegerField()
     score_detail = models.CharField(max_length=500)
+    def __str__(self):
+        return self.topic_name
 
 class Score(models.Model):
     topic = models.ForeignKey(ScoreTopic, on_delete=models.CASCADE)

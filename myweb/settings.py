@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-bwy(%3w9p5%z^o-(=^4&p-p-%hemlv9ji2n!xiuc1ru3!e70w7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['1852-118-172-144-75.ngrok-free.app','127.0.0.1']
 
 
 # Application definition    
@@ -179,6 +179,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 AUTH_USER_MODEL='interview.User'
+SECURE_SSL_REDIRECT = False
 
 LOGIN_URL = '/'
 

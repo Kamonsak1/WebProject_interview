@@ -5,10 +5,27 @@
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
-
+    
     <form method="post">
         {% csrf_token %}
         <button type="submit" class="btn btn-secondary">ทดสอบดาวน์โหลด</button>
     </form>
+
+    <table  class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th style="width: 70%">ชื่อ-นามสกุล</th>
+            <th style="width: 30%">พิมพ์ผลสัมภาาณ์</th>
+          </tr>
+        </thead>
+        <tbody>
+        {%for i in student%}
+          <tr>
+            <td>{{prefix}}{{i.first_name}} {{i.last_name}}</td>
+            <td><a href="form_student/{{i.id}}">พิมพ์</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
 </div>
 {% endblock %}

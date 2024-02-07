@@ -95,6 +95,8 @@ urlpatterns = [
     path('edit_Announcement',edit_Announcement,name='edit_Announcement'),
     path('decrease_manager',decrease_manager,name='decrease_manager'),
     path('increase_manager',increase_manager,name='increase_manager'),
+    path('student_one_tocsv',student_one_tocsv,name='student_one_tocsv'),
+    path('form_student/<int:id>',form_student,name='form_student'),
     path('Manager_data_investigator/<int:id>',Manager_data_investigator,name='Manager_data_investigator'),
 
 

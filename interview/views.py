@@ -303,7 +303,10 @@ def Manager_Print_Interview(request):
         writer.writerow(['ทดสอบ ทดสอบ', 'ผู้สัมภาษณ์ ผู้สัมภาษณ์', 'การฟัง', 'เอกสาร', '7', '8', '10', '10'])
         return response
     if  major_from_session and round_from_session:
+        student = User.objects.filter(major__major=major_from_session,round__round_name=round_from_session,roles__name='Student')
+
         context = {
+        "student":student,
         "s_major" : major_from_session,
         "faculty_all" : faculty_all,
         "majors" : majors,
@@ -312,6 +315,31 @@ def Manager_Print_Interview(request):
         return render(request,'manager/Manager_Print_Interview.html',context)
     return render(request,'manager/Manager_Print_Interview.html',{'faculty_all':faculty_all,'majors':majors})
 
+def form_student(request, id):
+    scores = 0
+    myuser_id = request.session.get('myuser_id')
+    faculty_all = Faculty.objects.filter(users=myuser_id)
+    majors = Major.objects.filter(default_manager=myuser_id)
+    major_from_session = request.session.get('major')
+    round_from_session = request.session.get('round')
+    student_scores = []
+    if  major_from_session and round_from_session:
+        student = User.objects.get(pk=id)
+        round_score = RoundScore.objects.filter(Round__round_name=round_from_session).select_related('pattern').first()
+        scores_topic = ScoreTopic.objects.filter(pattern_id=round_score.pattern)
+        for topic in scores_topic:
+            topic_scores = Score.objects.filter(student=student,topic__topic_name=topic,topic__pattern_id__pattern_name=round_score.pattern.pattern_name)
+            student_scores.extend(topic_scores)
+        context = {
+            "student":student,
+            'scores': student_scores,
+            "s_major" : major_from_session,
+            "faculty_all" : faculty_all,
+            "majors" : majors,
+            "s_round" : round_from_session,
+        }
+        return render(request, 'manager/form_student/student.html', context)
+    return render(request, 'manager/form_student/student.html',{'faculty_all':faculty_all,'majors':majors})
 def export_to_csv(request):
     response = HttpResponse(
         content_type='text/csv',
@@ -2098,3 +2126,89 @@ def backup_data(request):
             print(f"เกิดข้อผิดพลาดในการลบโฟลเดอร์ {folder_path}: {str(e)}")
 
         return response
+
+
+def student_one_tocsv(request):
+    if request.method == 'POST':
+        checkbox_all = request.POST.get('checkbox_all') 
+        checkbox_all_T = request.POST.get('checkbox_all_T') 
+        checkbox = request.POST.getlist('checkbox')
+        score = request.POST.get('score') 
+        score_max = request.POST.get('score_max') 
+        interviewer_name = request.POST.get('interviewer_name') 
+        student_name = request.POST.get('student_name') 
+        total_score = request.POST.get('total_score') 
+        email = request.POST.get('email') 
+        topic_list = []
+        data_list = []
+        if student_name :
+            topic_list.append('ชื่อนักเรียน')
+            data_list.append(student_name)
+        if interviewer_name :
+            topic_list.append('ผู้สัมภาษณ์')
+            data_list.append(interviewer_name)
+        if checkbox_all == 'True':
+            checkbox_split = checkbox_all_T.split(',')[0:-1]
+            for i in range(len(checkbox_split)):
+                topic_list.append('รายการที่ '+str(i+1))
+                topic = checkbox_split[i].split('-')[0]
+                data_list.append(topic)
+        else:
+            for i in range(len(checkbox)):
+                topic_list.append('รายการที่'+str(i+1))
+                topic = checkbox[i].split('-')[0]
+                data_list.append(topic)
+
+        if score == 'True':
+            checkbox_split = checkbox_all_T.split(',')[0:-1]
+            for i in range(len(checkbox_split)):
+                topic_list.append('คะแนนรายการที่ '+str(i+1))
+                topic = checkbox_split[i].split('-')[2]
+                data_list.append(topic)
+        else:
+            for i in range(len(checkbox)):
+                topic_list.append('คะแนนรายการที่'+str(i+1))
+                topic = checkbox[i].split('-')[2]
+                data_list.append(topic)
+
+
+        if score_max == 'True':
+            checkbox_split = checkbox_all_T.split(',')[0:-1]
+            for i in range(len(checkbox_split)):
+                topic_list.append('คะแนนเต็มที่ '+str(i+1))
+                topic = checkbox_split[i].split('-')[1]
+                data_list.append(topic)
+        else:
+            for i in range(len(checkbox)):
+                topic_list.append('คะแนนเต็มที่'+str(i+1))
+                topic = checkbox[i].split('-')[1]
+                data_list.append(topic)
+
+        score_plus = []
+        if total_score:
+            for i in range(len(topic_list)):
+                if topic_list[i][0:11] == 'คะแนนรายการ':
+                    score_plus.append(int(data_list[i]))
+        score_max_plus = []
+        if total_score:
+            for i in range(len(topic_list)):
+                if topic_list[i][0:9] == 'คะแนนเต็ม':
+                    score_max_plus.append(int(data_list[i]))
+        if total_score:
+            topic_list.append('คะแนนรวม')
+            data_list.append(sum(score_plus))
+        if email:
+            email_split = email.split('@')[0]
+        response = HttpResponse(
+        content_type='text/csv',
+        headers={'Content-Disposition': f'attachment; filename="{email_split}".csv'},
+         )
+        #df = pd.DataFrame([data_list], columns=topic_list)
+        response.write(u'\ufeff'.encode('utf8'))
+        writer = csv.writer(response)
+        writer.writerow(topic_list)
+        writer.writerow(data_list)
+        return response
+    return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+
+
