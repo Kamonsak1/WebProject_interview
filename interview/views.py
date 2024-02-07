@@ -14,6 +14,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.shortcuts import get_object_or_404
 import pandas as pd
 import random
+import csv
 from django.contrib.auth import update_session_auth_hash
 from django.db.models import Q,F
 import string
@@ -289,6 +290,18 @@ def Manager_Print_Interview(request):
     majors = Major.objects.filter(default_manager=myuser_id)
     major_from_session = request.session.get('major')
     round_from_session = request.session.get('round')
+    round = Round.objects.get(id=1)
+    if request.method == "POST":
+        column = ["ชื่อ-นามสกุล","ผู้สัมภาษณ์","รายการที่ 1","รายการที่ 2","คะแนนรายการที่ 1","คะแนนรายการที่ 2", "คะแนนเต็มรายการที่ 1","คะแนนเต็มรายการที่ 2"]
+        response = HttpResponse(
+        content_type='text/csv',
+        headers={'Content-Disposition': 'attachment; filename="Testprint.csv"'},
+        )
+        response.write('\ufeff')
+        writer = csv.writer(response, dialect=csv.excel)
+        writer.writerow(column)
+        writer.writerow(['ทดสอบ ทดสอบ', 'ผู้สัมภาษณ์ ผู้สัมภาษณ์', 'การฟัง', 'เอกสาร', '7', '8', '10', '10'])
+        return response
     if  major_from_session and round_from_session:
         context = {
         "s_major" : major_from_session,
@@ -298,6 +311,17 @@ def Manager_Print_Interview(request):
         }
         return render(request,'manager/Manager_Print_Interview.html',context)
     return render(request,'manager/Manager_Print_Interview.html',{'faculty_all':faculty_all,'majors':majors})
+
+def export_to_csv(request):
+    response = HttpResponse(
+        content_type='text/csv',
+        headers={'Content-Disposition': 'attachment; filename="somefilename.csv"'},
+    )
+    writer = csv.writer(response)
+    writer.writerow(['Column 1', 'Column 2', 'Column 3'])
+    writer.writerow(['Data 1', 'Data 2', 'Data 3'])
+    return response
+
 @login_required
 @user_passes_test(is_Manager)
 def Manager_Status(request):

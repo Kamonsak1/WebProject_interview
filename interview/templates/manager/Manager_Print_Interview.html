@@ -5,6 +5,10 @@
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
-    <!-- ตำแหน่งเนื้อหาของหน้าหลัก -->
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-secondary">ทดสอบดาวน์โหลด</button>
+    </form>
 </div>
 {% endblock %}
