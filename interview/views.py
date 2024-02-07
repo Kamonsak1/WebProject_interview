@@ -2160,29 +2160,30 @@ def student_one_tocsv(request):
                 data_list.append(topic)
 
         if score == 'True':
-            checkbox_split = checkbox_all_T.split(',')[0:-1]
-            for i in range(len(checkbox_split)):
-                topic_list.append('คะแนนรายการที่ '+str(i+1))
-                topic = checkbox_split[i].split('-')[2]
-                data_list.append(topic)
-        else:
-            for i in range(len(checkbox)):
-                topic_list.append('คะแนนรายการที่'+str(i+1))
-                topic = checkbox[i].split('-')[2]
-                data_list.append(topic)
-
+            if checkbox_all == 'True':
+                checkbox_split = checkbox_all_T.split(',')[0:-1]
+                for i in range(len(checkbox_split)):
+                    topic_list.append('คะแนนรายการที่ '+str(i+1))
+                    topic = checkbox_split[i].split('-')[2]
+                    data_list.append(topic)
+            else:
+                for i in range(len(checkbox)):
+                    topic_list.append('คะแนนรายการที่'+str(i+1))
+                    topic = checkbox[i].split('-')[2]
+                    data_list.append(topic)
 
         if score_max == 'True':
-            checkbox_split = checkbox_all_T.split(',')[0:-1]
-            for i in range(len(checkbox_split)):
-                topic_list.append('คะแนนเต็มที่ '+str(i+1))
-                topic = checkbox_split[i].split('-')[1]
-                data_list.append(topic)
-        else:
-            for i in range(len(checkbox)):
-                topic_list.append('คะแนนเต็มที่'+str(i+1))
-                topic = checkbox[i].split('-')[1]
-                data_list.append(topic)
+            if checkbox_all == 'True':
+                checkbox_split = checkbox_all_T.split(',')[0:-1]
+                for i in range(len(checkbox_split)):
+                    topic_list.append('คะแนนเต็มที่ '+str(i+1))
+                    topic = checkbox_split[i].split('-')[1]
+                    data_list.append(topic)
+            else:
+                for i in range(len(checkbox)):
+                    topic_list.append('คะแนนเต็มที่'+str(i+1))
+                    topic = checkbox[i].split('-')[1]
+                    data_list.append(topic)
 
         score_plus = []
         if total_score:
