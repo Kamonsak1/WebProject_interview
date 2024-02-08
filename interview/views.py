@@ -303,7 +303,7 @@ def Manager_Print_Interview(request):
         writer.writerow(['ทดสอบ ทดสอบ', 'ผู้สัมภาษณ์ ผู้สัมภาษณ์', 'การฟัง', 'เอกสาร', '7', '8', '10', '10'])
         return response
     if  major_from_session and round_from_session:
-        student = User.objects.filter(major__major=major_from_session,round__round_name=round_from_session,roles__name='Student')
+        student = User.objects.filter(major__major=major_from_session,round_user__round_name=round_from_session,roles__name='Student')
 
         context = {
         "student":student,
@@ -322,17 +322,42 @@ def form_student(request, id):
     majors = Major.objects.filter(default_manager=myuser_id)
     major_from_session = request.session.get('major')
     round_from_session = request.session.get('round')
-    student_scores = []
+    topic_list = []
+    score_list = []
+    topic_all = [ ]
     if  major_from_session and round_from_session:
         student = User.objects.get(pk=id)
         round_score = RoundScore.objects.filter(Round__round_name=round_from_session).select_related('pattern').first()
         scores_topic = ScoreTopic.objects.filter(pattern_id=round_score.pattern)
+        student_info = {
+            'scores': [], 
+            'interviewer':'-'
+        }
         for topic in scores_topic:
+            topic_scores_all = Score.objects.filter(topic__topic_name=topic,topic__pattern_id__pattern_name=round_score.pattern.pattern_name)
             topic_scores = Score.objects.filter(student=student,topic__topic_name=topic,topic__pattern_id__pattern_name=round_score.pattern.pattern_name)
-            student_scores.extend(topic_scores)
+            for i in topic_scores_all:
+                if i.topic.topic_name not in topic_all:
+                    topic_all.append(i.topic.topic_name)
+                if student_info['interviewer'] == '-':
+                    interviewer_name = i.interviewer.prefix+i.interviewer.first_name+' '+i.interviewer.last_name
+                    student_info['interviewer'] = interviewer_name
+
+        for topic in scores_topic:      
+            topic_scores = Score.objects.filter(student=student,topic__topic_name=topic,topic__pattern_id__pattern_name=round_score.pattern.pattern_name)  
+            for i in topic_scores:
+                topic_list.append(i.topic.topic_name)
+        for item in topic_all:
+            if item in topic_list:
+                topic_scores = Score.objects.filter(student=student,topic__topic_name=item,topic__pattern_id__pattern_name=round_score.pattern.pattern_name)  
+                for i in topic_scores:
+                    student_info['scores'].append({'topic_name': item, 'score': i.score,'scores_max': i.topic.max_score})
+            else:
+                student_info['scores'].append({'topic_name': item, 'score': 0,'scores_max': i.topic.max_score})
         context = {
             "student":student,
-            'scores': student_scores,
+            'score': student_info,
+            'score_list':score_list,
             "s_major" : major_from_session,
             "faculty_all" : faculty_all,
             "majors" : majors,
@@ -2139,6 +2164,7 @@ def student_one_tocsv(request):
         student_name = request.POST.get('student_name') 
         total_score = request.POST.get('total_score') 
         email = request.POST.get('email') 
+        print(interviewer_name)
         topic_list = []
         data_list = []
         if student_name :
@@ -2189,12 +2215,16 @@ def student_one_tocsv(request):
         if total_score:
             for i in range(len(topic_list)):
                 if topic_list[i][0:11] == 'คะแนนรายการ':
-                    score_plus.append(int(data_list[i]))
+                    if data_list[i] != '-':
+                        score_plus.append(int(data_list[i]))
         score_max_plus = []
         if total_score:
             for i in range(len(topic_list)):
                 if topic_list[i][0:9] == 'คะแนนเต็ม':
                     score_max_plus.append(int(data_list[i]))
+        if total_score:
+            topic_list.append('คะแนนรวมเต็ม')
+            data_list.append(sum(score_max_plus))
         if total_score:
             topic_list.append('คะแนนรวม')
             data_list.append(sum(score_plus))
@@ -2213,3 +2243,250 @@ def student_one_tocsv(request):
     return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
 
+def form_student_all(request):
+    myuser_id = request.session.get('myuser_id')
+    major_from_session = request.session.get('major')
+    round_from_session = request.session.get('round')
+    faculty_all = Faculty.objects.filter(users=myuser_id)
+    majors = Major.objects.filter(default_manager=myuser_id)
+    if request.method == 'POST':
+        student_index = request.POST.get('index') 
+        student_index_list = student_index.split(',')[0:-1]
+        topic_scores_all = []
+        column = []
+        student_ex=[]
+        index = 0
+        processed_scores = set()
+        for i in student_index_list:
+            student = User.objects.get(pk=i)
+            round_score = RoundScore.objects.filter(Round__round_name=round_from_session).select_related('pattern').first()
+            scores_topic = ScoreTopic.objects.filter(pattern_id=round_score.pattern)
+            student_info = {
+                    'student': student.prefix+student.first_name+' '+ student.last_name,
+                    'interviewer': '-',
+                    'scores': [] ,
+                    'scores_max': [] 
+                }
+            for i in scores_topic:
+                student_info['scores'].append({
+                    'topic_name': i.topic_name,
+                    'score': '-'})
+                student_info['scores_max'].append(
+                    {'topic_name': i.topic_name,
+                     'scores_max': i.max_score})
+            for topic in scores_topic:
+                topic_score = Score.objects.filter(student=student,topic__topic_name=topic,topic__pattern_id__pattern_name=round_score.pattern.pattern_name)
+                for score in topic_score:
+                    for i in range(len(student_info['scores'])):
+                        if student_info['scores'][i]['topic_name'] == score.topic.topic_name:
+                            student_info['scores'][i]['score']=score.score
+                    if score.topic.topic_name not in processed_scores: 
+                        topic_scores_all.append(score)
+                        column.append([index ,score.topic.topic_name])
+                        processed_scores.add(score.topic.topic_name)
+                        index = index+1
+                    if student_info['interviewer'] == '-':
+                        interviewer_name = score.interviewer.prefix+score.interviewer.first_name+' '+score.interviewer.last_name
+                        student_info['interviewer'] = interviewer_name
+            if len(student_ex) < 5:
+                student_ex.append(student_info)
+        context = {
+            'student_ex':student_ex,
+            "student":student,
+            'index_student':student_index_list,
+            'column_topic_name':column,
+            'scores': topic_scores_all,
+            "s_major" : major_from_session,
+            "faculty_all" : faculty_all,
+            "majors" : majors,
+            "s_round" : round_from_session,
+        }
+        
+        return render(request,'manager/form_student/student_all.html',context)
+
+    return render(request, 'manager/form_student/student_all.html',{'faculty_all':faculty_all,'majors':majors})
+
+
+def student_all_tocsv(request):
+    myuser_id = request.session.get('myuser_id')
+    major_from_session = request.session.get('major')
+    round_from_session = request.session.get('round')
+    faculty_all = Faculty.objects.filter(users=myuser_id)
+    majors = Major.objects.filter(default_manager=myuser_id)
+    if request.method == 'POST':
+        checkbox_all = request.POST.get('checkbox_all') 
+        checkbox = request.POST.getlist('checkbox')
+        score_check = request.POST.get('score') 
+        score_max = request.POST.get('score_max') 
+        get_interviewer_name = request.POST.get('interviewer_name') 
+        student_name = request.POST.get('student_name') 
+        total_score = request.POST.get('total_score') 
+        student_index = request.POST.get('index')
+        student_index =eval(student_index)
+        topic_scores_all = []
+        column = []
+        
+        
+        student_ex=[]
+        index = 0
+        interviewer_name = '-'
+        processed_scores = set()
+        column_to_csv = []
+        data_to_csv = []
+        if student_name == 'True':
+            column_to_csv.append('ชื่อนักเรียน')
+        if get_interviewer_name == 'True':
+            column_to_csv.append('ชื่อผู้สัมภาษณ์')
+        for i in student_index:
+            list_score_max = []
+            list_topic = []
+            index_list = 1
+            data = []
+            student = User.objects.get(pk=i)
+            round_score = RoundScore.objects.filter(Round__round_name=round_from_session).select_related('pattern').first()
+            scores_topic = ScoreTopic.objects.filter(pattern_id=round_score.pattern)
+            if student_name == 'True':
+                data.append(student.prefix+student.first_name+' '+ student.last_name)
+            student_info = {
+                    'student': student.prefix+student.first_name+' '+ student.last_name,
+                    'interviewer': 'ไม่มีผู้สัมภาษณ์',
+                    'scores': [] ,
+                    'scores_max': [] 
+                }
+            list_score = []
+            if checkbox_all == 'True':
+                list_score = []
+                for i in scores_topic:
+                    if i.topic_name not in list_topic:
+                        list_topic.append(i.topic_name)
+                        list_score_max.append(i.max_score)
+                    student_info['scores'].append({
+                        'topic_name': i.topic_name,
+                        'score': '-'})
+                    student_info['scores_max'].append(
+                        {'topic_name': i.topic_name,
+                        'scores_max': i.max_score})
+                    index_list = int(index_list)+1
+                    
+
+                for topic in scores_topic:
+                    topic_score = Score.objects.filter(student=student,topic__topic_name=topic,topic__pattern_id__pattern_name=round_score.pattern.pattern_name)
+                    if topic_score:
+                        for i in topic_score:
+                            list_score.append(i.score)
+                    else:
+                        list_score.append('-')
+                    for score in topic_score:
+
+                        for i in range(len(student_info['scores'])):
+                            if student_info['scores'][i]['topic_name'] == score.topic.topic_name:
+                                student_info['scores'][i]['score']=score.score
+                        if score.topic.topic_name not in processed_scores: 
+                            topic_scores_all.append(score)
+                            column.append([index ,score.topic.topic_name])
+                            processed_scores.add(score.topic.topic_name)
+                            index = index+1
+                        if student_info['interviewer'] == 'ไม่มีผู้สัมภาษณ์':
+                            interviewer_name = score.interviewer.prefix+score.interviewer.first_name+' '+score.interviewer.last_name
+                            student_info['interviewer'] = interviewer_name
+            else:
+                for i in scores_topic:
+                    list_score = []
+                    if i.topic_name  in checkbox:
+                        if i.topic_name not in list_topic:
+                            list_topic.append(i.topic_name)
+                            list_score_max.append(i.max_score)
+                        student_info['scores'].append({
+                            'topic_name': i.topic_name,
+                            'score': '-'})
+                        student_info['scores_max'].append(
+                            {'topic_name': i.topic_name,
+                            'scores_max': i.max_score})
+                        index_list = int(index_list)+1
+
+
+                    for topic in scores_topic:
+                        if topic.topic_name  in checkbox:
+                            topic_score = Score.objects.filter(student=student,topic__topic_name=topic,topic__pattern_id__pattern_name=round_score.pattern.pattern_name)
+                            if topic_score:
+                                for i in topic_score:
+                                    list_score.append(i.score)
+                            else:
+                                list_score.append('-')
+                            for score in topic_score:
+
+                                for i in range(len(student_info['scores'])):
+                                    if student_info['scores'][i]['topic_name'] == score.topic.topic_name:
+                                        student_info['scores'][i]['score']=score.score
+                                if score.topic.topic_name not in processed_scores: 
+                                    topic_scores_all.append(score)
+                                    column.append([index ,score.topic.topic_name])
+                                    processed_scores.add(score.topic.topic_name)
+                                    index = index+1
+                                if student_info['interviewer'] == 'ไม่มีผู้สัมภาษณ์':
+                                    interviewer_name = score.interviewer.prefix+score.interviewer.first_name+' '+score.interviewer.last_name
+                                    student_info['interviewer'] = interviewer_name                
+            if get_interviewer_name == 'True':
+                data.append(interviewer_name)
+            
+            data.extend(list_topic)
+            if score_check == 'True':
+                data.extend(list_score)
+            if score_max == 'True':
+                data.extend(list_score_max)
+            if total_score == 'True':
+                sum_list_score =0
+                sum_list_score_max = 0
+                for i in list_score:
+                    if i != '-':
+                        sum_list_score = sum_list_score + int(i) 
+                for i in list_score_max:
+                    if i != '-':
+                        sum_list_score_max = sum_list_score_max + int(i) 
+                data.append(sum_list_score_max)
+                data.append(sum_list_score)
+
+            if len(student_ex) < 5:
+                student_ex.append(student_info)
+
+            data_to_csv.append(data) 
+            
+
+        for i in range(len(list_topic)):
+            column_to_csv.append('รายการที่ '+(str(i+1)))
+        if score_check == 'True':
+            for i in range(len(list_topic)):
+                column_to_csv.append('คะแนนรายการ '+(str(i+1)))
+        if score_max == 'True':
+            for i in range(len(list_topic)):
+                column_to_csv.append('คะแนนเต็มที่ '+(str(i+1)))
+        if total_score == 'True':
+                column_to_csv.append('คะแนนรวมเต็ม')
+                column_to_csv.append('คะแนนรวม')
+        #print(column_to_csv)
+        #print(data_to_csv)
+        response = HttpResponse(
+        content_type='text/csv',
+        headers={'Content-Disposition': f'attachment; filename="{round_from_session}".csv'},
+         )
+        #df = pd.DataFrame([data_list], columns=topic_list)
+        response.write(u'\ufeff'.encode('utf8'))
+        writer = csv.writer(response)
+        writer.writerow(column_to_csv)
+        for i in data_to_csv:
+            writer.writerow(i)
+        
+        context = {
+            'student_ex':student_ex,
+            "student":student,
+            'index_student':student_index,
+            'column_topic_name':column,
+            'scores': topic_scores_all,
+            "s_major" : major_from_session,
+            "faculty_all" : faculty_all,
+            "majors" : majors,
+            "s_round" : round_from_session,
+        }
+        
+        return response
+    return redirect(request.META.get('HTTP_REFERER', 'fallback-url')) 

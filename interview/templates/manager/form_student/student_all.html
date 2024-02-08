@@ -1,0 +1,60 @@
+{% extends 'manager/base/n_base.html' %}
+{% load static %}
+{% block css_js %} 
+<link rel="stylesheet" href="{% static 'css/manager_css/form_student.css' %}" />
+<script src="{% static 'js/manager/form_student.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+{% endblock %} 
+{% block topic %}
+<div class="fs-8 mt-1 text-muted text-center">
+    <span><i class="ti ti-user-x"></i> พิมพ์ผลสัมภาษณ์ทั้งหมด</span>
+  </div>
+{% endblock %}
+{% block content %}
+<div class="pt-14 px-2">
+    {% if scores%}
+    <table  class="table table-bordered table-hover">
+      <h2>ตัวอย่างคะแนนของนักเรียน </h2>
+        <thead>
+          <tr>
+            <th>ชื่อนักเรียน</th>
+            <th>ชื่อผู้สัมภาษณ์</th>
+
+            {% for item in student_ex.0.scores %}
+            <th>{{item.topic_name}}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+      
+        <tbody>
+        {% for item in student_ex %}
+          <tr>
+            <td>{{ item.student}}</td>
+            <td>{{ item.interviewer}}</td>
+            {% for i in item.scores %}
+              <td>{{i.score}}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    <form action="{% url 'student_all_tocsv' %}" method="post">
+        {% csrf_token %}
+
+        <input type="checkbox" id="item" value="True" name="checkbox_all"  checked> <label for="item1" onclick="all_list('{% for item in student_ex.0.scores %}{{ item.topic_name }}{% if not loop.last %},{% endif %}{% endfor %}'
+        )"> คะแนนหัวข้อทั้งหมด +</label>
+        <div style="margin-left: 20px;" id="checkbox-container">  </div>
+        <input type="checkbox" id="item2" value="True" name="score" checked>   <label for="item2">คะแนนที่ได้</label> <br>
+        <input type="checkbox" id="item3" value="True" name="score_max" checked>   <label for="item3">คะแนนเต็ม</label> <br>
+        <input type="checkbox" id="item4" value="True" name="interviewer_name" checked>   <label for="item4">ชื่อผู้สัมภาษณ์</label> <br>
+        <input type="checkbox" id="item5" value="True" name="student_name" checked>   <label for="item5">ชื่อนักเรียน</label> <br>
+        <input type="checkbox" id="item6" value="True" name="total_score" checked>   <label for="item6">คะแนนรวมเท่านั่น</label> <br>
+        <input type="text" hidden name="index" value="{{index_student}}">
+        <button type="submit"> ดาวโหลดไฟล์ CSV</button>
+    </form>
+{% else %}
+    <p>ไม่มีคะแนนสำหรับนักเรียนในรอบการประเมินนี้</p>
+{% endif %}
+
+</div>
+{% endblock %}

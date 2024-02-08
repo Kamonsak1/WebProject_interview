@@ -12,10 +12,10 @@
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
-    {% if scores%}
+    {% if score%}
     <div  style="display: flex; justify-content: space-between;">
         <h2>คะแนนของนักเรียน {{student.prefix}}{{student.first_name}} {{student.last_name}} </h2>
-        <h2>ผู้สัมภาษณ์ {{ scores.0.interviewer.prefix }}{{ scores.0.interviewer.first_name }} {{ scores.0.interviewer.last_name }}</h2>
+        <h2>ผู้สัมภาษณ์ {{score.interviewer}}</h2>
     </div>
     <table  class="table table-bordered table-hover">
         <thead>
@@ -26,28 +26,29 @@
           </tr>
         </thead>
         <tbody>
-        {% for item in scores %}
+          {% for item in score.scores %}
           <tr>
-            <td>{{ item.topic.topic_name }}</td>
-            <td>{{ item.topic.max_score }}</td>
-            <td>{{ item.score }}</td>
+              <td>{{ item.topic_name}}</td>
+              <td>{{ item.score }}</td>  
+              <td>{{ item.scores_max }}</td>  
           </tr>
-        {% endfor %}
+          {% endfor %}
         </tbody>
+        
        
       </table>
     <form action="{% url 'student_one_tocsv' %}" method="post">
         {% csrf_token %}
 
-        <input type="checkbox" id="item" value="True" name="checkbox_all"  checked> <label for="item1" onclick="all_list('{% for item in scores %}{{ item.topic.topic_name }}-{{ item.topic.max_score }}-{{ item.score }}{% if not loop.last %},{% endif %}{% endfor %}'
+        <input type="checkbox" id="item" value="True" name="checkbox_all"  checked> <label for="item1" onclick="all_list('{% for item in score.scores %}{{ item.topic_name}}-{{ item.scores_max }}-{{ item.score }}{% if not loop.last %},{% endif %}{% endfor %}'
         )"> คะแนนหัวข้อทั้งหมด +</label>
         <div style="margin-left: 20px;" id="checkbox-container">  </div>
         <input type="checkbox" id="item2" value="True" name="score" checked>   <label for="item2">คะแนนที่ได้</label> <br>
         <input type="checkbox" id="item3" value="True" name="score_max" checked>   <label for="item3">คะแนนเต็ม</label> <br>
-        <input type="checkbox" id="item4" value="{{ scores.0.interviewer.prefix }}{{ scores.0.interviewer.first_name }} {{ scores.0.interviewer.last_name }}" name="interviewer_name" checked>   <label for="item4">ชื่อผู้สัมภาษณ์</label> <br>
+        <input type="checkbox" id="item4" value="{{score.interviewer}}" name="interviewer_name" checked>   <label for="item4">ชื่อผู้สัมภาษณ์</label> <br>
         <input type="checkbox" id="item5" value="{{student.prefix}}{{student.first_name}} {{student.last_name}}" name="student_name" checked>   <label for="item5">ชื่อนักเรียน</label> <br>
         <input type="checkbox" id="item6" value="True" name="total_score" checked>   <label for="item6">คะแนนรวมเท่านั่น</label> <br>
-        <input hidden type="checkbox" id="item7" value="{% for item in scores %}{{ item.topic.topic_name }}-{{ item.topic.max_score }}-{{ item.score }}{% if not loop.last %},{% endif %}{% endfor %}" name="checkbox_all_T"  checked>   
+        <input hidden type="checkbox" id="item7" value="{% for item in score.scores %}{{ item.topic_name}}-{{ item.scores_max }}-{{ item.score }}{% if not loop.last %},{% endif %}{% endfor %}" name="checkbox_all_T"  checked>   
         <input type="text" hidden name="email" value="{{student.email}}">
         <button type="submit"> ดาวโหลดไฟล์ CSV</button>
     </form>
