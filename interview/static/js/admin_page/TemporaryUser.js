@@ -263,3 +263,14 @@ if (optionsDiv.style.display === "block") {
 }
 
 
+// function toggleButton() {
+//   var button = document.getElementById("toggleStatus");
+
+//   if (button.value === "off") {
+//       button.value = "on";
+//       button.className = "button on"; // เปลี่ยนสไตล์สำหรับสถานะเปิด
+//   } else {
+//       button.value = "off";
+//       button.className = "mode"; // กลับสู่สไตล์เริ่มต้น
+//   }
+// }

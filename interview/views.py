@@ -70,7 +70,12 @@ def is_Student(user):
         return False
 
 def index(request):
-    return render(request,"html/index.html")
+    mode = login_mode.objects.all()
+    for i in mode:
+        if i.mode == '0':
+            return render(request,"html/index.html")
+        else:
+            return render(request,"html/index2.html")
 
 def test(request):
     user = User.objects.get(username='1')
@@ -102,11 +107,11 @@ def FacultyMajor(request):
 
 def report_TemporaryUser(request):
     data_list=report_temporaryUser.objects.all()
-    duplicate_emails = request.session.get('duplicate_emails', [])
+    duplicate_register_id = request.session.get('duplicate_register_id', [])
     users_with_duplicates = []
     users_without_duplicates = []
     for user in data_list:
-        if user.email in duplicate_emails:
+        if user.citizen_id in duplicate_register_id:
             users_with_duplicates.append(user)
         else:
             users_without_duplicates.append(user)
@@ -138,7 +143,12 @@ def TemporaryUser_path(request):
     faculty_all = Faculty.objects.all()
     major_all = Major.objects.all()
     round_active = Round.objects.all().order_by('-academic_year')
-    return render(request,'admin/TemporaryUser.html', {'users': users,'faculty_all':faculty_all,"major_all":major_all,'round_active':round_active})
+    instances_mode = login_mode.objects.all()
+    mode = None
+    for i in instances_mode:
+        mode = i.mode
+
+    return render(request,'admin/TemporaryUser.html', {'users': users,'faculty_all':faculty_all,"major_all":major_all,'round_active':round_active, 'mode': mode})
 @login_required
 @user_passes_test(is_admin)
 def User_path(request):
@@ -339,14 +349,14 @@ def form_student(request, id):
             for i in topic_scores_all:
                 if i.topic.topic_name not in topic_all:
                     topic_all.append(i.topic.topic_name)
-                if student_info['interviewer'] == '-':
-                    interviewer_name = i.interviewer.prefix+i.interviewer.first_name+' '+i.interviewer.last_name
-                    student_info['interviewer'] = interviewer_name
 
         for topic in scores_topic:      
             topic_scores = Score.objects.filter(student=student,topic__topic_name=topic,topic__pattern_id__pattern_name=round_score.pattern.pattern_name)  
             for i in topic_scores:
                 topic_list.append(i.topic.topic_name)
+                if student_info['interviewer'] == '-':
+                    interviewer_name = i.interviewer.prefix+i.interviewer.first_name+' '+i.interviewer.last_name
+                    student_info['interviewer'] = interviewer_name
         for item in topic_all:
             if item in topic_list:
                 topic_scores = Score.objects.filter(student=student,topic__topic_name=item,topic__pattern_id__pattern_name=round_score.pattern.pattern_name)  
@@ -354,6 +364,7 @@ def form_student(request, id):
                     student_info['scores'].append({'topic_name': item, 'score': i.score,'scores_max': i.topic.max_score})
             else:
                 student_info['scores'].append({'topic_name': item, 'score': 0,'scores_max': i.topic.max_score})
+        print(student_info)
         context = {
             "student":student,
             'score': student_info,
@@ -767,7 +778,7 @@ def send_email_password(request):
         confirmation_code = ''.join(random.choices(string.digits, k=7))
         request.session['confirmation_code'] = confirmation_code
         subject = 'ยืนยันอีเมลของคุณ ',email
-        message = f'โปรดใช้รหัสนี้เพื่อยืนยันอีเมลของคุณ: {confirmation_code} ชื่อผู้ใช้ {username}  รหัสผ่าน {password}'
+        message = f'โปรดใช้รหัสนี้เพื่อยืนยันอีเมลของคุณ: {confirmation_code}'
         from_email = settings.EMAIL_HOST_USER
         recipient_list = [email]
         send_mail(subject, message, from_email, recipient_list)
@@ -791,7 +802,31 @@ def confirm_email(request):
                     if str(passemail) == str(confirmation_code):
                         # ตรวจสอบว่า email นี้ถูกใช้งานแล้วหรือไม่
                         if User.objects.filter(email=email).exists():
-                            return HttpResponse("อีเมลถูกใช้งานไปแล้ว")
+                            
+                            tem_user = TemporaryUser.objects.get(pk=temporary_user_id)
+                            user = User.objects.filter(email=email).first()
+                            role_model = Role.objects.get(name='Student')
+                            role_model.users.add(user)
+                            round_names = []
+                            major_names = []
+                            faculty_names=[]
+                            for round_obj in tem_user.round_temp_user.all():
+                                round_names.append(round_obj.round_name)
+                                major_names.append(round_obj.major.major)  
+                                faculty_names.append(round_obj.major.faculty.faculty)                                  
+                                round_obj.users.add(user)
+                            for major_name in major_names:
+                                major_instance = Major.objects.get(major=major_name)
+                                major_instance.users.add(user)
+                            for faculty_name in faculty_names:
+                                faculty_instance = Faculty.objects.get(faculty=faculty_name)
+                                faculty_instance.users.add(user)
+                            user.set_password(password)
+                            user.save()
+                            tem_user.delete()
+                            send_registration_email(email,password,user.username)
+                            return redirect('/')
+ 
                         else:
                             user, created = User.objects.get_or_create(username=username)
                             tem_user = TemporaryUser.objects.get(pk=temporary_user_id)
@@ -810,7 +845,7 @@ def confirm_email(request):
                                 round_names = []
                                 major_names = []
                                 faculty_names=[]
-                                for round_obj in tem_user.rounds_participated.all():
+                                for round_obj in tem_user.round_temp_user.all():
                                     round_names.append(round_obj.round_name)
                                     major_names.append(round_obj.major.major)  
                                     faculty_names.append(round_obj.major.faculty.faculty)                                  
@@ -827,6 +862,8 @@ def confirm_email(request):
                                 # for  major in major_TemporaryUser:
                                 #      major.users.add(user)
                                 user.save()
+                                tem_user.delete()
+                                send_registration_email(email,password,user.username)
                                 return redirect('/')
                                 #return redirect('social:begin', backend='google-oauth2')
                             else:
@@ -976,17 +1013,10 @@ def add_TemporaryUser(request):
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         citizen_id = request.POST.get('citizen_id')
-        # birth_date_str = request.POST.get('birth_date')
-        # birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date() 
-        round_sel = request.POST.get('round') 
-        round = Round.objects.get(pk=round_sel)
-
-        try:
-            check_user = User.objects.get(citizen_id=citizen_id)
-            return redirect('TemporaryUser') 
-        except User.DoesNotExist:
-            pass
-
+        prefix = request.POST.get('prefix')
+        password = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
+        round = request.POST.get('round') 
+        round = Round.objects.get(round_name=round)
         try:
             check_temporary_user = TemporaryUser.objects.get(citizen_id=citizen_id)
             round.TemporaryUser.add(check_temporary_user)
@@ -997,6 +1027,7 @@ def add_TemporaryUser(request):
             return redirect('TemporaryUser') 
         except TemporaryUser.DoesNotExist:
             check_temporary_user = TemporaryUser.objects.create(
+                prefix=prefix,
                 citizen_id=citizen_id,
                 first_name=first_name,
                 last_name=last_name,
@@ -1016,51 +1047,6 @@ def add_TemporaryUser(request):
             
     return redirect("TemporaryUser")
 
-
-def add_TemporaryUser_test(request):
-    if request.method == "POST":     
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        citizen_id = request.POST.get('citizen_id')
-        # birth_date_str = request.POST.get('birth_date')
-        # birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date() 
-        round_sel = request.POST.get('round') 
-        round = Round.objects.get(pk=round_sel)
-
-        try:
-            check_user = User.objects.get(citizen_id=citizen_id)
-            return redirect('TemporaryUser') 
-        except User.DoesNotExist:
-            pass
-
-        try:
-            check_temporary_user = User.objects.get(username=citizen_id)
-            round.users.add(check_temporary_user)
-            faculty_instance = Faculty.objects.get(faculty=round.major.faculty.faculty)
-            faculty_instance.users.add(check_temporary_user)
-            major_instance = Major.objects.get(major=round.major.major)
-            major_instance.users.add(check_temporary_user)
-            return redirect('TemporaryUser') 
-        except User.DoesNotExist:
-            check_temporary_user = User.objects.create(
-                username=citizen_id,
-                first_name=first_name,
-                last_name=last_name,
-                #birth_date=birth_date,
-                password = make_password(citizen_id)
-            )
-            round.users.add(check_temporary_user)
-            role_model, _ = Role.objects.get_or_create(name='Student')
-            role_model.users.add(check_temporary_user)
-            faculty_instance = Faculty.objects.get(faculty=round.major.faculty.faculty)
-            faculty_instance.users.add(check_temporary_user)
-            major_instance = Major.objects.get(major=round.major.major)
-            major_instance.users.add(check_temporary_user)
-            check_temporary_user.save()
-            
-            return redirect('TemporaryUser')    
-            
-    return redirect("TemporaryUser")
 
 @login_required
 @user_passes_test(is_admin)    
@@ -1236,33 +1222,32 @@ def edit_InterviewRound(request):
         round_edited.save()
         
     return redirect('/Interview')
-def add_TUser(request):
+def confirm_add_TUser(request):
     if request.method == 'POST':
         data_list=report_temporaryUser.objects.all()
         for item in data_list:
-            if not User.objects.filter(email=item.email).exists():
-                new_user = User(
-                    username=item.citizen_id,
+            if not TemporaryUser.objects.filter(citizen_id=item.citizen_id).exists():
+                new_user = TemporaryUser(
+                    citizen_id=item.citizen_id,
                     first_name=item.first_name,
                     last_name=item.last_name,
-                    email=item.email,
                     prefix=item.prefix
                 )
                 new_user.save()
-                Round_db = Round.objects.get(pk=item.round_name)
-                Round_db.users.add(new_user)  
+                Round_db = Round.objects.get(round_name=item.round_name)
+                Round_db.TemporaryUser.add(new_user)  
                 faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
-                faculty_instance.users.add(new_user)
+                faculty_instance.TemporaryUser.add(new_user)
                 major_instance = Major.objects.get(major=Round_db.major.major)
-                major_instance.users.add(new_user) 
+                major_instance.TemporaryUser.add(new_user) 
             else:
-                old_user = User.objects.get(email=item.email)
-                Round_db = Round.objects.get(pk=item.round_name)
-                Round_db.users.add(old_user)  
+                old_user = TemporaryUser.objects.get(citizen_id=item.citizen_id)
+                Round_db = Round.objects.get(round_name=item.round_name)
+                Round_db.TemporaryUser.add(old_user)  
                 faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
-                faculty_instance.users.add(old_user)
+                faculty_instance.TemporaryUser.add(old_user)
                 major_instance = Major.objects.get(major=Round_db.major.major)
-                major_instance.users.add(old_user) 
+                major_instance.TemporaryUser.add(old_user) 
             
 
         return redirect('TemporaryUser')
@@ -1270,7 +1255,7 @@ def add_TUser(request):
 @user_passes_test(is_admin)
 def add_TemporaryUser_by_file(request):
     if request.method == 'POST':
-        round_sel = request.POST.get('round') 
+        round = request.POST.get('round') 
         data = request.FILES.get('fileInputa')
         if data.name.endswith('.xlsx'):
             df = pd.read_excel(data)
@@ -1279,25 +1264,24 @@ def add_TemporaryUser_by_file(request):
         else:
             pass
         try:
-            data = df[['APPLICANTCODE','PREFIXNAME','APPLICANTNAME','APPLICANTSURNAME','EMAIL']]
+            data = df[['เลขบัตรประชาชน','คำนำหน้า','ชื่อ','นามสกุล']]
             report_temporaryUser.objects.all().delete()
         except Exception as e:
             return HttpResponse('คอลัมไม่ตรงตามที่ต้องการ')
-        duplicate_emails = []
+        duplicate_register_id = []
         for index, row in data.iterrows():    
-                    email = row['EMAIL']     
-                    user_with_email = User.objects.filter(email=email).first()      
-                    if user_with_email:
-                        duplicate_emails.append(email)    
-                    report_temporaryUser.objects.create(
-                        citizen_id=row['APPLICANTCODE'],
-                        first_name=row['APPLICANTNAME'],
-                        last_name=row['APPLICANTSURNAME'],
-                        prefix=row['PREFIXNAME'],
-                        email=row['EMAIL'],
-                        round_name=round_sel
-                    )
-        request.session['duplicate_emails'] = duplicate_emails
+            register_id = str(row['เลขบัตรประชาชน']).strip()    
+            user_with_email = TemporaryUser.objects.filter(citizen_id=register_id).first()    
+            if user_with_email:
+                duplicate_register_id.append(register_id)   
+            report_temporaryUser.objects.create(
+                    citizen_id=row['เลขบัตรประชาชน'],
+                    first_name=row['ชื่อ'],
+                    last_name=row['นามสกุล'],
+                    prefix=row['คำนำหน้า'],
+                    round_name=round
+                            )
+        request.session['duplicate_register_id'] = duplicate_register_id
         return redirect('report_TemporaryUser')
 
         user_old = []
@@ -1386,43 +1370,45 @@ def add_User(request):
     if request.method == "POST":     
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
-        citizen_id = request.POST.get('citizen_id')
+        register_id = request.POST.get('register_id')
         email =  request.POST.get('email')
-        #birth_date_str = request.POST.get('birth_date')
-        #birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date()
         faculty_name = request.POST.get('faculty')  
         major_name = request.POST.get('major')  
+        round = request.POST.get('round')  
         password = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
         checkboxgroup = request.POST.getlist('checkboxgroup')
         faculty = Faculty.objects.get(faculty=faculty_name)
         major= Major.objects.get(major=major_name, faculty=faculty)
+        round= Round.objects.get(major__major=major_name, round_name=round)
         try:
             check_user = User.objects.get(email=email)
             faculty.users.add(check_user)
             major.users.add(check_user)
+            round.users.add(check_user)
             return redirect('User')
         except User.DoesNotExist:
             new_user = User.objects.create(
                                            first_name= first_name,
                                            last_name= last_name,
                                            email= email ,
-                                           username=email,
+                                           username=register_id,
                                            password= make_password(password))
             faculty.users.add(new_user)
             major.users.add(new_user)
             faculty.users.add(new_user)
             major.users.add(new_user)
+            round.users.add(new_user)
             for role_name in checkboxgroup:
                 role_model, _ = Role.objects.get_or_create(name=role_name)
                 role_model.users.add(new_user)
-            #send_registration_email(email)
+            send_registration_email("kamonsakprj@gmail.com",password,register_id)
             return redirect('User')
         
     return redirect("User")
 
-def send_registration_email(email):
+def send_registration_email(email,password,username):
     subject = 'รหัสผ่านของเว็บจัดคิวสัมภาษณ์',email
-    message = f'สามารถเข้าสู่ระบบทาง google ด้วย email: {email}'
+    message = f'สามารถเข้าสู่ระบบทาง google ด้วย email: {email} หรือusername: {username} password: {password}'
     from_email = settings.EMAIL_HOST_USER
     recipient_list = [email]
     send_mail(subject, message, from_email, recipient_list)
@@ -1432,6 +1418,9 @@ def add_User_by_file(request):
     if request.method == 'POST':
         data = request.FILES.get('fileInputa')
         checkboxgroup = request.POST.getlist('checkboxgroup')
+        faculty_name = request.POST.get('faculty')  
+        major_name = request.POST.get('major')  
+        round = request.POST.get('round')  
         if data.name.endswith('.xlsx'):
             df = pd.read_excel(data)
         elif data.name.endswith('.csv'):
@@ -1439,83 +1428,58 @@ def add_User_by_file(request):
         else:
             pass
         try:
-            data = df[['ชื่อ','คณะ','สาขา','email']]
+            data = df[['APPLICANTCODE','PREFIXNAME','APPLICANTNAME','APPLICANTSURNAME','EMAIL']]
+            report_User.objects.all().delete()
         except Exception as e:
             return HttpResponse('คอลัมไม่ตรงตามที่ต้องการ')
-        try:
-            data['คำนำหน้า'] = data['ชื่อ'].str.extract(r'(นาย|นางสาว)')
-        except Exception as e:
-            return HttpResponse('ชื่อไม่ถูกต้อง')
-        try:
-            data['นามสกุล'] = data['ชื่อ'].str.split(expand=True)[1]
-        except Exception as e:
-            return HttpResponse('นามสกุลไม่ถูกต้อง')
-        try:
-            data['first_name'] = data['ชื่อ'].str.split(expand=True)[0]
-        except Exception as e:
-            return HttpResponse('first_name ไม่ถูกต้อง')
-        
-
-
-
-        user_old = []
-        
-        for i in range(len(data)):
-            try:
-                faculty = (data.iloc[i]['คณะ'].strip())
-            except Exception as e:
-                return HttpResponse('ชื่อคณะไม่ถูกต้อง')
-            try:
-                major = (data.iloc[i]['สาขา'].strip())
-            except Exception as e:
-                return HttpResponse('ชื่อสาขาไม่ถูกต้อง')
-            try:
-                first_name=(data.iloc[i]['first_name'].strip())
-            except Exception as e:
-                return HttpResponse('first_name ไม่ถูกต้อง')
-            try:
-                last_name=(data.iloc[i]['นามสกุล'].strip())
-            except Exception as e:
-                return HttpResponse('last_name ไม่ถูกต้อง')
-            try:
-                email=(data.iloc[i]['email'].strip())
-            except Exception as e:
-                return HttpResponse('email ไม่ถูกต้อง') 
-                    
+        duplicate_emails = []
+        for index, row in data.iterrows():    
+            email = row['EMAIL']     
+            user_with_email = User.objects.filter(email=email).first()    
             checkuser = User.objects.filter(email=email)
-            if not checkuser.exists():
-                #password = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
-                create_User = User.objects.create(first_name=first_name,last_name=last_name,email=email)
-                create_User.username = email
-                create_User.save()
-                #send_registration_email(email)
-                Faculty_add = Faculty.objects.filter(faculty=faculty).first()
-                Faculty_add.users.add(create_User)
-                Major_add = Major.objects.filter(major=major).first()
-                Major_add.users.add(create_User)
-                for role_name in checkboxgroup:
-                    role_model, _ = Role.objects.get_or_create(name=role_name)
-                    role_model.users.add(create_User)
-            else:
-                user_old.append(data.iloc[i]['ชื่อ'])
-                user_id = checkuser.first().id
-                checkFaculty = Faculty.objects.filter(faculty=faculty,users=user_id)
-                if not checkFaculty.exists():
-                    faculty_db = Faculty.objects.filter(faculty=faculty).first()
-                    faculty_db.users.add(user_id)                    
-                else:
-                    pass
-                        #return HttpResponse(usernames[0]+'อยู่ใน' + faculty + 'แล้ว')
-                checkMajor = Major.objects.filter(major=major,users=user_id)
-                if not checkMajor.exists():
-                    Major_db = Major.objects.filter(major=major).first()
-                    Major_db.users.add(user_id)                    
-                else:
-                    pass
+            if user_with_email:
+                duplicate_emails.append(email)    
+            report_User.objects.create(
+                citizen_id=row['APPLICANTCODE'],
+                first_name=row['APPLICANTNAME'],
+                last_name=row['APPLICANTSURNAME'],
+                prefix=row['PREFIXNAME'],
+                email=row['EMAIL'],
+                round_name=round,
+                role_name=checkboxgroup
+                )
+        request.session['user_duplicate_emails'] = duplicate_emails
+            # if not checkuser.exists():
+            #     password = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
+            #     create_User = User.objects.create(first_name=first_name,last_name=last_name,email=email)
+            #     create_User.username = email
+            #     create_User.save()
+            #     send_registration_email("kamonsakprj@gmail.com",password,register_id)
+            #     Faculty_add = Faculty.objects.filter(faculty=faculty).first()
+            #     Faculty_add.users.add(create_User)
+            #     Major_add = Major.objects.filter(major=major).first()
+            #     Major_add.users.add(create_User)
+            #     for role_name in checkboxgroup:
+            #         role_model, _ = Role.objects.get_or_create(name=role_name)
+            #         role_model.users.add(create_User)
+            # else:
+            #     user_old.append(data.iloc[i]['ชื่อ'])
+            #     user_id = checkuser.first().id
+            #     checkFaculty = Faculty.objects.filter(faculty=faculty,users=user_id)
+            #     if not checkFaculty.exists():
+            #         faculty_db = Faculty.objects.filter(faculty=faculty).first()
+            #         faculty_db.users.add(user_id)                    
+            #     else:
+            #         pass
+            #             #return HttpResponse(usernames[0]+'อยู่ใน' + faculty + 'แล้ว')
+            #     checkMajor = Major.objects.filter(major=major,users=user_id)
+            #     if not checkMajor.exists():
+            #         Major_db = Major.objects.filter(major=major).first()
+            #         Major_db.users.add(user_id)                    
+            #     else:
+            #         pass
 
-
-        print('เจอข้อมูลเดิม',user_old)
-    return redirect('User')
+    return redirect('report_User_to_html')
 @login_required
 @user_passes_test(is_admin)
 def edit_User(request):
@@ -2270,7 +2234,7 @@ def form_student_all(request):
             for i in scores_topic:
                 student_info['scores'].append({
                     'topic_name': i.topic_name,
-                    'score': '-'})
+                    'score': '0'})
                 student_info['scores_max'].append(
                     {'topic_name': i.topic_name,
                      'scores_max': i.max_score})
@@ -2490,3 +2454,77 @@ def student_all_tocsv(request):
         
         return response
     return redirect(request.META.get('HTTP_REFERER', 'fallback-url')) 
+
+def mode(request):
+    if request.method == 'POST':
+        button = request.POST.get('button') 
+        instances_mode = login_mode.objects.all()
+        # mode = None
+        for instance in instances_mode:
+                instance.mode = button
+                instance.save()
+
+
+    return redirect(request.META.get('HTTP_REFERER', 'fallback-url')) 
+
+def ajax_round(request):
+    major_name = request.GET.get('major')  
+    major_object = Major.objects.get(major=major_name)
+    round = major_object.round_set.all()
+    print(round)
+
+    return render(request, 'admin/dropdown-round.html', {"rounds": round})
+
+def report_User_to_html(request):
+    data_list=report_User.objects.all()
+    duplicate_emails = request.session.get('user_duplicate_emails', [])
+    users_with_duplicates = []
+    users_without_duplicates = []
+    for user in data_list:
+        if user.email in duplicate_emails:
+            users_with_duplicates.append(user)
+        else:
+            users_without_duplicates.append(user)
+    return render(request,'admin/report_user/report_User.html',{"data_list":users_without_duplicates,"data_duplicates":users_with_duplicates})
+
+def confirm_adduser(request):
+  if request.method == 'POST':
+        data_list=report_User.objects.all()
+        for item in data_list:
+            if not User.objects.filter(email=item.email).exists():
+        
+                new_user = User(
+                    username=item.citizen_id,
+                    first_name=item.first_name,
+                    last_name=item.last_name,
+                    email=item.email,
+                    prefix=item.prefix
+                )
+                new_user.save()
+                Round_db = Round.objects.get(round_name=item.round_name)
+                Round_db.users.add(new_user)  
+                faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
+                faculty_instance.users.add(new_user)
+                major_instance = Major.objects.get(major=Round_db.major.major)
+                major_instance.users.add(new_user) 
+                role = item.role_name
+                list_role = eval(role)
+                for role_name in list_role:
+                        role_model, _ = Role.objects.get_or_create(name=role_name)
+                        role_model.users.add(new_user)
+            else:
+                old_user = User.objects.get(email=item.email)
+                Round_db = Round.objects.get(round_name=item.round_name)
+                Round_db.users.add(old_user)  
+                faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
+                faculty_instance.users.add(old_user)
+                major_instance = Major.objects.get(major=Round_db.major.major)
+                major_instance.users.add(old_user) 
+                role = item.role_name
+                list_role = eval(role)
+                for role_name in list_role:
+                        role_model, _ = Role.objects.get_or_create(name=role_name)
+                        role_model.users.add(old_user)
+            
+
+        return redirect('User')

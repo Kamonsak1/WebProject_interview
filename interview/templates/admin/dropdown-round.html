@@ -1,0 +1,5 @@
+<!-- dropdown-list.html -->
+<option value="">รอบ</option>
+{% for round in rounds %}
+    <option value="{{ round.round_name }}">{{ round.round_name }}</option>
+{% endfor %}

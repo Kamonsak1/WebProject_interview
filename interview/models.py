@@ -92,6 +92,16 @@ class report_temporaryUser(models.Model):
     email = models.EmailField(unique=True, blank=True, null=True )
     round_name = models.CharField(max_length=20)
 
+class report_User(models.Model):
+    citizen_id = models.CharField(max_length=13, unique=True)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    password = models.CharField(max_length=128, blank=True)
+    prefix = models.CharField(max_length=20,null=True, blank=True)
+    email = models.EmailField(unique=True, blank=True, null=True )
+    round_name = models.CharField(max_length=20)
+    role_name = models.CharField(max_length=100)
+
 class TemporaryUser(models.Model):
     citizen_id = models.CharField(max_length=13, unique=True)
     first_name = models.CharField(max_length=100)
@@ -239,3 +249,7 @@ class RoundScore(models.Model):
 class InterviewNow(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='interview_student',blank=True,null=True)
     interviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='interviewer')
+
+
+class login_mode(models.Model):
+    mode = models.CharField(max_length=1, default='0')

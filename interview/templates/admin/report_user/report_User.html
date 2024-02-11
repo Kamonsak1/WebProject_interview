@@ -32,10 +32,10 @@
     
   </div>
   <div style="margin-top: 20px;">
-    <form action="{% url 'confirm_add_TUser' %}" method="post">
+    <form action="{% url 'confirm_adduser' %}" method="post">
         {% csrf_token %}
         <button style="margin-right: 10px;">ยืนยันเพิ่มข้อมูล</button>
     </form>
-    <a href="{% url 'TemporaryUser' %}"><button>ยกเลิก</button></a>
+    <a href="{% url 'User' %}"><button>ยกเลิก</button></a>
   </div>
 {% endblock %}

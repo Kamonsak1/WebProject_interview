@@ -32,9 +32,24 @@
                 </select>
                 <button class="btn btn-info mx-2" type="submit">ค้นหา</button>
             </form>
+            {% if mode == '0' %}
+            <form action="{% url 'mode' %}" method="post">
+                {% csrf_token %}
+                <input hidden  type="text" name="button" value="1" id="">
+                <button type="submit" class="mode" value="off" ></button>
+            </form>
+            {% endif %}
+            {% if mode == '1' %}
+            <form action="{% url 'mode' %}" method="post">
+                {% csrf_token %}
+                <input hidden type="text" name="button" value="0" id="">
+                <button type="submit" class="on" value="off" ></button>
+            </form>
+            {% endif %}
         </div>
 
         <div>
+            
             <button class="btn btn-info " onclick="add_TemporaryUser()">เพิ่มผู้ใช้งาน</button>
             <button class="btn btn-info " onclick="add_TemporaryUser_by_file()">เพิ่มผู้ใช้งานแบบไฟล์</button>
         </div>
@@ -185,7 +200,7 @@
             </div>
     </div>
     <div class="container_add" id="add_TemporaryUser">
-        <form action="{% url 'add_TemporaryUser_test' %}" method="post" data-cities-url="{% url 'ajax_load_cities' %}" id="add_test">
+        <form action="{% url 'add_TemporaryUser' %}" method="post" data-cities-url="{% url 'ajax_load_cities' %}" id="add_test">
             {% csrf_token %}
             <div  class="topic">
                 <h3 >สร้างผู้ใช้งาน</h3>
@@ -194,29 +209,38 @@
                 </a>
             </div>       
             <div class="input_data">
-                <div >
-                    <label for="first_name">ชื่อ</label>
-                    <input type="text" name="first_name" id="first_name">
-                </div>
-                <div>
-                    <label for="last_name">นามสกุล</label>
-                    <input type="text" name="last_name" id="last_name">
+
+                <div style="display: flex; ">
+                    <div  style="margin-right: 5px;  ">
+                        <label for="prefix">คำนำหน้า</label>
+                        <input type="text" name="prefix" id="first_name" >
+                    </div>
+                    <div  style="margin-right: 5px ; ">
+                        <label for="first_name">ชื่อ</label>
+                        <input type="text" name="first_name" id="first_name" >
+                    </div>
+                    <div  >
+                        <label for="last_name">นามสกุล</label>
+                        <input type="text" name="last_name" id="last_name" >
+                    </div>
                 </div>
                 <div>
                     <label for="citizen_id">เลขบัตรประชาชน</label>
                     <input type="text" name="citizen_id" id="citizen_id">
                 </div>
-                <div>
-                    <label for="birth_date">วัน/เดือน/ปี</label>
-                    <input type="text" name="birth_date" id="birth_date" placeholder="วว/ดด/ปป">
-                </div>
             </div>
-            <div  class="faculty_major">
-                <select name="round" id="round">
-                    <option value="">รอบที่สมัคร</option>
-                    {% for round in round_active %}
-                    <option value="{{round.id}}">{{round.round_name}} {{round.academic_year}}</option>
+            <div class="faculty_major">
+                <select name="faculty" id="id_faculty">
+                    <option value="">คณะ</option>
+                    {% for faculty in faculty_all %}
+                    <option value="{{faculty}}">{{faculty}}</option>
                     {% endfor %}
+                </select>
+                <select name="major" id="id_major">
+                    <option value="">สาขา</option>
+                </select>
+                <select name="round" id="id_round">
+                    <option value="">รอบ</option>
                 </select>
             </div>
             <br>
@@ -237,12 +261,18 @@
                 </a>
             </div>   
             <input type="file" name="fileInputa">
-            <div  class="faculty_major">
-                <select name="round" id="round">
-                    <option value="">รอบที่สมัคร</option>
-                    {% for round in round_active %}
-                    <option value="{{round.id}}">{{round.round_name}} {{round.academic_year}}</option>
+            <div class="faculty_major">
+                <select name="faculty" id="id_faculty_byfile">
+                    <option value="">คณะ</option>
+                    {% for faculty in faculty_all %}
+                    <option value="{{faculty}}">{{faculty}}</option>
                     {% endfor %}
+                </select>
+                <select name="major" id="id_major_byfile">
+                    <option value="">สาขา</option>
+                </select>
+                <select name="round" id="id_round_byfile">
+                    <option value="">รอบ</option>
                 </select>
             </div>
             
@@ -283,6 +313,52 @@
                 },
                 success: function (data) {   
                     $("#id_major_second").html(data); 
+                }
+            });
+        });
+
+        $("#id_major").change(function () {
+            const url = "{% url 'ajax_round' %}";
+            const majorname = $(this).val(); 
+    
+            $.ajax({                       
+                url: url,                   
+                data: {
+                    'major': majorname      
+                },
+                success: function (data) {   
+                    $("#id_round").html(data); 
+                }
+            });
+        });
+
+        
+        $("#id_faculty_byfile").change(function () {
+            const url = $("#add_test").attr("data-cities-url");  
+            const facultyname = $(this).val(); 
+    
+            $.ajax({                       
+                url: url,                   
+                data: {
+                    'faculty': facultyname      
+                },
+                success: function (data) {   
+                    $("#id_major_byfile").html(data); 
+                }
+            });
+        });
+
+        $("#id_major_byfile").change(function () {
+            const url = "{% url 'ajax_round' %}";
+            const majorname = $(this).val(); 
+    
+            $.ajax({                       
+                url: url,                   
+                data: {
+                    'major': majorname      
+                },
+                success: function (data) {   
+                    $("#id_round_byfile").html(data); 
                 }
             });
         });

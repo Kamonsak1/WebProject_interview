@@ -14,8 +14,10 @@ urlpatterns = [
     path('ajax_load_major',ajax_load_major, name='ajax_load_major'),
     path('ajax_load_cities',ajax_load_cities, name='ajax_load_cities'),
     path('ajax_searchText',ajax_searchText, name='ajax_searchText'),
+    path('ajax_round',ajax_round, name='ajax_round'),
     path('ajax_select_round',ajax_select_round, name='ajax_select_round'),
     path('backup_data',backup_data, name='backup_data'),
+    path('mode',mode, name='mode'),
 
     #Siteuser
     path('profile_changname',profile_changname, name='profile_changname'),
@@ -34,7 +36,7 @@ urlpatterns = [
     path('Interview',Interview, name='Interview'),
     path('Score',Admin_Score, name='Score'),
     path('TemporaryUser',TemporaryUser_path, name='TemporaryUser'),
-    path('add_TUser',add_TUser, name='add_TUser'),
+    path('confirm_add_TUser',confirm_add_TUser, name='confirm_add_TUser'),
     path('report_TemporaryUser',report_TemporaryUser,name='report_TemporaryUser'),
     path('User',User_path, name='User'),
     #path('form_interview',form_interview, name='form_interview'),
@@ -44,8 +46,8 @@ urlpatterns = [
     path('add_Major',add_Major, name='add_Major'),
     path('delete_Major/<int:id>',delete_Major ,name='delete_Major'),
     path('add_TemporaryUser',add_TemporaryUser, name='add_TemporaryUser'),
-    path('add_TemporaryUser_test',add_TemporaryUser_test, name='add_TemporaryUser_test'),
-
+    path('report_User_to_html',report_User_to_html, name='report_User_to_html'),
+    path('confirm_adduser',confirm_adduser, name='confirm_adduser'),
     path('delete_TemporaryUser/<int:id>',delete_TemporaryUser,name='delete_TemporaryUser'),
     path('delete_User/<int:id>',delete_User,name='delete_User'),
     path('add_InterviewRound',add_InterviewRound, name='add_InterviewRound'),
