@@ -34,17 +34,35 @@
             <td class="text-center">{{ i.academic_year }}</td>
             <td >{{ i.major }}</td>
             <td >{{ i.manager.first_name }} {{ i.manager.last_name }}</td>
-            <td >{{ i.documents }}</td>
+            <td >{{ i.documents.all|join:"," }}</td>
             <td class="text-center">{{ i.interview_time }}</td>
             <td class="d-flex justify-content-center">
-                <a class="btn btn-info btn-sm" href="javascript:void(0);" onclick="edit_popup
+                <a class="btn btn-secondary btn-sm mx-1 my-1" href="javascript:void(0);" onclick="doc
+                ('{{ i.id }}')">เอกสาร</a>
+                <a class="btn btn-info btn-sm mx-1 my-1" href="javascript:void(0);" onclick="edit_popup
                     ('{{ i.id }}', '{{ i.round_name }}', '{{ i.academic_year }}', '{{ i.major }}', '{{ managers.first_name }} {{ managers.last_name }}', '{{ i.documents }}', '{{ i.interview_time }}')">แก้ไข</a>
-                <a class="btn btn-danger btn-sm fs-3 mx-1" href="delete_InterviewRound/{{i.id}}">ลบ</a>
+                <a class="btn btn-danger btn-sm fs-3 mx-1 my-1" href="delete_InterviewRound/{{i.id}}">ลบ</a>
             </td>
         </tr>
+        <div class="container_add_doc" id="add_doc_{{ i.id }}">
+            <div class="text-end">
+                <a href="/Interview">
+                  <i class="fs-6 ti ti-x text-danger"></i>
+                </a>
+                <h1 class="text-center fs-6 fw-semibold text-primary">เอกสาร</h1>
+                </div>
+                <div id="doc_list"></div>
+                {% for docs in i.documents.all %}
+                    {{docs}} <br>
+                {% endfor %}
+                <form action="/add_InterviewRound" method="post" class="container mt-4">
+                  {% csrf_token %}
+              </form>
+        </div>
         {% endfor %}
     </tbody>
 </table>
+
 
 <div class="container_Scoreadd" id="add_RoundForm">
     <div class="text-end">

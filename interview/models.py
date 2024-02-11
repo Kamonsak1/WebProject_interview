@@ -150,6 +150,11 @@ class Role(models.Model):
     def __str__(self):
         return self.name
 
+class Required_doc(models.Model):
+    doc_name = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.doc_name
 
 class Round(models.Model):
     major = models.ForeignKey(Major, on_delete=models.CASCADE)
@@ -158,7 +163,7 @@ class Round(models.Model):
     manager = models.ForeignKey(User, on_delete=models.CASCADE)
     users = models.ManyToManyField(User, related_name='round_user', blank=True)
     TemporaryUser = models.ManyToManyField(TemporaryUser,related_name='round_temp_user', blank=True)
-    documents = models.CharField(max_length=200)
+    documents = models.ManyToManyField(Required_doc,related_name='doc',blank=True)
     active = models.BooleanField(default=False)
     interview_time = models.CharField(max_length=50)
     line_Token = models.CharField(max_length=50, null=True, blank=True)

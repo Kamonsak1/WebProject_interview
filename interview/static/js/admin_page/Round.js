@@ -7,6 +7,17 @@ function add_Round() {
     }
   }
 
+  function doc(id) {
+    console.log(id);
+    var optionsDiv = document.getElementById(`add_doc_${id}`);
+    console.log(optionsDiv);
+    if (optionsDiv.style.display === "block") {
+      optionsDiv.style.display = "none";
+    } else {
+      optionsDiv.style.display = "block";
+    }
+  }
+
   function edit_popup(id, name, year, major, manager, docs, time) {
     var optionsDiv = document.getElementById("edit_popup");
     document.getElementById('round_id').value = id;
