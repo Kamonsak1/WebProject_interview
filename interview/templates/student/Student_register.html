@@ -19,11 +19,11 @@
             <div class="d-flex">
                 <h4 class="fs-5 text-primary mt-auto">{{ r.round_name }} ({{ r.academic_year }})</h4> 
                 <h4 class="fs-5 text-dark ms-2 mt-auto"> {{ r.major }} | เอกสารที่จำเป็น :</h4>
-                <h4 class="fs-5 text-warning mt-auto"> {{ r.documents }}</h4>
+                <h4 class="fs-5 text-warning mt-auto"> {{ r.documents.all|join:"," }}</h4>
             </div>
             <div class="d-flex">
                 <h4 class="fs-5 fw-bolder text-success mt-auto me-5">{{ r.interview_time }}</h4>
-                <button class="btn btn-secondary btn-sm fs-3 mx-1" onclick="upload('{{ r.documents }}', '{{ r.id }}')">อัปโหลดเอกสาร</button>
+                <button class="btn btn-secondary btn-sm fs-3 mx-1" onclick="upload('{{ r.id }}')">อัปโหลดเอกสาร</button>
             {% if r.id not in uploaded_docs %}
                 <button class="btn btn-secondary" disabled>กรุณาอัปโหลดหลักฐาน</button>
             {% elif r.active and r.id not in registered_rounds %}
@@ -38,30 +38,34 @@
                 <button class="btn btn-muted" disabled>ลงทะเบียน</button>
             {% endif %}
             </div>
+            <div class="container_Scoreadd" id="upload_popup_{{ r.id }}">
+                <div class="text-end">
+                <a href="/Student_register">
+                  <i class="fs-6 ti ti-x text-danger"></i>
+                </a>
+                <h1 class="text-center fs-6 fw-semibold text-primary">อัปโหลดเอกสาร</h1>
+                </div>
+                <form action="/Student_register" method="post" enctype="multipart/form-data" class="container mt-4">
+                    {% csrf_token %}
+                    <input type="hidden" name="round_id" id="round_id">
+                    <div class="text-center">
+                        <select name="doc_name" id="doc_name" class="me-2 search-bordered fs-4">
+                            <option>เอกสาร</option>
+                            {% for docs in r.documents.all %}
+                                <option value="{{ docs.doc_name }}">{{ docs.doc_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="file" name="file_name" id="file_name" class="fs-4">
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" onclick="finish()" class="btn btn-info btn-lg mt-3">ยืนยัน</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
     {% endfor %}
 
-    <div class="container_Scoreadd" id="upload_popup">
-        <div class="text-end">
-        <a href="/Student_register">
-          <i class="fs-6 ti ti-x text-danger"></i>
-        </a>
-        <h1 class="text-center fs-6 fw-semibold text-primary">อัปโหลดเอกสาร</h1>
-        </div>
-        <form action="/Student_register" method="post" enctype="multipart/form-data" class="container mt-4">
-            {% csrf_token %}
-            <input type="hidden" name="round_id" id="round_id">
-            <div class="text-center">
-                <select name="doc_name" id="doc_name" class="me-2 search-bordered fs-4">
-                </select>
-                <input type="file" name="file_name" id="file_name" class="fs-4">
-            </div>
-            <div class="text-center">
-                <button type="submit" onclick="finish()" class="btn btn-info btn-lg mt-3">ยืนยัน</button>
-            </div>
-        </form>
-    </div>
 
 </div>
 {% endblock %}

@@ -126,15 +126,18 @@ def Interview(request):
             new_doc = Required_doc.objects.get(doc_name=request.POST.get("new_doc"))
             round = Round.objects.get(id=int(request.POST.get("add_round_doc")))
             round.documents.add(new_doc)
+            redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
         else:
             new_doc = Required_doc(doc_name=request.POST.get("new_doc"))
             new_doc.save()
             round = Round.objects.get(id=int(request.POST.get("add_round_doc")))
             round.documents.add(new_doc)
+            redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
     elif request.method == "POST" and "remove_round_doc" in request.POST:
         remove_doc = Required_doc.objects.get(doc_name=request.POST.get("remove_doc"))
         round = Round.objects.get(id=int(request.POST.get("remove_round_doc")))
         round.documents.remove(remove_doc)
+        redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
     Manager_roles = Role.objects.get(name="Manager")
     context = {
         "rounds" : Round.objects.all(),
@@ -263,6 +266,23 @@ def Manager_Announcement(request):
 @login_required
 @user_passes_test(is_Manager)
 def Manager_interview(request):
+    if request.method == "POST" and "add_round_doc" in request.POST:
+        if Required_doc.objects.filter(doc_name=request.POST.get("new_doc")):
+            new_doc = Required_doc.objects.get(doc_name=request.POST.get("new_doc"))
+            round = Round.objects.get(id=int(request.POST.get("add_round_doc")))
+            round.documents.add(new_doc)
+            redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+        else:
+            new_doc = Required_doc(doc_name=request.POST.get("new_doc"))
+            new_doc.save()
+            round = Round.objects.get(id=int(request.POST.get("add_round_doc")))
+            round.documents.add(new_doc)
+            redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+    elif request.method == "POST" and "remove_round_doc" in request.POST:
+        remove_doc = Required_doc.objects.get(doc_name=request.POST.get("remove_doc"))
+        round = Round.objects.get(id=int(request.POST.get("remove_round_doc")))
+        round.documents.remove(remove_doc)
+        redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
     myuser_id = request.session.get('myuser_id')
     faculty_all = Faculty.objects.filter(users=myuser_id)
     majors = Major.objects.filter(default_manager=myuser_id)
@@ -582,10 +602,10 @@ def Interviewer_room(request):
     if link.round and interviewing :
         interviewing_now = InterviewNow.objects.get(interviewer=request.user)
         student = InterviewStatus.objects.get(round=link.round,user=interviewing_now.student)
-        need_docs = link.round.documents.split(",")
+        need_docs = list(link.round.documents.all())
         for d in need_docs:
-            if Document.objects.filter(user=student.user,doc_name=d,round=link.round):
-                have_docs.append(Document.objects.get(user=student.user,doc_name=d,round=link.round))
+            if Document.objects.filter(user=student.user,doc_name=d.doc_name,round=link.round):
+                have_docs.append(Document.objects.get(user=student.user,doc_name=d.doc_name,round=link.round))
                 temp_remove_list.append(d)
         for d in temp_remove_list:
             need_docs.remove(d)
@@ -598,7 +618,7 @@ def Interviewer_room(request):
         ready_student = InterviewStatus.objects.filter(round=link.round, status="พร้อมสอบ")
         skip_student = InterviewStatus.objects.filter(round=link.round, status="ข้าม")
         student = (ready_student | skip_student).distinct().order_by("reg_at").first()
-        need_docs = link.round.documents.split(",")
+        need_docs = link.round.documents.all()
         if student:
             interviewing_now = InterviewNow.objects.get(interviewer=request.user)
             student_status = InterviewStatus.objects.get(round=link.round,user=student.user)
@@ -613,11 +633,10 @@ def Interviewer_room(request):
     number_of_interviewer = InterviewLink.objects.filter(round=link.round).count()
     if link.round:
         data_student = {
-            'labels': ["สอบเสร็จแล้ว", "กำลังสอบ", "พร้อมสอบ", "ข้าม"],
+            'labels': ["สอบเสร็จแล้ว", "กำลังสอบ", "พร้อมสอบ"],
             'data': [InterviewStatus.objects.filter(round=link.round,status="สอบเสร็จแล้ว").count(),
                     InterviewStatus.objects.filter(round=link.round,status="กำลังสอบ").count(),
-                    InterviewStatus.objects.filter(round=link.round,status="พร้อมสอบ").count(),
-                    InterviewStatus.objects.filter(round=link.round,status="ข้าม").count()],
+                    InterviewStatus.objects.filter(round=link.round,status__in=["พร้อมสอบ","ข้าม"]).count()],
         }
         data_interviewer = {
                 'labels': ["พร้อมสัมภาษณ์", "ไม่พร้อมสัมภาษณ์"],
@@ -1219,24 +1238,25 @@ def edit_ScoreTopic(request):
 def edit_InterviewRound(request):
     if request.method == "POST":
         id = request.POST.get('round_id')
+        round_edited = Round.objects.get(pk=id)
+
         name = request.POST.get('round_name')
         year = request.POST.get('academic_year')
         time = request.POST.get('interview_time')
-        major_name = request.POST.get('major')
-        manager_id = int(request.POST.get('manager_name'))
-        major = Major.objects.get(major=major_name)
-
-        r_mn = Role.objects.get(name="Manager")
-        manager = r_mn.users.get(id=manager_id)
-        round_edited = Round.objects.get(pk=id)
-        round_edited.najor=major
+        if "major" and 'manager_name' in request.POST:
+            major_name = request.POST.get('major')
+            manager_id = int(request.POST.get('manager_name'))
+            major = Major.objects.get(major=major_name)
+            r_mn = Role.objects.get(name="Manager")
+            manager = r_mn.users.get(id=manager_id)
+            round_edited.major=major
+            round_edited.manager=manager
         round_edited.academic_year=year
         round_edited.round_name=name
-        round_edited.manager=manager
         round_edited.interview_time=time
         round_edited.save()
-        
-    return redirect('/Interview')
+    return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+
 def confirm_add_TUser(request):
     if request.method == 'POST':
         data_list=report_temporaryUser.objects.all()

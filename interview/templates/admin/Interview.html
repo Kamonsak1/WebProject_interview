@@ -51,7 +51,6 @@
                 </a>
                 <h1 class="text-center fs-6 fw-semibold text-primary">เอกสาร - {{ i.round_name }}</h1>
                 </div>
-                <div id="doc_list"></div>
                 <form method="post" class="">
                     {% csrf_token %}
                 {% for docs in i.documents.all %}

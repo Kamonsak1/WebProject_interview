@@ -188,11 +188,21 @@
           </div>
         </div>
 
-        <div class="d-flex justify-content-center">
-          <canvas class="me-5" id="myChart1" width="350" height="300"></canvas>
-          <canvas class="ms-5" id="myChart2" width="300" height="300"></canvas>
+        <div class="d-flex align-items-strech col-7 mx-auto">
+          <div class="card w-100 d-flex flex-column">
+            <div class="card-body">
+              <div class="card-title d-flex mb-3 mb-sm-0 justify-content-between">
+                <div class="">
+                  <h5 class=" fw-semibold fs-6 pe-1">สถิติการสัมภาษณ์ - {{ link.round.round_name }} {{ link.round.academic_year }}</h5>
+                </div>
+              </div>
+              <div class="d-flex justify-content-center">
+                <canvas class="me-5" id="myChart1" width="250" height="200"></canvas>
+                <canvas class="ms-5" id="myChart2" width="200" height="200"></canvas>
+              </div>
+            </div>
+          </div>
         </div>
-
 
         {% if docs %}
         <div class="d-flex justify-content-end mb-5 me-5 position-relative bottom-0 end-0 mt-2">
@@ -363,13 +373,11 @@ var myChart1 = new Chart(ctx1, {
                     'rgba(75, 192, 192, 0.2)',
                     'rgba(54, 162, 235, 0.2)',
                     'rgba(255, 206, 86, 0.2)',
-                    'rgba(255, 99, 132, 0.2)',
                 ],
                 borderColor: [
                     'rgba(75, 192, 192, 1)',
                     'rgba(54, 162, 235, 1)',
                     'rgba(255, 206, 86, 1)',
-                    'rgba(255, 99, 132, 1)',
                 ],
                 borderWidth: 2
             }]

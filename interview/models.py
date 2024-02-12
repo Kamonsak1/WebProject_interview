@@ -194,7 +194,7 @@ class Announcement(models.Model):
         return self.title
 
 def user_directory_path(instance, filename):
-    return 'Document/{0}/{1}'.format(instance.user.id, filename)
+    return 'Document/{0}/{1}/{2}/{3}'.format(instance.round.major, f'{instance.round.round_name}', f'{instance.user.first_name} {instance.user.last_name}', filename)
 class Document(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     round = models.ForeignKey(Round, on_delete=models.CASCADE)
@@ -204,7 +204,7 @@ class Document(models.Model):
         return self.doc_name
 
 def evidence_path(instance, filename):
-    return 'Evidence/{0}/{1}/{2}'.format(instance.round.id,instance.interviewer.id, filename)
+    return 'Evidence/{0}/{1}/{2}/{3}'.format(instance.round.major, f'{instance.round.round_name}', f'{instance.interviewer.first_name} {instance.interviewer.last_name}', filename)
 class Evidence(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='evidence_student',blank=True,null=True)
     interviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='evidence_interviewer')

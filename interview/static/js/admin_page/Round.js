@@ -35,7 +35,6 @@ function add_Round() {
 
     function manager_edit_popup(id, name, year, time) {
       var optionsDiv = document.getElementById("manager_edit_popup");
-      console.log(manager)
       document.getElementById('round_id').value = id;
       document.getElementById('round_name_e').value = name;
       document.getElementById('academic_year_e').value = year;
