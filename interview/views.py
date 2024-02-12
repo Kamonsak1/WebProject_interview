@@ -9,6 +9,13 @@ from django.contrib.auth.decorators import login_required,user_passes_test
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
 
+#For Calendar Test
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from google.auth.transport.requests import Request
+import pickle
+import os.path
+
 from social_core.backends.google import GoogleOAuth2
 from allauth.socialaccount.models import SocialAccount
 from django.shortcuts import get_object_or_404
@@ -91,12 +98,61 @@ def admin_page(request):
     Announcement_all = Announcement.objects.filter(role__name='Admin')
     Schedule_all = Schedule.objects.filter(role__name='Admin')
     return render(request,'admin/Admin_page.html',{'Announcement':Announcement_all,'Schedule':Schedule_all})
+
+
+SCOPES = ['https://www.googleapis.com/auth/calendar']
+def get_calendar_service():
+    creds = None
+    # โหลดข้อมูลการอนุญาตที่เคยบันทึกไว้
+    if os.path.exists('token.pkl'):
+        with open('token.pkl', 'rb') as token:
+            creds = pickle.load(token)
+    # ถ้าไม่มีข้อมูลการอนุญาตหรือหมดอายุ ขอใหม่
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                './client_secret_50020983181-gvqbj8kho3jrmpeo81iskq7prpo27gsm.apps.googleusercontent.com.json', SCOPES)
+            creds = flow.run_local_server(port=40000)
+        # บันทึกข้อมูลการอนุญาตสำหรับการใช้ครั้งต่อไป
+        with open('token.pkl', 'wb') as token:
+            pickle.dump(creds, token)
+
+    service = build('calendar', 'v3', credentials=creds)
+    return service
+
+def create_event_with_attendees(start_time_str, end_time_str, summary, attendees, description=None, location=None):
+    service = get_calendar_service()
+
+    event = {
+        "summary": summary,
+        "description": description,
+        "location": location,
+        "start": {"dateTime": start_time_str, "timeZone": 'Asia/Bangkok'},
+        "end": {"dateTime": end_time_str, "timeZone": 'Asia/Bangkok'},
+        "attendees": [{"email": attendee} for attendee in attendees],
+    }
+
+    event_result = service.events().insert(calendarId='primary', body=event, sendNotifications=True).execute()
+
+    print("Created event")
+    print("id: ", event_result['id'])
+    print("summary: ", event_result['summary'])
+    print("starts at: ", event_result['start']['dateTime'])
+    print("ends at: ", event_result['end']['dateTime'])
+    print("attendees: ", ", ".join(attendee['email'] for attendee in event_result.get('attendees', [])))
+
+
 @login_required
 @user_passes_test(is_admin)
 def Announcement_page(request):
     Announcement_all= Announcement.objects.all()
     Schedule_all = Schedule.objects.all()
     round = Round.objects.all()
+    if request.method == "POST" and "test_calendar" in request.POST:
+        create_event_with_attendees('2024-02-13T09:00:00', '2024-02-13T10:00:00', 'Team Meeting', ['kamonsak.ba.64@ubu.ac.th','ronnapong.pi.64@ubu.ac.th'])
+        print("Success!!!!")
     return render(request,'admin/Announcement.html',{'a':Announcement_all,'round':round,'s':Schedule_all})
 @login_required
 @user_passes_test(is_admin)
@@ -335,7 +391,6 @@ def Manager_Print_Interview(request):
     majors = Major.objects.filter(default_manager=myuser_id)
     major_from_session = request.session.get('major')
     round_from_session = request.session.get('round')
-    round = Round.objects.get(id=1)
     if request.method == "POST":
         column = ["ชื่อ-นามสกุล","ผู้สัมภาษณ์","รายการที่ 1","รายการที่ 2","คะแนนรายการที่ 1","คะแนนรายการที่ 2", "คะแนนเต็มรายการที่ 1","คะแนนเต็มรายการที่ 2"]
         response = HttpResponse(

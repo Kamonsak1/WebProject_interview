@@ -16,6 +16,13 @@
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
+
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="test_calendar" id="test_calendar">
+    <button type="submit" class="btn btn-primary">ทดสอบ Calendar</button>
+  </form>
+
   <div class="container-fluid">
     <div class="container-fluid">
         <div class="card">
