@@ -40,7 +40,7 @@
                 <a class="btn btn-secondary btn-sm mx-1 my-1" href="javascript:void(0);" onclick="doc
                 ('{{ i.id }}')">เอกสาร</a>
                 <a class="btn btn-info btn-sm mx-1 my-1" href="javascript:void(0);" onclick="edit_popup
-                    ('{{ i.id }}', '{{ i.round_name }}', '{{ i.academic_year }}', '{{ i.major }}', '{{ managers.first_name }} {{ managers.last_name }}', '{{ i.documents }}', '{{ i.interview_time }}')">แก้ไข</a>
+                    ('{{ i.id }}', '{{ i.round_name }}', '{{ i.academic_year }}', '{{ i.major }}', '{{ i.manager.id }}', '{{ i.interview_time }}')">แก้ไข</a>
                 <a class="btn btn-danger btn-sm fs-3 mx-1 my-1" href="delete_InterviewRound/{{i.id}}">ลบ</a>
             </td>
         </tr>
@@ -49,15 +49,30 @@
                 <a href="/Interview">
                   <i class="fs-6 ti ti-x text-danger"></i>
                 </a>
-                <h1 class="text-center fs-6 fw-semibold text-primary">เอกสาร</h1>
+                <h1 class="text-center fs-6 fw-semibold text-primary">เอกสาร - {{ i.round_name }}</h1>
                 </div>
                 <div id="doc_list"></div>
+                <form method="post" class="">
+                    {% csrf_token %}
                 {% for docs in i.documents.all %}
-                    {{docs}} <br>
+                    <div class="d-flex row">
+                        <input type="hidden" name="remove_round_doc" id="remove_round_doc" value="{{ i.id }}">
+                        <input type="hidden" name="remove_doc" id="remove_doc" value="{{ docs.doc_name }}">
+                        <h1 class="fs-4 text-center mt-2 col fw-medium">{{docs}}</h1> 
+                        <div class="col text-center">
+                            <button type="submit" class="btn btn-danger py-1 fs-3 text-center">ลบ</button>
+                        </div>
+                    </div>
                 {% endfor %}
-                <form action="/add_InterviewRound" method="post" class="container mt-4">
+                </form>
+                <form method="post" class="container mt-4">
                   {% csrf_token %}
-              </form>
+                  <input type="hidden" name="add_round_doc" id="add_round_doc" value="{{ i.id }}">
+                    <div class="text-center">
+                        <input class="search-bordered fs-4" type="text" name="new_doc" id="new_doc">
+                        <button type="submit" class="btn btn-secondary py-1 fs-3 text-center">เพิ่ม</button>
+                    </div>
+                </form>
         </div>
         {% endfor %}
     </tbody>
@@ -77,13 +92,10 @@
                 <div class="col">
                     <input class="form-control" type="text" name="round_name" id="round_name" placeholder="ชื่อรอบ">
                 </div>
-                <div class="col">
-                    <input class="form-control" type="text" name="academic_year" id="academic_year" placeholder="ปีการศึกษา" >
-                </div>
             </div>
             <div class="row mb-3">
                 <div class="col">
-                    <input class="form-control" type="text" name="documets" id="documets" placeholder="เอกสาร (ปพ1,PortFolio)">
+                    <input class="form-control" type="text" name="academic_year" id="academic_year" placeholder="ปีการศึกษา" >
                 </div>
                 <div class="col">
                     <input class="form-control" type="text" name="interview_time" id="interview_time" placeholder="เวลา (12/12/2564 09:00-12:00)" >
@@ -139,13 +151,10 @@
                     <div class="col">
                         <input class="form-control" type="text" name="round_name" id="round_name_e" placeholder="ชื่อรอบ">
                     </div>
-                    <div class="col">
-                        <input class="form-control" type="text" name="academic_year" id="academic_year_e" placeholder="ปีการศึกษา" >
-                    </div>
                 </div>
                 <div class="row mb-3">
                     <div class="col">
-                        <input class="form-control" type="text" name="documets" id="documets_e" placeholder="เอกสาร (ปพ1,PortFolio)">
+                        <input class="form-control" type="text" name="academic_year" id="academic_year_e" placeholder="ปีการศึกษา" >
                     </div>
                     <div class="col">
                         <input class="form-control" type="text" name="interview_time" id="interview_time_e" placeholder="เวลา (12/12/2564 09:00-12:00)" >
@@ -166,7 +175,7 @@
                         <select name="manager_name" id="manager_name_e" class="form-control">
                             <option>ผู้ดูแล</option>
                             {% for managers in Manager %}
-                                <option value="{{ managers.first_name }}">{{ managers.first_name }} {{ managers.last_name }}</option>
+                                <option value="{{ managers.id }}">{{ managers.first_name }} {{ managers.last_name }}</option>
                             {% endfor %}
                         </select>
                     </div>

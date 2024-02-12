@@ -120,6 +120,20 @@ def report_TemporaryUser(request):
 @login_required
 @user_passes_test(is_admin)
 def Interview(request):
+    if request.method == "POST" and "add_round_doc" in request.POST:
+        if Required_doc.objects.filter(doc_name=request.POST.get("new_doc")):
+            new_doc = Required_doc.objects.get(doc_name=request.POST.get("new_doc"))
+            round = Round.objects.get(id=int(request.POST.get("add_round_doc")))
+            round.documents.add(new_doc)
+        else:
+            new_doc = Required_doc(doc_name=request.POST.get("new_doc"))
+            new_doc.save()
+            round = Round.objects.get(id=int(request.POST.get("add_round_doc")))
+            round.documents.add(new_doc)
+    elif request.method == "POST" and "remove_round_doc" in request.POST:
+        remove_doc = Required_doc.objects.get(doc_name=request.POST.get("remove_doc"))
+        round = Round.objects.get(id=int(request.POST.get("remove_round_doc")))
+        round.documents.remove(remove_doc)
     Manager_roles = Role.objects.get(name="Manager")
     context = {
         "rounds" : Round.objects.all(),
@@ -1063,6 +1077,7 @@ def add_InterviewRound(request):
         academic_year = request.POST.get('academic_year')
         round_name = request.POST.get('round_name')
         manager_name = request.POST.get('manager_name')
+        interview_time = request.POST.get('interview_time')
         major = Major.objects.get(major=major_name)
 
         r_mn = Role.objects.get(name="Manager")
@@ -1070,7 +1085,8 @@ def add_InterviewRound(request):
         interview_round, _ = Round.objects.get_or_create(major=major,
                                                          academic_year=academic_year,
                                                          round_name=round_name,
-                                                         manager=manager)
+                                                         manager=manager,
+                                                         interview_time=interview_time)
         interview_round.save()
             
     return redirect("Interview")
@@ -1204,20 +1220,18 @@ def edit_InterviewRound(request):
         id = request.POST.get('round_id')
         name = request.POST.get('round_name')
         year = request.POST.get('academic_year')
-        docs = request.POST.get('documets')
         time = request.POST.get('interview_time')
         major_name = request.POST.get('major')
-        manager_name = request.POST.get('manager_name')
+        manager_id = int(request.POST.get('manager_name'))
         major = Major.objects.get(major=major_name)
 
         r_mn = Role.objects.get(name="Manager")
-        manager = r_mn.users.get(first_name=manager_name)
+        manager = r_mn.users.get(id=manager_id)
         round_edited = Round.objects.get(pk=id)
         round_edited.najor=major
         round_edited.academic_year=year
         round_edited.round_name=name
         round_edited.manager=manager
-        round_edited.documents=docs
         round_edited.interview_time=time
         round_edited.save()
         
