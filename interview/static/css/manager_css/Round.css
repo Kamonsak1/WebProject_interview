@@ -1,0 +1,29 @@
+.container_Scoreadd {
+    width: 600px;
+    margin: 0 auto;
+    display: none; /* เปลี่ยนจาก none เพื่อให้แสดงแบบฟอร์ม */
+    border: 2px solid #5D87FF; /* ใช้สีจากไฟล์ CSS ของคุณ */
+    border-radius: 10px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    box-shadow: 0px 0px 15px rgba(0,0,0,0.2); /* เพิ่มเงาให้แบบฟอร์ม */
+    padding: 20px; /* เพิ่มขอบเขตภายใน */
+}
+
+.container_add_doc {
+    width: 400px;
+    margin: 0 auto;
+    display: none; /* เปลี่ยนจาก none เพื่อให้แสดงแบบฟอร์ม */
+    border: 2px solid #5D87FF; /* ใช้สีจากไฟล์ CSS ของคุณ */
+    border-radius: 10px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    box-shadow: 0px 0px 15px rgba(0,0,0,0.2); /* เพิ่มเงาให้แบบฟอร์ม */
+    padding: 20px; /* เพิ่มขอบเขตภายใน */
+}

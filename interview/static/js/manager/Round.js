@@ -16,14 +16,12 @@ function add_Round() {
     }
   }
 
-  function edit_popup(id, name, year, major, manager, time) {
+  function edit_popup(id, name, year, time) {
     var optionsDiv = document.getElementById("edit_popup");
     console.log(manager)
     document.getElementById('round_id').value = id;
     document.getElementById('round_name_e').value = name;
     document.getElementById('academic_year_e').value = year;
-    document.getElementById('majorSelect_e').value = major;
-    document.getElementById('manager_name_e').value = manager;
     document.getElementById('interview_time_e').value = time;
 
     if (optionsDiv.style.display === "block") {
@@ -32,18 +30,3 @@ function add_Round() {
       optionsDiv.style.display = "block";
     }
     }
-
-    function manager_edit_popup(id, name, year, time) {
-      var optionsDiv = document.getElementById("manager_edit_popup");
-      console.log(manager)
-      document.getElementById('round_id').value = id;
-      document.getElementById('round_name_e').value = name;
-      document.getElementById('academic_year_e').value = year;
-      document.getElementById('interview_time_e').value = time;
-  
-      if (optionsDiv.style.display === "block") {
-        optionsDiv.style.display = "none";
-      } else {
-        optionsDiv.style.display = "block";
-      }
-      }

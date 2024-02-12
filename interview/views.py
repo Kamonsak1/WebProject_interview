@@ -69,6 +69,7 @@ def is_Student(user):
     else:
         return False
 
+
 def index(request):
     mode = login_mode.objects.all()
     for i in mode:

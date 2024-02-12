@@ -1,5 +1,10 @@
 {% extends 'manager/base/n_base.html' %}
+{% load static %}
 
+{% block css_js %} 
+<link rel="stylesheet" href="{% static 'css/manager_css/Round.css' %}" />
+<script src="{% static 'js/manager/Round.js' %}"></script>
+{% endblock %} 
 {% block topic %}
 <h1 class="text-3xl text-gray-100 mt-2 text-center">จัดการสัมภาณ์</h1>
 {% endblock %}
@@ -11,11 +16,12 @@
             <div class="d-flex">
                 <h4 class="fs-5 text-primary mt-auto">{{ round.round_name }} ({{ round.academic_year }})</h4> 
                 <h4 class="fs-5 text-dark ms-2 mt-auto">{{ round.major }} | เอกสารที่จำเป็น :</h4>
-                <h4 class="fs-5 text-warning mt-auto"> {{ round.documents }}</h4>
+                <h4 class="fs-5 text-warning mt-auto">{{ round.documents.all|join:"," }}</h4>
             </div>
             <div class="d-flex">
                 <h4 class="fs-5 fw-bolder text-success mt-auto me-5">{{ round.interview_time }}</h4>
-                <button class="btn btn-secondary btn-sm fs-3 mx-1">แก้ไข</button>
+                <button class="btn btn-secondary btn-sm fs-3 mx-1" onclick="edit_popup
+                ('{{ round.id }}', '{{ round.round_name }}', '{{ round.academic_year }}', '{{ round.interview_time }}')">แก้ไข</button>
             <form method="post" action="{% url 'toggle_round_active' round.id %}">
                 {% csrf_token %}
                 <input type="hidden" name="round_id" value="{{ round.id }}">
@@ -27,5 +33,34 @@
     {{ r.round_name }} {{ r.academic_year }}
     {% endfor %}
 
+
+    <div class="container_Scoreadd" id="edit_popup">
+        <div class="text-end">
+            <a href="/Manager_interview">
+              <i class="fs-6 ti ti-x text-danger"></i>
+            </a>
+            <h1 class="text-center fs-6 fw-semibold text-primary">แก้ไขรอบสัมภาษณ์</h1>
+            </div>
+            <form action="/edit_InterviewRound" method="post" class="container mt-4">
+              {% csrf_token %}
+              <input type="hidden" name="round_id" id="round_id">
+                <div class="row mb-3">
+                    <div class="col">
+                        <input class="form-control" type="text" name="round_name" id="round_name_e" placeholder="ชื่อรอบ">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <input class="form-control" type="text" name="academic_year" id="academic_year_e" placeholder="ปีการศึกษา" >
+                    </div>
+                    <div class="col">
+                        <input class="form-control" type="text" name="interview_time" id="interview_time_e" placeholder="เวลา (12/12/2564 09:00-12:00)" >
+                    </div>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-info btn-lg">แก้ไข</button>
+                </div>
+          </form>
+    </div>
 </div>
 {% endblock %}

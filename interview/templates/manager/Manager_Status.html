@@ -11,7 +11,7 @@
             <div class="d-flex">
                 <h4 class="fs-5 text-primary mt-auto">{{ round.round_name }} ({{ round.academic_year }})</h4> 
                 <h4 class="fs-5 text-dark ms-2 mt-auto">{{ round.major }} | เอกสารที่จำเป็น :</h4>
-                <h4 class="fs-5 text-warning mt-auto"> {{ round.documents }}</h4>
+                <h4 class="fs-5 text-warning mt-auto"> {{ round.documents.all|join:"," }}</h4>
             </div>
             <div class="d-flex">
                 <h4 class="fs-5 fw-bolder text-success mt-auto me-3">{{ round.interview_time }}</h4>
