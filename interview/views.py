@@ -8,7 +8,7 @@ from django.contrib.auth import login, logout,authenticate
 from django.contrib.auth.decorators import login_required,user_passes_test
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
-
+from urllib.parse import quote
 #For Calendar Test
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
@@ -103,11 +103,9 @@ def admin_page(request):
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 def get_calendar_service():
     creds = None
-    # โหลดข้อมูลการอนุญาตที่เคยบันทึกไว้
     if os.path.exists('token.pkl'):
         with open('token.pkl', 'rb') as token:
             creds = pickle.load(token)
-    # ถ้าไม่มีข้อมูลการอนุญาตหรือหมดอายุ ขอใหม่
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
@@ -115,7 +113,6 @@ def get_calendar_service():
             flow = InstalledAppFlow.from_client_secrets_file(
                 './client_secret_50020983181-gvqbj8kho3jrmpeo81iskq7prpo27gsm.apps.googleusercontent.com.json', SCOPES)
             creds = flow.run_local_server(port=40000)
-        # บันทึกข้อมูลการอนุญาตสำหรับการใช้ครั้งต่อไป
         with open('token.pkl', 'wb') as token:
             pickle.dump(creds, token)
 
@@ -136,12 +133,6 @@ def create_event_with_attendees(start_time_str, end_time_str, summary, attendees
 
     event_result = service.events().insert(calendarId='primary', body=event, sendNotifications=True).execute()
 
-    print("Created event")
-    print("id: ", event_result['id'])
-    print("summary: ", event_result['summary'])
-    print("starts at: ", event_result['start']['dateTime'])
-    print("ends at: ", event_result['end']['dateTime'])
-    print("attendees: ", ", ".join(attendee['email'] for attendee in event_result.get('attendees', [])))
 
 
 @login_required
@@ -391,17 +382,6 @@ def Manager_Print_Interview(request):
     majors = Major.objects.filter(default_manager=myuser_id)
     major_from_session = request.session.get('major')
     round_from_session = request.session.get('round')
-    if request.method == "POST":
-        column = ["ชื่อ-นามสกุล","ผู้สัมภาษณ์","รายการที่ 1","รายการที่ 2","คะแนนรายการที่ 1","คะแนนรายการที่ 2", "คะแนนเต็มรายการที่ 1","คะแนนเต็มรายการที่ 2"]
-        response = HttpResponse(
-        content_type='text/csv',
-        headers={'Content-Disposition': 'attachment; filename="Testprint.csv"'},
-        )
-        response.write('\ufeff')
-        writer = csv.writer(response, dialect=csv.excel)
-        writer.writerow(column)
-        writer.writerow(['ทดสอบ ทดสอบ', 'ผู้สัมภาษณ์ ผู้สัมภาษณ์', 'การฟัง', 'เอกสาร', '7', '8', '10', '10'])
-        return response
     if  major_from_session and round_from_session:
         student = User.objects.filter(major__major=major_from_session,round_user__round_name=round_from_session,roles__name='Student')
 
@@ -2208,17 +2188,22 @@ def backup_data(request):
 
 
 def student_one_tocsv(request):
+    myuser_id = request.session.get('myuser_id')
+    faculty_all = Faculty.objects.filter(users=myuser_id)
+    majors = Major.objects.filter(default_manager=myuser_id)
+    major_from_session = request.session.get('major')
+    round_from_session = request.session.get('round')
     if request.method == 'POST':
         checkbox_all = request.POST.get('checkbox_all') 
         checkbox_all_T = request.POST.get('checkbox_all_T') 
         checkbox = request.POST.getlist('checkbox')
+        Evidence_check = request.POST.get('Evidence_check')
         score = request.POST.get('score') 
         score_max = request.POST.get('score_max') 
         interviewer_name = request.POST.get('interviewer_name') 
         student_name = request.POST.get('student_name') 
         total_score = request.POST.get('total_score') 
         email = request.POST.get('email') 
-        print(interviewer_name)
         topic_list = []
         data_list = []
         if student_name :
@@ -2284,17 +2269,69 @@ def student_one_tocsv(request):
             data_list.append(sum(score_plus))
         if email:
             email_split = email.split('@')[0]
-        response = HttpResponse(
+        response_csv = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f'attachment; filename="{email_split}".csv'},
          )
-        #df = pd.DataFrame([data_list], columns=topic_list)
-        response.write(u'\ufeff'.encode('utf8'))
-        writer = csv.writer(response)
+        response_csv.write(u'\ufeff'.encode('utf8'))
+        writer = csv.writer(response_csv)
         writer.writerow(topic_list)
         writer.writerow(data_list)
+
+    if Evidence_check :
+        folder_path ="./Evidence"
+        Evidence_folder = "./Evidence"
+        data_file_path = f'./{student_name}.csv'
+        with open(data_file_path, mode='w', newline='', encoding='utf-8-sig') as file:
+            writer = csv.writer(file)
+            writer.writerow(topic_list)
+            writer.writerow(data_list)
+        year_round = Round.objects.filter(round_name=round_from_session).first()
+        if year_round:
+            year = year_round.academic_year
+        else:
+            year = None  
+        link = f'./media/Evidence/{major_from_session}/{round_from_session}/{student_name}'
+        os.makedirs(Evidence_folder, exist_ok=True) 
+    
+
+        try:
+            destination2 = os.path.join(Evidence_folder, f'{student_name}')
+            shutil.copytree(link, destination2)
+        except FileNotFoundError:
+            print(f"ไม่พบโฟลเดอร์ที่ทาง {link}")
+
+        try:
+            destination1 = os.path.join(Evidence_folder, f'{student_name}.csv')
+            shutil.copy(data_file_path, destination1)
+        except FileNotFoundError:
+            print(f"ไม่พบไฟล์ที่ทาง {data_file_path}")
+
+        filename = f'{major_from_session}_{round_from_session}_{year}_{student_name}_{interviewer_name}.zip'
+        filename_encoded = quote(filename)
+        response = HttpResponse(content_type='application/zip')
+        response['Content-Disposition'] = f'attachment; filename*=UTF-8\'\'{filename_encoded}'
+        buffer = BytesIO()
+        with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for foldername, subfolders, filenames in os.walk(Evidence_folder):
+                for filename in filenames:
+                    file_path = os.path.join(foldername, filename)
+                    zip_path = os.path.relpath(file_path, Evidence_folder)
+                    zipf.write(file_path, zip_path)
+
+        buffer.seek(0)
+        response.write(buffer.read())
+        try:
+            shutil.rmtree(folder_path)
+        except FileNotFoundError:
+                print(f"ไม่พบโฟลเดอร์ {folder_path}")
+        try:
+            os.remove(data_file_path)
+        except FileNotFoundError:
+                print(f"ไม่พบไฟล์.csv {data_file_path}")
         return response
-    return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+    else:
+        return response_csv    
 
 
 def form_student_all(request):
@@ -2371,6 +2408,7 @@ def student_all_tocsv(request):
         checkbox_all = request.POST.get('checkbox_all') 
         checkbox = request.POST.getlist('checkbox')
         score_check = request.POST.get('score') 
+        Evidence_check = request.POST.get('Evidence_check') 
         score_max = request.POST.get('score_max') 
         get_interviewer_name = request.POST.get('interviewer_name') 
         student_name = request.POST.get('student_name') 
@@ -2517,19 +2555,85 @@ def student_all_tocsv(request):
         if total_score == 'True':
                 column_to_csv.append('คะแนนรวมเต็ม')
                 column_to_csv.append('คะแนนรวม')
-        #print(column_to_csv)
-        #print(data_to_csv)
-        response = HttpResponse(
+        response_csv = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f'attachment; filename="{round_from_session}".csv'},
          )
-        #df = pd.DataFrame([data_list], columns=topic_list)
-        response.write(u'\ufeff'.encode('utf8'))
-        writer = csv.writer(response)
+        response_csv.write(u'\ufeff'.encode('utf8'))
+        writer = csv.writer(response_csv)
         writer.writerow(column_to_csv)
-        for i in data_to_csv:
-            writer.writerow(i)
+
         
+        if Evidence_check :
+            folder_path ="./Evidence"
+            Evidence_folder = "./Evidence"
+            data_file_path = f'./data.csv'
+            with open(data_file_path, mode='w', newline='', encoding='utf-8-sig') as file:
+                writer = csv.writer(file)
+                writer.writerow(column_to_csv)
+                for i in data_to_csv:
+                    writer.writerow(i)
+            year_round = Round.objects.filter(round_name=round_from_session).first()
+            if year_round:
+                year = year_round.academic_year
+            else:
+                year = None  
+            os.makedirs(Evidence_folder, exist_ok=True) 
+        
+            for i in student_index:
+                student = User.objects.get(pk=i)
+                name = student.first_name+' '+student.last_name
+                link = f'./media/Evidence/{major_from_session}/{round_from_session}/{name}'
+                try:
+                    count = 1
+                    destination2 = os.path.join(Evidence_folder, f'หลักฐานการสัมภาษณ์')
+                    shutil.copytree(link, destination2)
+                    files = os.listdir(destination2)
+                    for file in files:
+                        new_name = f"{name}_{count}.png"
+                        old_file_path = os.path.join(destination2, file)
+                        new_file_path = os.path.join(destination2, new_name)
+                        os.rename(old_file_path, new_file_path)
+                        print(f"เปลี่ยนชื่อ {file} เป็น {new_name}")
+                    
+                    # เพิ่มนับเลขไฟล์
+                    count += 1
+                except FileNotFoundError:
+                    print(f"ไม่พบโฟลเดอร์ที่ทาง {link}")
+
+            try:
+                destination1 = os.path.join(Evidence_folder, f'data.csv')
+                shutil.copy(data_file_path, destination1)
+            except FileNotFoundError:
+                print(f"ไม่พบไฟล์ที่ทาง {data_file_path}")
+
+            filename = f'{major_from_session}_{round_from_session}_{year}.zip'
+            filename_encoded = quote(filename)
+            response = HttpResponse(content_type='application/zip')
+            response['Content-Disposition'] = f'attachment; filename*=UTF-8\'\'{filename_encoded}'
+            buffer = BytesIO()
+            with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                for foldername, subfolders, filenames in os.walk(Evidence_folder):
+                    for filename in filenames:
+                        file_path = os.path.join(foldername, filename)
+                        zip_path = os.path.relpath(file_path, Evidence_folder)
+                        zipf.write(file_path, zip_path)
+
+            buffer.seek(0)
+            response.write(buffer.read())
+            try:
+                shutil.rmtree(folder_path)
+            except FileNotFoundError:
+                    print(f"ไม่พบโฟลเดอร์ {folder_path}")
+            # try:
+            #     os.remove(data_file_path)
+            # except FileNotFoundError:
+            #         print(f"ไม่พบไฟล์.csv {data_file_path}")
+            return response
+        else:
+            return response_csv              
+
+
         context = {
             'student_ex':student_ex,
             "student":student,
@@ -2542,7 +2646,6 @@ def student_all_tocsv(request):
             "s_round" : round_from_session,
         }
         
-        return response
     return redirect(request.META.get('HTTP_REFERER', 'fallback-url')) 
 
 def mode(request):
@@ -2618,3 +2721,37 @@ def confirm_adduser(request):
             
 
         return redirect('User')
+  
+
+def load_inte(request):
+  if request.method == 'POST':
+        folder_path ="./Evidence"
+        Evidence_folder = "./Evidence"
+        os.makedirs(Evidence_folder, exist_ok=True) 
+        name = 'ทดสอบ ทดสอบ'
+        major = 'วิทยาการข้อมูล'
+        round = 'DSSI Port2/67'
+        link = f'./media/Evidence/{major}/{round}/{name}'
+        print(link)
+        destination1 = os.path.join(Evidence_folder, f'{name}')
+        shutil.copytree(link, destination1)
+        response = HttpResponse(content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename=Evidence_folder.zip'
+        buffer = BytesIO()
+        with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for foldername, subfolders, filenames in os.walk(Evidence_folder):
+                for filename in filenames:
+                    file_path = os.path.join(foldername, filename)
+                    zip_path = os.path.relpath(file_path, Evidence_folder)
+                    zipf.write(file_path, zip_path)
+
+        buffer.seek(0)
+        response.write(buffer.read())
+        try:
+            shutil.rmtree(folder_path)
+        except FileNotFoundError:
+             print(f"ไม่พบโฟลเดอร์ {folder_path}")
+        except Exception as e:
+            print(f"เกิดข้อผิดพลาดในการลบโฟลเดอร์ {folder_path}: {str(e)}")
+
+        return response

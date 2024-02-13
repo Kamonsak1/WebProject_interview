@@ -49,9 +49,17 @@
         <input type="checkbox" id="item5" value="{{student.prefix}}{{student.first_name}} {{student.last_name}}" name="student_name" checked>   <label for="item5">ชื่อนักเรียน</label> <br>
         <input type="checkbox" id="item6" value="True" name="total_score" checked>   <label for="item6">คะแนนรวมเท่านั่น</label> <br>
         <input hidden type="checkbox" id="item7" value="{% for item in score.scores %}{{ item.topic_name}}-{{ item.scores_max }}-{{ item.score }}{% if not loop.last %},{% endif %}{% endfor %}" name="checkbox_all_T"  checked>   
+        <input type="checkbox" id="item8" value="True" name="Evidence_check" checked>   <label for="item6">หลักฐานการสัมภาษณ์</label> <br>
         <input type="text" hidden name="email" value="{{student.email}}">
         <button type="submit"> ดาวโหลดไฟล์ CSV</button>
     </form>
+    <div>
+      <form action="{% url 'load_inte' %}" method="post">
+        {% csrf_token %}
+        <button>เทส</button>
+      </form>
+      
+    </div>
 {% else %}
     <p>ไม่มีคะแนนสำหรับนักเรียนในรอบการประเมินนี้</p>
 {% endif %}
