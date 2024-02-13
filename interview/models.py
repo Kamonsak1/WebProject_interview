@@ -54,6 +54,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=30, unique=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
+    first_name2 = models.CharField(max_length=100, blank=True, null=True )
+    last_name2 = models.CharField(max_length=100, blank=True, null=True )
     gender = models.CharField(max_length=20)
     address = models.CharField(max_length=400)
     postcode = models.CharField(max_length=20)

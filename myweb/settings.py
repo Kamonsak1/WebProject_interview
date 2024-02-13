@@ -53,7 +53,6 @@ INSTALLED_APPS = [
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': [
-            'profile',
             'email',
         ],
         'AUTH_PARAMS': {
@@ -164,9 +163,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ตั้งค่า google-login
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '50020983181-gvqbj8kho3jrmpeo81iskq7prpo27gsm.apps.googleusercontent.com'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
-SOCIAL_AUTH_CREATE_USERS = False  # ไม่สร้างผู้ใช้ใหม่โดยอัตโนมัติ
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email']
+SOCIAL_AUTH_CREATE_USERS = False 
 SOCIAL_AUTH_FORCE_RANDOM_USERNAME = False
+SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIAL_AUTH_LOGIN_EMAIL_CONFIRMATION = True
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 LOGIN_REDIRECT_URL = 'google_LOGIN_URL'

@@ -102,7 +102,6 @@ urlpatterns = [
     path('form_student_all',form_student_all,name='form_student_all'),
     path('form_student/<int:id>',form_student,name='form_student'),
     path('Manager_data_investigator/<int:id>',Manager_data_investigator,name='Manager_data_investigator'),
-    path('load_inte',load_inte,name='load_inte'),
 
 
     #Interviewer

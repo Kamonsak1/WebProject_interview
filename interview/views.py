@@ -45,10 +45,15 @@ from io import BytesIO
 # Create your views here.
 def google_LOGIN_URL(request):
     roles = set(request.user.roles.values_list('name', flat=True))
+    user_id = request.user.id
+    user = User.objects.get(pk=user_id)
+    user.first_name = user.first_name2
+    user.last_name = user.last_name2
+    user.save()
     if 'Admin' in roles:
         return redirect('Admin_page')
     elif 'Manager' in roles:
-        return redirect('Manager_page')
+        return redirect('Manager_page', id=user_id)
     elif 'Interviewer' in roles:
         return redirect('Interviewer_room')
     elif 'Student' in roles:
@@ -913,6 +918,8 @@ def confirm_email(request):
                                 user.email = email
                                 user.first_name = temporary_user.first_name
                                 user.last_name = temporary_user.last_name
+                                user.first_name2 = temporary_user.first_name
+                                user.last_name2 = temporary_user.last_name
                                 user.birth_date = temporary_user.birth_date
                                 user.citizen_id = temporary_user.citizen_id
                                 role_model = Role.objects.get(name='Student')
@@ -1469,6 +1476,8 @@ def add_User(request):
             new_user = User.objects.create(
                                            first_name= first_name,
                                            last_name= last_name,
+                                           first_name2= first_name,
+                                           last_name2= last_name,
                                            email= email ,
                                            username=register_id,
                                            password= make_password(password))
@@ -1522,6 +1531,8 @@ def add_User_by_file(request):
                 citizen_id=row['APPLICANTCODE'],
                 first_name=row['APPLICANTNAME'],
                 last_name=row['APPLICANTSURNAME'],
+                first_name2=row['APPLICANTNAME'],
+                last_name2=row['APPLICANTSURNAME'],
                 prefix=row['PREFIXNAME'],
                 email=row['EMAIL'],
                 round_name=round,
@@ -1809,6 +1820,8 @@ def profile_changname(request):
         user = User.objects.get(pk=user_id)
         user.first_name = first_name
         user.last_name = last_name
+        user.first_name2 = first_name
+        user.last_name2 = last_name
         user.save()
         if source_page == 'Admin':
             return redirect('admin_profile')
@@ -2634,10 +2647,10 @@ def student_all_tocsv(request):
                 shutil.rmtree(folder_path)
             except FileNotFoundError:
                     print(f"ไม่พบโฟลเดอร์ {folder_path}")
-            # try:
-            #     os.remove(data_file_path)
-            # except FileNotFoundError:
-            #         print(f"ไม่พบไฟล์.csv {data_file_path}")
+            try:
+                os.remove(data_file_path)
+            except FileNotFoundError:
+                    print(f"ไม่พบไฟล์.csv {data_file_path}")
             return response
         else:
             return response_csv              
@@ -2731,36 +2744,3 @@ def confirm_adduser(request):
 
         return redirect('User')
   
-
-def load_inte(request):
-  if request.method == 'POST':
-        folder_path ="./Evidence"
-        Evidence_folder = "./Evidence"
-        os.makedirs(Evidence_folder, exist_ok=True) 
-        name = 'ทดสอบ ทดสอบ'
-        major = 'วิทยาการข้อมูล'
-        round = 'DSSI Port2/67'
-        link = f'./media/Evidence/{major}/{round}/{name}'
-        print(link)
-        destination1 = os.path.join(Evidence_folder, f'{name}')
-        shutil.copytree(link, destination1)
-        response = HttpResponse(content_type='application/zip')
-        response['Content-Disposition'] = 'attachment; filename=Evidence_folder.zip'
-        buffer = BytesIO()
-        with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zipf:
-            for foldername, subfolders, filenames in os.walk(Evidence_folder):
-                for filename in filenames:
-                    file_path = os.path.join(foldername, filename)
-                    zip_path = os.path.relpath(file_path, Evidence_folder)
-                    zipf.write(file_path, zip_path)
-
-        buffer.seek(0)
-        response.write(buffer.read())
-        try:
-            shutil.rmtree(folder_path)
-        except FileNotFoundError:
-             print(f"ไม่พบโฟลเดอร์ {folder_path}")
-        except Exception as e:
-            print(f"เกิดข้อผิดพลาดในการลบโฟลเดอร์ {folder_path}: {str(e)}")
-
-        return response
