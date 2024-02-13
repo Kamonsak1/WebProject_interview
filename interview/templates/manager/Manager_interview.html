@@ -23,7 +23,7 @@
                 <button class="btn btn-secondary btn-sm fs-3" href="javascript:void(0);" onclick="doc
                 ('{{ round.id }}')">เอกสาร</button>
                 <button class="btn btn-info btn-sm fs-3 mx-1" onclick="edit_popup
-                ('{{ round.id }}', '{{ round.round_name }}', '{{ round.academic_year }}', '{{ round.interview_time }}')">แก้ไข</button>
+                ('{{ round.id }}', '{{ round.round_name }}', '{{ round.academic_year }}', '{{ round.interview_time }}', '{{ round.line_Token }}')">แก้ไข</button>
             <form method="post" action="{% url 'toggle_round_active' round.id %}">
                 {% csrf_token %}
                 <input type="hidden" name="round_id" value="{{ round.id }}">
@@ -86,6 +86,11 @@
                     </div>
                     <div class="col">
                         <input class="form-control" type="text" name="interview_time" id="interview_time_e" placeholder="เวลา (12/12/2564 09:00-12:00)" >
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <input class="form-control" type="text" name="line_Token" id="line_Token_e" placeholder="Line Token" >
                     </div>
                 </div>
                 <div class="text-center">

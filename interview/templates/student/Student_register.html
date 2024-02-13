@@ -13,37 +13,54 @@
 {% block content %}
 
 <div class="pt-14 px-2">
-    {% for r in rounds %}
+    <div class="fs-4 fw-bolder d-flex">สถานะเอกสาร <p class="text-success mx-1"><i class="ti ti-square-check"></i> : อัปโหลดแล้ว</p> | <p class="text-warning mx-1"><i class="ti ti-square-x"></i> : ยังไม่อัปโหลด</p></div>
+    {% for r in all_round %}
     <div class="card w-100">
         <div class="card-body mini-card-body d-flex justify-content-between">
             <div class="d-flex">
-                <h4 class="fs-5 text-primary mt-auto">{{ r.round_name }} ({{ r.academic_year }})</h4> 
-                <h4 class="fs-5 text-dark ms-2 mt-auto"> {{ r.major }} | เอกสารที่จำเป็น :</h4>
-                <h4 class="fs-5 text-warning mt-auto"> {{ r.documents.all|join:"," }}</h4>
+                <h4 class="fs-5 text-primary mt-auto">{{ r.round.round_name }} ({{ r.round.academic_year }})</h4> 
+                <h4 class="fs-5 text-dark ms-2 mt-auto"> {{ r.round.major }} | เอกสารที่จำเป็น :</h4>
+                <!-- <h4 class="fs-5 text-warning mt-auto"> {{ r.round.documents.all|join:"," }}</h4> -->
+                {% if not r.uploaded %}
+                    <h4 class="fs-5 text-warning mt-auto"> {{ r.round.documents.all|join:"," }}</h4>
+                {% else %}
+                <div class="fs-5 fw-semibold mt-1">
+                    {% for doc in r.round.documents.all %}
+                        {% if doc.doc_name in r.uploaded %}
+                            <span class="text-success"><i class="ti ti-square-check"></i> {{ doc.doc_name }}</span>
+                        {% else %}
+                            <span class="text-warning"><i class="ti ti-square-x"> </i>{{ doc.doc_name }}</span>
+                        {% endif %}
+                        {% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
             <div class="d-flex">
-                <h4 class="fs-5 fw-bolder text-success mt-auto me-5">{{ r.interview_time }}</h4>
-                <button class="btn btn-secondary btn-sm fs-3 mx-1" onclick="upload('{{ r.id }}')">อัปโหลดเอกสาร</button>
-            {% if r.id not in uploaded_docs %}
+                <h4 class="fs-5 fw-bolder text-success mt-auto me-5">{{ r.round.interview_time }}</h4>
+                <button class="btn btn-secondary btn-sm fs-3 mx-1" onclick="upload('{{ r.round.id }}')">อัปโหลดเอกสาร</button>
+            {% if r.round.id not in uploaded_docs %}
                 <button class="btn btn-secondary" disabled>กรุณาอัปโหลดหลักฐาน</button>
-            {% elif r.active and r.id not in registered_rounds %}
-                <form method="post" action="{% url 'register_interview' r.id %}">
+            {% elif r.round.active and r.round.id not in registered_rounds %}
+                <form method="post" action="{% url 'register_interview' r.round.id %}">
                     {% csrf_token %}
-                    <input type="hidden" name="round_id" value="{{ r.id }}">
+                    <input type="hidden" name="round_id" value="{{ r.round.id }}">
                     <button type="submit" class="btn btn-success">ลงทะเบียน</button>
                 </form>
-            {% elif r.id in registered_rounds %}
+            {% elif r.round.id in registered_rounds %}
                 <button class="btn btn-secondary" disabled>ลงทะเบียนแล้ว</button>
             {% else %}
                 <button class="btn btn-muted" disabled>ลงทะเบียน</button>
             {% endif %}
             </div>
-            <div class="container_Scoreadd" id="upload_popup_{{ r.id }}">
+            <div class="container_Scoreadd" id="upload_popup_{{ r.round.id }}">
                 <div class="text-end">
                 <a href="/Student_register">
                   <i class="fs-6 ti ti-x text-danger"></i>
                 </a>
                 <h1 class="text-center fs-6 fw-semibold text-primary">อัปโหลดเอกสาร</h1>
+                </div>
+                <div class="fs-4">
                 </div>
                 <form action="/Student_register" method="post" enctype="multipart/form-data" class="container mt-4">
                     {% csrf_token %}
@@ -51,7 +68,7 @@
                     <div class="text-center">
                         <select name="doc_name" id="doc_name" class="me-2 search-bordered fs-4">
                             <option>เอกสาร</option>
-                            {% for docs in r.documents.all %}
+                            {% for docs in r.round.documents.all %}
                                 <option value="{{ docs.doc_name }}">{{ docs.doc_name }}</option>
                             {% endfor %}
                         </select>

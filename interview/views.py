@@ -721,7 +721,12 @@ def Student_register(request):
     
     uploaded_docs = Document.objects.filter(user=request.user).values_list('round', flat=True)
 
-
+    all_round = []
+    for r in combined_rounds.distinct():
+        all_round.append({
+            "round" : r,
+            "uploaded" : Document.objects.filter(round=r, user=request.user).values_list('doc_name', flat=True)
+        })
     if request.method == 'POST':
         user = request.user
         round = Round.objects.get(id=request.POST.get("round_id"))
@@ -740,6 +745,7 @@ def Student_register(request):
         'rounds': combined_rounds.distinct(),
         'registered_rounds': registered_rounds,
         'uploaded_docs': uploaded_docs,
+        'all_round' : all_round,
         }
     return render(request,'student/Student_register.html',context)
 @login_required
@@ -1278,6 +1284,8 @@ def edit_InterviewRound(request):
         name = request.POST.get('round_name')
         year = request.POST.get('academic_year')
         time = request.POST.get('interview_time')
+        token = request.POST.get('line_Token')
+        print(token)
         if "major" and 'manager_name' in request.POST:
             major_name = request.POST.get('major')
             manager_id = int(request.POST.get('manager_name'))
@@ -1289,6 +1297,7 @@ def edit_InterviewRound(request):
         round_edited.academic_year=year
         round_edited.round_name=name
         round_edited.interview_time=time
+        round_edited.line_Token = token
         round_edited.save()
     return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
