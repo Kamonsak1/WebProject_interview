@@ -10,7 +10,7 @@ git branch -M main
 git remote add origin https://github.com/Kamonsak1/WebProject_interview.git
 git push -u origin main
 
-
+rm -r ชื่อโฟรเดอ
 ไว้ทำไรไม่รู้  เอาไว้ก่อน  
 git pull origin main
 
