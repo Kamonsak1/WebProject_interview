@@ -1486,6 +1486,7 @@ def add_User(request):
         last_name = request.POST.get('last_name')
         register_id = request.POST.get('register_id')
         email =  request.POST.get('email')
+        prefix =  request.POST.get('prefix')
         faculty_name = request.POST.get('faculty')  
         major_name = request.POST.get('major')  
         round = request.POST.get('round')  
@@ -1506,7 +1507,7 @@ def add_User(request):
                     major.default_manager.add(check_user)
             return redirect('User')
         except User.DoesNotExist:
-            new_user = User.objects.create(
+            new_user = User.objects.create(prefix=prefix,
                                            first_name= first_name,
                                            last_name= last_name,
                                            first_name2= first_name,
