@@ -431,6 +431,7 @@ def form_student(request, id):
     topic_list = []
     score_list = []
     topic_all = [ ]
+    test_st = []
     interviewer_first_name= None
     if  major_from_session and round_from_session:
         student = User.objects.get(pk=id)
@@ -448,7 +449,9 @@ def form_student(request, id):
                     topic_all.append(i.topic.topic_name)
 
         for topic in scores_topic:      
-            topic_scores = Score.objects.filter(student=student,topic__topic_name=topic,topic__pattern_id__pattern_name=round_score.pattern.pattern_name)  
+            
+            topic_scores = Score.objects.filter(student__id=id,topic__topic_name=topic.topic_name,topic__pattern_id__pattern_name=round_score.pattern.pattern_name)  
+            test_st.append(round_score.pattern.pattern_name)
             for i in topic_scores:
                 topic_list.append(i.topic.topic_name)
                 if student_info['interviewer'] == '-':
@@ -463,10 +466,12 @@ def form_student(request, id):
             else:
                 student_info['scores'].append({'topic_name': item, 'score': 0,'scores_max': i.topic.max_score})
         round_instance = Round.objects.get(round_name=round_from_session,major__major=major_from_session)
-        evidence_list = Evidence.objects.filter(round__round_name=round_from_session,student__id=id,interviewer__first_name=interviewer_first_name).first()
-        Shortnote = evidence_list.Shortnote
+        #evidence_list = Evidence.objects.filter(round__round_name=round_from_session,student__id=id,interviewer__first_name=interviewer_first_name).first()
+        #Shortnote = evidence_list.Shortnote
         context = {
-            "shortnote" :Shortnote,
+            # "shortnote" :Shortnote,
+            'tpa':topic_all,
+            'tps':topic_list,
             "student":student,
             'score': student_info,
             'score_list':score_list,
