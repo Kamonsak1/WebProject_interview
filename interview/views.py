@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.shortcuts import render  
 from django.urls import reverse
 import requests
+from django.core.files.base import ContentFile
 from interview.models import *
 from django.contrib.auth import login, logout,authenticate
 from django.contrib.auth.decorators import login_required,user_passes_test
@@ -410,7 +411,7 @@ def Manager_Print_Interview(request):
     round_from_session = request.session.get('round')
     if  major_from_session and round_from_session:
         student = User.objects.filter(major__major=major_from_session,round_user__round_name=round_from_session,roles__name='Student')
-
+        print(student)
         context = {
         "student":student,
         "s_major" : major_from_session,
@@ -448,7 +449,7 @@ def form_student(request, id):
                     topic_all.append(i.topic.topic_name)
 
         for topic in scores_topic:      
-            topic_scores = Score.objects.filter(student=student,topic__topic_name=topic,topic__pattern_id__pattern_name=round_score.pattern.pattern_name)  
+            topic_scores = Score.objects.filter(student__id=id,topic__topic_name=topic.topic_name,topic__pattern_id__pattern_name=round_score.pattern.pattern_name)  
             for i in topic_scores:
                 topic_list.append(i.topic.topic_name)
                 if student_info['interviewer'] == '-':
@@ -464,7 +465,11 @@ def form_student(request, id):
                 student_info['scores'].append({'topic_name': item, 'score': 0,'scores_max': i.topic.max_score})
         round_instance = Round.objects.get(round_name=round_from_session,major__major=major_from_session)
         evidence_list = Evidence.objects.filter(round__round_name=round_from_session,student__id=id,interviewer__first_name=interviewer_first_name).first()
-        Shortnote = evidence_list.Shortnote
+        if evidence_list:
+            Shortnote = evidence_list.Shortnote
+        else:
+            Shortnote = '-'
+
         context = {
             "shortnote" :Shortnote,
             "student":student,
@@ -573,12 +578,16 @@ def Interviewer_room(request):
         user_id = int(request.POST.get("upload"))
         user = User.objects.get(id=user_id)
         file = request.FILES.get('file_name')
+        if file:
+            file_name, file_extension = os.path.splitext(file.name)
+            new_file_name = user.username +".jpg"
         if Evidence.objects.filter(student=user,round=link.round,interviewer=link.user):
             evidence = Evidence.objects.get(student=user,round=link.round,interviewer=link.user)
-            evidence.document = file
+            evidence.document.save(new_file_name, ContentFile(file.read()))
             evidence.save()
         else:
-            evidence = Evidence(student=user,round=link.round,interviewer=link.user,document=file)
+            evidence = Evidence(student=user,round=link.round,interviewer=link.user)
+            evidence.document.save(new_file_name, ContentFile(file.read()))
             evidence.save()
         return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
     elif request.method == "POST" and "finish" in request.POST:
@@ -2435,13 +2444,22 @@ def student_one_tocsv(request):
             year = year_round.academic_year
         else:
             year = None  
-        link = f'./media/Evidence/{major_from_session}/{round_from_session}/{student_name}'
+        a= interviewer_name.split('.')[-1]
+        a2=student_name.split(' ')[1]
+        a3=student_name.split(' ')[0]
+        if 'นาย' in a3:
+            a4 = a3.split('นาย')[1]
+        elif 'นางสาว' in a3:
+            a4 = a3.split('นางสาว')[1]
+        name = User.objects.get(first_name=a4,last_name=a2)
+        print(name.username)
+        link = f'./media/Evidence/{major_from_session}/{round_from_session}/{a}/{name.username}.jpg'
         os.makedirs(Evidence_folder, exist_ok=True) 
     
 
         try:
             destination2 = os.path.join(Evidence_folder, f'{student_name}')
-            shutil.copytree(link, destination2)
+            shutil.copy(link, destination2)
         except FileNotFoundError:
             print(f"ไม่พบโฟลเดอร์ที่ทาง {link}")
 
