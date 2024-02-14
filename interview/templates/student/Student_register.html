@@ -64,7 +64,7 @@
                 </div>
                 <form action="/Student_register" method="post" enctype="multipart/form-data" class="container mt-4">
                     {% csrf_token %}
-                    <input type="hidden" name="round_id" id="round_id">
+                    <input type="hidden" name="round_id" id="round_id" value="{{ r.round.id }}">
                     <div class="text-center">
                         <select name="doc_name" id="doc_name" class="me-2 search-bordered fs-4">
                             <option>เอกสาร</option>
