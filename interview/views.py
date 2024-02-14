@@ -2290,15 +2290,17 @@ def ajax_select_round(request):
     round = Round.objects.filter(major__major=major_object)
     return render(request, 'manager/dropdown-list.html', {"majors": round})
 
+def ignore_files(directory, files):
+   	 return [f for f in files if f.endswith('.sock')]
 def backup_data(request):
         folder_path ="./backup_data"
         backup_folder = "./backup_data"
         os.makedirs(backup_folder, exist_ok=True) 
-        folder_path1 = "./db/mydb" 
+        folder_path1 = "./db" 
         folder_path2 = "./media"
 
-        destination1 = os.path.join(backup_folder, 'mydb')
-        shutil.copytree(folder_path1, destination1)
+        destination1 = os.path.join(backup_folder, 'db')
+        shutil.copytree(folder_path1, destination1,ignore=ignore_files)
         destination2 = os.path.join(backup_folder, 'media')
         shutil.copytree(folder_path2, destination2)
 
@@ -2735,27 +2737,12 @@ def student_all_tocsv(request):
             else:
                 year = None  
             os.makedirs(Evidence_folder, exist_ok=True) 
-        
-            for i in student_index:
-                student = User.objects.get(pk=i)
-                name = student.first_name+' '+student.last_name
-                link = f'./media/Evidence/{major_from_session}/{round_from_session}/{name}'
-                try:
-                    count = 1
-                    destination2 = os.path.join(Evidence_folder, f'หลักฐานการสัมภาษณ์')
-                    shutil.copytree(link, destination2)
-                    files = os.listdir(destination2)
-                    for file in files:
-                        new_name = f"{name}_{count}.png"
-                        old_file_path = os.path.join(destination2, file)
-                        new_file_path = os.path.join(destination2, new_name)
-                        os.rename(old_file_path, new_file_path)
-                        print(f"เปลี่ยนชื่อ {file} เป็น {new_name}")
-                    
-                    # เพิ่มนับเลขไฟล์
-                    count += 1
-                except FileNotFoundError:
-                    print(f"ไม่พบโฟลเดอร์ที่ทาง {link}")
+            link = f'./media/Evidence/{major_from_session}/{round_from_session}'
+            try:
+                destination2 = os.path.join(Evidence_folder, f'หลักฐานการสัมภาษณ์')
+                shutil.copytree(link, destination2)
+            except FileNotFoundError:
+                print(f"ไม่พบโฟลเดอร์ที่ทาง {link}")
 
             try:
                 destination1 = os.path.join(Evidence_folder, f'data.csv')
