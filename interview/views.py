@@ -124,7 +124,7 @@ def get_calendar_service():
     service = build('calendar', 'v3', credentials=creds)
     return service
 
-def create_event_with_attendees(start_time_str, end_time_str, summary, attendees, description=None, location=None):
+def create_event_with_attendees(start_time_str, end_time_str, summary, attendees, description=None,Schedule_id=None, location=None):
     service = get_calendar_service()
 
     event = {
@@ -135,10 +135,29 @@ def create_event_with_attendees(start_time_str, end_time_str, summary, attendees
         "end": {"dateTime": end_time_str, "timeZone": 'Asia/Bangkok'},
         "attendees": [{"email": attendee} for attendee in attendees],
     }
-
+    Schedule_name = Schedule.objects.get(pk=Schedule_id)
     event_result = service.events().insert(calendarId='primary', body=event, sendNotifications=True).execute()
+    Schedule_name.calendar_id = event_result['id']
+    Schedule_name.save()
 
+def update_event(event_id, start_time_str, end_time_str, summary, attendees, description=None, location=None):
+    service = get_calendar_service()
+    try:
+        event = service.events().get(calendarId='primary', eventId=event_id).execute()
+    except Exception as e:
+        print(f"Error: {e}")
+        return
 
+    event['summary'] = summary
+    event['description'] = description
+    event['location'] = location
+    event['start'] = {"dateTime": start_time_str, "timeZone": 'Asia/Bangkok'}
+    event['end'] = {"dateTime": end_time_str, "timeZone": 'Asia/Bangkok'}
+    event['attendees'] = [{"email": attendee} for attendee in attendees]
+
+    updated_event = service.events().update(calendarId='primary', eventId=event_id, body=event).execute()
+
+    return updated_event
 
 @login_required
 @user_passes_test(is_admin)
@@ -146,9 +165,6 @@ def Announcement_page(request):
     Announcement_all= Announcement.objects.all()
     Schedule_all = Schedule.objects.all()
     round = Round.objects.all()
-    if request.method == "POST" and "test_calendar" in request.POST:
-        create_event_with_attendees('2024-02-13T09:00:00', '2024-02-13T10:00:00', 'Team Meeting', ['kamonsak.ba.64@ubu.ac.th','ronnapong.pi.64@ubu.ac.th'])
-        print("Success!!!!")
     return render(request,'admin/Announcement.html',{'a':Announcement_all,'round':round,'s':Schedule_all})
 @login_required
 @user_passes_test(is_admin)
@@ -305,8 +321,13 @@ def Manager_Announcement(request):
     majors = Major.objects.filter(default_manager=myuser_id)
     major_from_session = request.session.get('major')
     round_from_session = request.session.get('round')
+
     if  major_from_session and round_from_session:
+        Schedule_all = Schedule.objects.filter(round__round_name=round_from_session,major__major=major_from_session)
+        Announcement_all = Announcement.objects.filter(round__round_name=round_from_session,major__major=major_from_session)
         context = {
+        "a" : Announcement_all,
+        "s":Schedule_all,
         "s_major" : major_from_session,
         "faculty_all" : faculty_all,
         "majors" : majors,
@@ -1471,6 +1492,11 @@ def add_User(request):
             faculty.users.add(check_user)
             major.users.add(check_user)
             round.users.add(check_user)
+            for role_name in checkboxgroup:
+                role_model, _ = Role.objects.get_or_create(name=role_name)
+                role_model.users.add(check_user)
+                if role_model == 'Manager':
+                    major.default_manager.add(check_user)
             return redirect('User')
         except User.DoesNotExist:
             new_user = User.objects.create(
@@ -1489,6 +1515,8 @@ def add_User(request):
             for role_name in checkboxgroup:
                 role_model, _ = Role.objects.get_or_create(name=role_name)
                 role_model.users.add(new_user)
+                if role_model == 'Manager':
+                    major.default_manager.add(new_user)
             send_registration_email("kamonsakprj@gmail.com",password,register_id)
             return redirect('User')
         
@@ -2063,20 +2091,37 @@ def addSchedule(request):
         topic = request.POST.get('topic')
         details = request.POST.get('details')
         date_str = request.POST.get('expire_date')
+        start_time = request.POST.get('start_time')
+
+        expire_time = request.POST.get('expire_time')
         date_object = datetime.strptime(date_str, '%d/%m/%Y')
+        new_expire_time = datetime.strptime(expire_time, '%H:%M').time()
+        combined_expire_time = datetime.combine(date_object.date(), new_expire_time)
+
+        date_str2 = request.POST.get('start_date')
+        date_object2 = datetime.strptime(date_str2, '%d/%m/%Y')
+        new_start_time = datetime.strptime(start_time, '%H:%M').time()
+        combined_start_time = datetime.combine(date_object2.date(), new_start_time)
+
         try:
             selected_rounds_str = request.POST.get('selectedRounds').split(',')
         except ObjectDoesNotExist:
             pass
         checkboxgroup = request.POST.getlist('checkboxgroup')
-        add_Schedule =Schedule.objects.create(schedule_name=topic,schedule_content=details,end_date=date_object)
+        attendees = []
+        add_Schedule =Schedule.objects.create(schedule_name=topic,schedule_content=details,end_date=combined_expire_time,start_date=combined_start_time)
+        calendar_expire_time = str(combined_expire_time.date())+'T'+str(combined_expire_time.time())
+        calendar_start_time = str(combined_start_time.date())+'T'+str(combined_start_time.time())
         try:
-            print(selected_rounds_str)
             if selected_rounds_str[0]:
                 for rounds in selected_rounds_str:
                     round_name, year = rounds.rsplit(" (", 1)
                     year = year.strip(")")
                     round = Round.objects.get(round_name=round_name,academic_year=year)
+                    users_emails = round.users.all().values_list('email', flat=True)
+                    for email in users_emails:
+                        if email not in attendees:
+                            attendees.append(email)
                     add_Schedule.round.add(round)
                     add_Schedule.major.add(round.major)
         except ObjectDoesNotExist:
@@ -2087,16 +2132,17 @@ def addSchedule(request):
                 add_Schedule.role.add(role)
         except ObjectDoesNotExist:
             pass
+        create_event_with_attendees(calendar_start_time,calendar_expire_time,add_Schedule.schedule_name,attendees,add_Schedule.schedule_content,add_Schedule.id)
         return redirect('Announcement_page')
 
 def edit_Schedule(request):
     if request.method == 'POST':
         Schedule_id = request.POST.get('Schedule_id')
         topic = request.POST.get('topic')
+        topic_old = request.POST.get('topic')
         details = request.POST.get('details')
-
+        attendees = []
         selected_rounds_str = request.POST.get('edit_selectedRounds_schedule').split(',')
-        print(selected_rounds_str)
         checkboxgroup = request.POST.getlist('checkboxgroup')
         edit_Schedule = Schedule.objects.get(pk=Schedule_id)
         edit_Schedule.schedule_name = topic
@@ -2104,12 +2150,34 @@ def edit_Schedule(request):
         edit_Schedule.role.clear()
         edit_Schedule.round.clear()
         edit_Schedule.major.clear()
+
         try:
-            date = request.POST.get('expire_date')
-            ndate = datetime.strptime(date, "%d/%m/%Y").date()
-            edit_Schedule.end_date = ndate
+            date_str = request.POST.get('start__date')
+            if date_str.endswith(','):
+                date_str = date_str[:-1]
+            start_time = request.POST.get('start_time')
+            print(date_str,start_time)
+            date_object = datetime.strptime(date_str, '%d/%m/%Y')
+            new_start_time = datetime.strptime(start_time, '%H:%M').time()
+            combined_start_time = datetime.combine(date_object.date(), new_start_time)
+            edit_Schedule.start_date = combined_start_time
         except ObjectDoesNotExist:
             pass
+        try:
+            date_str = request.POST.get('expire_date')
+            if date_str.endswith(','):
+                date_str = date_str[:-1]
+            expire_time = request.POST.get('expire_time')
+            print(date_str,expire_time)
+            date_object = datetime.strptime(date_str, '%d/%m/%Y')
+            new_expire_time = datetime.strptime(expire_time, '%H:%M').time()
+            combined_expire_time = datetime.combine(date_object.date(), new_expire_time)
+            edit_Schedule.end_date = combined_expire_time
+        except ObjectDoesNotExist:
+            pass
+        calendar_expire_time = str(combined_expire_time.date())+'T'+str(combined_expire_time.time())
+        calendar_start_time = str(combined_start_time.date())+'T'+str(combined_start_time.time())
+        print(calendar_expire_time,calendar_start_time)
         try:
             for role_name in checkboxgroup:
                 role_model = Role.objects.get(name=role_name)
@@ -2122,19 +2190,37 @@ def edit_Schedule(request):
                 round_name = round_name.lstrip()
                 year = year.strip(")")
                 round_model = Round.objects.get(round_name=round_name,academic_year=year)
+                users_emails = round_model.users.all().values_list('email', flat=True)
+                for email in users_emails:
+                    if email not in attendees:
+                        attendees.append(email)
                 edit_Schedule.round.add(round_model)
                 edit_Schedule.major.add(round_model.major)
 
         except ObjectDoesNotExist:
             pass
-        
-        edit_Schedule.save()
+        update_event(edit_Schedule.calendar_id,calendar_start_time,calendar_expire_time,topic,attendees,details)
         return redirect('Announcement_page')
 
 def delete_Schedule(request,id):
     delete_Sd = Schedule.objects.get(pk=id)
     delete_Sd.delete()
+    service = get_calendar_service()
+    try:
+        service.events().delete(calendarId='primary', eventId=delete_Sd.calendar_id).execute()
+    except Exception as e:
+        pass
     return redirect('Announcement_page')
+
+def manager_delete_Schedule(request,id):
+    delete_Sd = Schedule.objects.get(pk=id)
+    delete_Sd.delete()
+    service = get_calendar_service()
+    try:
+        service.events().delete(calendarId='primary', eventId=delete_Sd.calendar_id).execute()
+    except Exception as e:
+        pass
+    return redirect('Manager_Announcement')
 
 
 
@@ -2144,10 +2230,16 @@ def decrease_manager(request):
         user_id = request.POST.get('id')
         major_name = request.POST.get('major')
         major  =  Major.objects.get(major=major_name)
+        role_model= Role.objects.get(name='Manager')
         manager  =  User.objects.get(pk=user_id)
         major.default_manager.remove(manager)
+        is_still_default_manager = Major.objects.filter(default_manager=manager).exists()
+        if not is_still_default_manager:
+            role_model = Role.objects.get(name='Manager')
+            role_model.users.remove(manager)
+        
         major.save()
-
+        role_model.save()
     return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
 def increase_manager(request):
@@ -2157,8 +2249,10 @@ def increase_manager(request):
         major  =  Major.objects.get(major=major_name)
         manager  =  User.objects.get(pk=user_id)
         major.default_manager.add(manager)
+        role_model= Role.objects.get(name='Manager')
+        role_model.users.add(manager)
         major.save()
-
+        role_model.save()
     return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
 
@@ -2744,3 +2838,140 @@ def confirm_adduser(request):
 
         return redirect('User')
   
+
+def Manager_add_Schedule(request):
+    myuser_id = request.session.get('myuser_id')
+    faculty_all = Faculty.objects.filter(users=myuser_id)
+    majors = Major.objects.filter(default_manager=myuser_id)
+    major_from_session = request.session.get('major')
+    round_from_session = request.session.get('round')
+    if request.method == 'POST':
+        topic = request.POST.get('topic')
+        details = request.POST.get('details')
+        date_str = request.POST.get('expire_date')
+        start_time = request.POST.get('start_time')
+        expire_time = request.POST.get('expire_time')
+        date_object = datetime.strptime(date_str, '%d/%m/%Y')
+        new_expire_time = datetime.strptime(expire_time, '%H:%M').time()
+        combined_expire_time = datetime.combine(date_object.date(), new_expire_time)
+        date_str2 = request.POST.get('start_date')
+        date_object2 = datetime.strptime(date_str2, '%d/%m/%Y')
+        new_start_time = datetime.strptime(start_time, '%H:%M').time()
+        combined_start_time = datetime.combine(date_object2.date(), new_start_time)
+
+        checkboxgroup = request.POST.getlist('checkboxgroup')
+        attendees = []
+        add_Schedule =Schedule.objects.create(schedule_name=topic,schedule_content=details,end_date=combined_expire_time,start_date=combined_start_time)
+        calendar_expire_time = str(combined_expire_time.date())+'T'+str(combined_expire_time.time())
+        calendar_start_time = str(combined_start_time.date())+'T'+str(combined_start_time.time())
+
+        round = Round.objects.get(round_name=round_from_session,major__major=major_from_session)
+        users_emails = round.users.all().values_list('email', flat=True)
+        for email in users_emails:
+            if email not in attendees:
+                attendees.append(email)
+        add_Schedule.round.add(round)
+        add_Schedule.major.add(round.major)
+
+        try:
+            for role in checkboxgroup:
+                role = Role.objects.get(name=role)
+                add_Schedule.role.add(role)
+        except ObjectDoesNotExist:
+            pass
+        create_event_with_attendees(calendar_start_time,calendar_expire_time,add_Schedule.schedule_name,attendees,add_Schedule.schedule_content,add_Schedule.id)
+        return redirect('Manager_Announcement')
+
+def manager_edit_Schedule(request):
+    myuser_id = request.session.get('myuser_id')
+    faculty_all = Faculty.objects.filter(users=myuser_id)
+    majors = Major.objects.filter(default_manager=myuser_id)
+    major_from_session = request.session.get('major')
+    round_from_session = request.session.get('round')
+    if request.method == 'POST':
+        Schedule_id = request.POST.get('Schedule_id')
+        topic = request.POST.get('topic')
+        details = request.POST.get('details')
+        attendees = []
+        checkboxgroup = request.POST.getlist('checkboxgroup')
+        edit_Schedule = Schedule.objects.get(pk=Schedule_id)
+        edit_Schedule.schedule_name = topic
+        edit_Schedule.schedule_content = details
+        edit_Schedule.role.clear()
+        edit_Schedule.round.clear()
+        edit_Schedule.major.clear()
+
+        try:
+            date_str = request.POST.get('start__date')
+            if date_str.endswith(','):
+                date_str = date_str[:-1]
+            start_time = request.POST.get('start_time')
+            date_object = datetime.strptime(date_str, '%d/%m/%Y')
+            new_start_time = datetime.strptime(start_time, '%H:%M').time()
+            combined_start_time = datetime.combine(date_object.date(), new_start_time)
+            print(combined_start_time)
+            edit_Schedule.start_date = combined_start_time
+        except ObjectDoesNotExist:
+            pass
+        try:
+            date_str = request.POST.get('expire_date')
+            if date_str.endswith(','):
+                date_str = date_str[:-1]
+            expire_time = request.POST.get('expire_time')
+            date_object = datetime.strptime(date_str, '%d/%m/%Y')
+            new_expire_time = datetime.strptime(expire_time, '%H:%M').time()
+            combined_expire_time = datetime.combine(date_object.date(), new_expire_time)
+            edit_Schedule.end_date = combined_expire_time
+        except ObjectDoesNotExist:
+            pass
+        calendar_expire_time = str(combined_expire_time.date())+'T'+str(combined_expire_time.time())
+        calendar_start_time = str(combined_start_time.date())+'T'+str(combined_start_time.time())
+        try:
+            for role_name in checkboxgroup:
+                role_model = Role.objects.get(name=role_name)
+                edit_Schedule.role.add(role_model)
+        except ObjectDoesNotExist:
+            pass
+
+
+        round_model = Round.objects.get(round_name=round_from_session,major__major=major_from_session)
+        users_emails = round_model.users.all().values_list('email', flat=True)
+        for email in users_emails:
+            if email not in attendees:
+                attendees.append(email)
+        edit_Schedule.round.add(round_model)
+        edit_Schedule.major.add(round_model.major)
+        edit_Schedule.save()
+        update_event(edit_Schedule.calendar_id,calendar_start_time,calendar_expire_time,topic,attendees,details)
+        return redirect('Manager_Announcement')    
+    
+def Manager_add_announcement(request):
+    myuser_id = request.session.get('myuser_id')
+    faculty_all = Faculty.objects.filter(users=myuser_id)
+    majors = Major.objects.filter(default_manager=myuser_id)
+    major_from_session = request.session.get('major')
+    round_from_session = request.session.get('round')
+    if request.method == 'POST':
+        topic = request.POST.get('topic')
+        details = request.POST.get('details')
+        checkboxgroup = request.POST.getlist('checkboxgroup')
+        add_announcement =Announcement.objects.create(title=topic,announcement_content=details)
+        round = Round.objects.get(round_name=round_from_session,major__major=major_from_session)
+        add_announcement.round.add(round)
+        add_announcement.major.add(round.major)
+
+        try:
+            for role in checkboxgroup:
+                role = Role.objects.get(name=role)
+                add_announcement.role.add(role)
+        except ObjectDoesNotExist:
+            pass
+        return redirect('Manager_Announcement')
+
+def Manager_edit_Announcement(request):
+    pass
+
+def Manager_deledte_announcement(request,id):
+    delete_Am = Announcement.objects.get(pk=id)
+    delete_Am.delete()
+    return redirect('Manager_Announcement')

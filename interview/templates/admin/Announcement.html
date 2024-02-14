@@ -16,13 +16,6 @@
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
-
-  <form method="post">
-    {% csrf_token %}
-    <input type="hidden" name="test_calendar" id="test_calendar">
-    <button type="submit" class="btn btn-primary">ทดสอบ Calendar</button>
-  </form>
-
   <div class="container-fluid">
     <div class="container-fluid">
         <div class="card">
@@ -50,7 +43,10 @@
                             '{{ i.expire_date }}',
                             '{{ i.announcement_content|escapejs }}',
                             '{% for role in i.role.all %}{{role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}',
-                            '{% for round in i.round.all %}{{ round.round_name }} ({{ round.academic_year }}){% if not forloop.last %}, {% endif %}{% endfor %}', )"></i> </span>
+                            '{% for round in i.round.all %}{{ round.round_name }} ({{ round.academic_year }}){% if not forloop.last %}, {% endif %}{% endfor %}', )"></i> 
+                            <br>
+                            <a href="delete_Announcement/{{i.id}}" style="color: black; font-size: 24px;"><i class="ti ti-trash"></i></a>
+                          </span>
                         </div>
                     </div>
                 </div>
@@ -84,11 +80,18 @@
                         <span><i class="ti ti-edit" id="icon_edit" 
                         onclick="edit_Schedule('{{ i.id }}',
                         '{{ i.schedule_name }}',
+                        '{{ i.start_date }}',
                         '{{ i.end_date }}',
                         '{{ i.schedule_content|escapejs }}',
                         '{% for role in i.role.all %}{{role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}',
-                        '{% for round in i.round.all %}{{ round.round_name }} ({{ round.academic_year }}){% if not forloop.last %}, {% endif %}{% endfor %}', )"></i> </span>
-                        </div>
+                         )"></i> 
+                        <br>
+                        <a href="delete_Schedule/{{i.id}}" style="color: black; font-size: 24px;"><i class="ti ti-trash"></i></a>
+
+                      </span>
+                        
+                      </div>
+                        
                     </div>
                 </div>
                 {% endfor %}
@@ -114,9 +117,20 @@
   
           <label for="">เนื้อหาประกาศ</label> 
           <textarea name="details" placeholder="เนื้อหา" required></textarea>
-          <label for="">กำหนดการ</label> 
+
+          <label for="">เริ่มวันที่</label> 
+          <button type="button"  onclick="select_calendar2()">เลือกวันที่</button>
+          <div > 
+            <div id="selectedDate2" style="margin-right: 10px;">เริ่มวันที่: ไม่มี</div>
+            เลือกเวลา<input type="time" name="start_time" id="" placeholder="00:00" style="flex-grow: 0; width: 120px; height: 30px;">
+          </div>
+          <input hidden type="text" name="start_date" id="inputselectedDate2" >
+
+
+          <label for="">สิ้นสุดวันที่</label> 
           <button type="button"  onclick="select_calendar()">เลือกวันที่</button>
-          <div id="selectedDate" >วันที่เลือก: ไม่มี</div >
+          <div id="selectedDate" >สิ้นสุดวันที่: ไม่มี</div >
+            เลือกเวลา<input type="time" name="expire_time" id="" placeholder="00:00" style="flex-grow: 0; width: 120px; height: 30px;">
           <input hidden type="text" name="expire_date" id="inputselectedDate" >
         </div>
           <div  class="title_role">
@@ -170,9 +184,18 @@
 
         <label for="">เนื้อหาประกาศ</label> 
         <textarea name="details" placeholder="เนื้อหา" id="schedule_content" ></textarea>
-        <label for="">กำหนดการ</label> 
+
+        <label for="">เริ่มวันที่</label> 
+        <button type="button"  onclick="select_calendar2()">เลือกวันที่</button>
+        <div id="selectedDate_edit2">เริ่มวันที่: ไม่มี</div>
+        เลือกเวลา<input type="time" name="start_time" id="start_time" style="flex-grow: 0; width: 120px; height: 30px;">
+        <input hidden type="text" name="start__date" id="inputselectedDate_edit2" >
+        <br>
+        <br>
+        <label for="">สิ้นสุดวันที่</label> 
         <button type="button"  onclick="select_calendar()">เลือกวันที่</button>
-        <div id="selectedDate_edit">วันที่เลือก: ไม่มี</div>
+        <div id="selectedDate_edit">สิ้นสุดวันที่: ไม่มี</div>
+        เลือกเวลา<input type="time" name="expire_time" id="expire_time" style="flex-grow: 0; width: 120px; height: 30px;">
         <input hidden type="text" name="expire_date" id="inputselectedDate_edit" >
       </div>
         <div  class="title_role">
@@ -223,13 +246,24 @@
     </div>  
     
 </div>
+<div class="container_sele_y_m" id="select_calendar2">
+  <div class="container_calendar">
+      <div class="sele_y_m">
+          <select id="year2" onchange="updateCalendar2()"></select>
+          <select id="month2" onchange="updateCalendar2()"></select>
+      </div>
+
+      <div id="calendar2"></div>
+  </div>  
+  
+</div>
 
 <div  class="container_edit" id="edit_Announcement" >
     <form action="{% url 'edit_Announcement' %}" method="post">
         {% csrf_token %}
         <div  class="topic">
             <h3 >แก้ไขประกาศ</h3>
-            <a href="Announcement_page">
+            <a href="Manager_Announcement">
                 <i class="fs-6 ti ti-x text-danger"></i>
             </a>         
         </div>   
@@ -282,11 +316,11 @@
 </div>  
 
 <div class="container_add" id="add_Announcement" >
-  <form action="{% url 'add_announcement' %}" method="post">
+  <form action="{% url 'Manager_add_announcement' %}" method="post">
       {% csrf_token %}
       <div  class="topic">
         <h3 >เพิ่มประกาศ</h3>
-        <a href="Announcement_page">
+        <a href="Manager_Announcement">
             <i class="fs-6 ti ti-x text-danger"></i>
         </a>
     </div>       
@@ -312,19 +346,6 @@
           <input type="checkbox" id="checkbox8" name="checkboxgroup" value="Student" >
           <label for="checkbox4" class="checkbox-label">Student</label>
       </div>     
-        <div class="title_role">
-          <h3 class="title">รอบที่ต้องการให้เห็น</h3>
-          <select name="" id="selectRound" class="select-round" onchange="updateRoundInfo()">
-            <option value="">เลือกรอบ</option>
-            {% for round in round %}
-            <option value="{{ round.round_name }} ({{ round.academic_year }})">{{ round.round_name }} ({{ round.academic_year }})</option>
-            {% endfor %}
-        </select>
-        </div>
-        <div class="title_round"  id="round">
-
-        </div>
-        <input type="hidden" id="selectedRoundsInput" name="selectedRounds" value="">
         <div class="bt">
           <button  type="submit">เพิ่ม</button>
         </div>        
@@ -336,6 +357,9 @@
     createYearOptions();
     createMonthOptions();
     updateCalendar();
+    createYearOptions2();
+    createMonthOptions2();
+    updateCalendar2();
    document.addEventListener('DOMContentLoaded', function() {
     var birthDateElements = document.querySelectorAll('.text_date');
     

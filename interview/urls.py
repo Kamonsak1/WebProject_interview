@@ -101,6 +101,12 @@ urlpatterns = [
     path('student_all_tocsv',student_all_tocsv,name='student_all_tocsv'),
     path('form_student_all',form_student_all,name='form_student_all'),
     path('form_student/<int:id>',form_student,name='form_student'),
+    path('manager_edit_Schedule',manager_edit_Schedule,name='manager_edit_Schedule'),
+    path('Manager_add_announcement',Manager_add_announcement,name='Manager_add_announcement'),
+    path('Manager_add_Schedule',Manager_add_Schedule,name='Manager_add_Schedule'),
+    path('Manager_edit_Announcement',Manager_edit_Announcement,name='Manager_edit_Announcement'),
+    path('Manager_deledte_announcement/<int:id>',Manager_deledte_announcement,name='Manager_deledte_announcement'),
+    path('manager_delete_Schedule/<int:id>',manager_delete_Schedule,name='manager_delete_Schedule'),
     path('Manager_data_investigator/<int:id>',Manager_data_investigator,name='Manager_data_investigator'),
 
 

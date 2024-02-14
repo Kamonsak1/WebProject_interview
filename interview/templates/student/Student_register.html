@@ -22,7 +22,7 @@
                 <h4 class="fs-5 text-dark ms-2 mt-auto"> {{ r.round.major }} | เอกสารที่จำเป็น :</h4>
                 <!-- <h4 class="fs-5 text-warning mt-auto"> {{ r.round.documents.all|join:"," }}</h4> -->
                 {% if not r.uploaded %}
-                    <h4 class="fs-5 text-warning mt-auto"> {{ r.round.documents.all|join:"," }}</h4>
+                    <h4 class="fs-5 text-warning mt-auto"><i class="ti ti-square-x"> </i>{{ r.round.documents.all|join:"," }}</h4>
                 {% else %}
                 <div class="fs-5 fw-semibold mt-1">
                     {% for doc in r.round.documents.all %}

@@ -2,8 +2,8 @@
 {% load static %}
 
 {% block css_js %} 
-<link rel="stylesheet" href="{% static 'css/admin_css/Announcement.css' %}" />
-<script src="{% static 'js/admin_page/Announcement.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/manager_css/Announcement.css' %}" />
+<script src="{% static 'js/manager/Announcement.js' %}"></script>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 {% endblock %} 
 {% block topic %}
@@ -11,6 +11,7 @@
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
+
     <div class="container-fluid">
       <div class="container-fluid">
           <div class="card">
@@ -38,7 +39,11 @@
                               '{{ i.expire_date }}',
                               '{{ i.announcement_content|escapejs }}',
                               '{% for role in i.role.all %}{{role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}',
-                              '{% for round in i.round.all %}{{ round.round_name }} ({{ round.academic_year }}){% if not forloop.last %}, {% endif %}{% endfor %}', )"></i> </span>
+                              '{% for round in i.round.all %}{{ round.round_name }} ({{ round.academic_year }}){% if not forloop.last %}, {% endif %}{% endfor %}', )"></i> 
+                               <br>
+                               <a href="Manager_deledte_announcement/{{i.id}}" style="color: black; font-size: 24px;"><i class="ti ti-trash"></i></a>
+       
+                            </span>
                           </div>
                       </div>
                   </div>
@@ -47,6 +52,7 @@
               </div>
           </div>
       </div>
+    
   </div>
   
   <div class="container-fluid">
@@ -72,10 +78,14 @@
                           <span><i class="ti ti-edit" id="icon_edit" 
                           onclick="edit_Schedule('{{ i.id }}',
                           '{{ i.schedule_name }}',
+                          '{{ i.start_date }}',
                           '{{ i.end_date }}',
                           '{{ i.schedule_content|escapejs }}',
                           '{% for role in i.role.all %}{{role.name }}{% if not forloop.last %}, {% endif %}{% endfor %}',
-                          '{% for round in i.round.all %}{{ round.round_name }} ({{ round.academic_year }}){% if not forloop.last %}, {% endif %}{% endfor %}', )"></i> </span>
+                           )"></i> 
+                          <br>
+                          <a href="manager_delete_Schedule/{{i.id}}" style="color: black; font-size: 24px;"><i class="ti ti-trash"></i></a>
+                        </span>
                           </div>
                       </div>
                   </div>
@@ -88,7 +98,7 @@
   </div>
   
   <div class="container_addSchedule" id="add_Schedule" >
-      <form action="" method="post">
+      <form action="{% url 'Manager_add_Schedule' %}" method="post">
           {% csrf_token %}
           <div  class="topic">
             <h3 >เพิ่มกำหนดการ</h3>
@@ -102,9 +112,19 @@
     
             <label for="">เนื้อหาประกาศ</label> 
             <textarea name="details" placeholder="เนื้อหา" required></textarea>
-            <label for="">กำหนดการ</label> 
+            <label for="">เริ่มวันที่</label> 
+            <button type="button"  onclick="select_calendar2()">เลือกวันที่</button>
+            <div > 
+              <div id="selectedDate2" style="margin-right: 10px;">เริ่มวันที่: ไม่มี</div>
+              เลือกเวลา<input type="time" name="start_time" id="" placeholder="00:00" style="flex-grow: 0; width: 120px; height: 30px;">
+            </div>
+            <input hidden type="text" name="start_date" id="inputselectedDate2" >
+  
+  
+            <label for="">สิ้นสุดวันที่</label> 
             <button type="button"  onclick="select_calendar()">เลือกวันที่</button>
-            <div id="selectedDate" >วันที่เลือก: ไม่มี</div >
+            <div id="selectedDate" >สิ้นสุดวันที่: ไม่มี</div >
+              เลือกเวลา<input type="time" name="expire_time" id="" placeholder="00:00" style="flex-grow: 0; width: 120px; height: 30px;">
             <input hidden type="text" name="expire_date" id="inputselectedDate" >
           </div>
             <div  class="title_role">
@@ -129,7 +149,7 @@
   </div>
   
   <div class="container_editSchedule" id="edit_Schedule" >
-    <form action="" method="post">
+  <form action=" {% url 'manager_edit_Schedule' %}" method="post">
         {% csrf_token %}
         <div  class="topic">
           <h3 >แก้ไขกำหนดการ</h3>
@@ -144,9 +164,17 @@
   
           <label for="">เนื้อหาประกาศ</label> 
           <textarea name="details" placeholder="เนื้อหา" id="schedule_content" ></textarea>
-          <label for="">กำหนดการ</label> 
+          <label for="">เริ่มวันที่</label> 
+          <button type="button"  onclick="select_calendar2()">เลือกวันที่</button>
+          <div id="selectedDate_edit2">เริ่มวันที่: ไม่มี</div>
+          เลือกเวลา<input type="time" name="start_time" id="start_time" style="flex-grow: 0; width: 120px; height: 30px;">
+          <input hidden type="text" name="start__date" id="inputselectedDate_edit2" >
+          <br>
+          <br>
+          <label for="">สิ้นสุดวันที่</label> 
           <button type="button"  onclick="select_calendar()">เลือกวันที่</button>
-          <div id="selectedDate_edit">วันที่เลือก: ไม่มี</div>
+          <div id="selectedDate_edit">สิ้นสุดวันที่: ไม่มี</div>
+          เลือกเวลา<input type="time" name="expire_time" id="expire_time" style="flex-grow: 0; width: 120px; height: 30px;">
           <input hidden type="text" name="expire_date" id="inputselectedDate_edit" >
         </div>
           <div  class="title_role">
@@ -182,9 +210,18 @@
       </div>  
       
   </div>
+  <div class="container_sele_y_m" id="select_calendar2">
+    <div class="container_calendar">
+        <div class="sele_y_m">
+            <select id="year2" onchange="updateCalendar2()"></select>
+            <select id="month2" onchange="updateCalendar2()"></select>
+        </div>
+  
+        <div id="calendar2"></div>
+    </div>  
   
   <div  class="container_edit" id="edit_Announcement" >
-      <form action="" method="post">
+      <form action="{% url 'Manager_edit_Announcement' %}" method="post">
           {% csrf_token %}
           <div  class="topic">
               <h3 >แก้ไขประกาศ</h3>
@@ -239,7 +276,7 @@
   </div>  
   
   <div class="container_add" id="add_Announcement" >
-    <form action="" method="post">
+    <form action="{% url 'Manager_add_announcement' %}" method="post">
         {% csrf_token %}
         <div  class="topic">
           <h3 >เพิ่มประกาศ</h3>
@@ -278,6 +315,9 @@
       createYearOptions();
       createMonthOptions();
       updateCalendar();
+      createYearOptions2();
+      createMonthOptions2();
+      updateCalendar2();
      document.addEventListener('DOMContentLoaded', function() {
       var birthDateElements = document.querySelectorAll('.text_date');
       

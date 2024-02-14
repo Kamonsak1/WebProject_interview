@@ -174,13 +174,14 @@ class Round(models.Model):
         return self.round_name
 
 class Schedule(models.Model):
-    start_date = models.DateField(default=datetime.now)
-    end_date = models.DateField()
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
     major = models.ManyToManyField(Major)
     round = models.ManyToManyField(Round)
     role = models.ManyToManyField(Role)
     schedule_name = models.CharField(max_length=200)
     schedule_content = models.TextField()
+    calendar_id = models.CharField(max_length=100,null=True, blank=True)
     def __str__(self):
         return self.schedule_name
 

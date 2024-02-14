@@ -8,28 +8,24 @@ function add_Announcement() {
   }
   var edit_selectedRounds = [];
   var edit_Roundid = [];
-  function edit_Announcement(id,title,post_date,content,role,round) {
+  function edit_Announcement(id,title,post_date,content,role,) {
     document.getElementById('edit_topic').value = title;
     document.getElementById('round_id').value = id;
-    document.getElementById('deleteLink_Announcement').href = 'delete_Announcement/' + id;
+    document.getElementById('deleteLink_Announcement').href = 'Manager_deledte_announcement/' + id;
     document.getElementById('edit_content').value = content;
-    document.getElementById('edit_selectedRoundsInput').value = round;
     var role_new = role.split(',').map(function(item) {
       return item.trim();
     });
-    var checkbox1 = document.getElementById('checkbox1');
+
     var checkbox2 = document.getElementById('checkbox2');
     var checkbox3 = document.getElementById('checkbox3');
     var checkbox4 = document.getElementById('checkbox4');
-    checkbox1.checked = false;
+ 
     checkbox2.checked = false;
     checkbox3.checked = false;
     checkbox4.checked = false;
     
     for (let i = 0; i < role_new.length; i++) {
-      if (role_new[i] === 'Admin') {
-        checkbox1.checked = true;
-      }
       if (role_new[i] === 'Manager') {
         checkbox2.checked = true;
       }
@@ -79,20 +75,8 @@ function add_Announcement() {
     }
     
     document.getElementById('edit_post_date').value = new_HBD || " ";
-    edit_selectedRounds = [];
-    var round_new = round.split(',').map(function(item) {
-      return item.trim();
-    });
-    round_new.forEach(function(item) {
-      if (item !== "") { 
-        edit_selectedRounds.push(item);
-      }
-    });
     
-    document.getElementById('edit_round').innerHTML = edit_selectedRounds.map(function(item) {
-      return '<span style="color: black; font-weight: bold;">' + item + '</span> <button onclick="deleteItem(\'' + item + '\')" style="font-size: 20px; color: red; background: none; border: none;">-</button>';
-  }).join('<br>');
-  
+
 
     var edit_An = document.getElementById("edit_Announcement");
     if (edit_An.style.display === "block") {
@@ -187,15 +171,13 @@ function formatDateTime(dateTimeStr) {
 }
 var edit_selectedRounds_Schedule = [];
 var edit_Roundid_Schedule = [];
-function edit_Schedule(id,schedule_name,start_date,end_date,schedule_content,role,round) {
+function edit_Schedule(id,schedule_name,start_date,end_date,schedule_content,role) {
   document.getElementById('Schedule_id').value = id;
-  document.getElementById('deleteLink_Schedule').href = 'delete_Schedule/' + id;
+  document.getElementById('deleteLink_Schedule').href = 'manager_delete_Schedule/' + id;
   document.getElementById('schedule_name').value = schedule_name;
   document.getElementById('schedule_content').value = schedule_content;
-  document.getElementById('edit_selectedRoundsInput_schedule').value = round;
   start_date = formatDateTime(start_date); 
   end_date = formatDateTime(end_date);
-
 
   let startDateStr = start_date.replace('p.m.', 'PM').replace('a.m.', 'AM');
   let endDateStr = end_date.replace('p.m.', 'PM').replace('a.m.', 'AM');
@@ -218,19 +200,14 @@ function edit_Schedule(id,schedule_name,start_date,end_date,schedule_content,rol
   var role_new = role.split(',').map(function(item) {
     return item.trim();
   });
-  var checkbox1 = document.getElementById('checkbox_1');
   var checkbox2 = document.getElementById('checkbox_2');
   var checkbox3 = document.getElementById('checkbox_3');
   var checkbox4 = document.getElementById('checkbox_4');
-  checkbox1.checked = false;
   checkbox2.checked = false;
   checkbox3.checked = false;
   checkbox4.checked = false;
   
   for (let i = 0; i < role_new.length; i++) {
-    if (role_new[i] === 'Admin') {
-      checkbox1.checked = true;
-    }
     if (role_new[i] === 'Manager') {
       checkbox2.checked = true;
     }
@@ -342,18 +319,7 @@ function edit_Schedule(id,schedule_name,start_date,end_date,schedule_content,rol
   document.getElementById('selectedDate_edit2').innerHTML = "เริ่มวันที่:" +new_HBD2;
   document.getElementById('inputselectedDate_edit2').value = old_date2;
 
-  edit_selectedRounds_Schedule = [];
-  var round_new = round.split(',').map(function(item) {
-    return item.trim();
-  });
-  round_new.forEach(function(item) {
-    if (item !== "") { 
-      edit_selectedRounds_Schedule.push(item);
-    }
-  });
-  document.getElementById('edit_round_schedule').innerHTML = edit_selectedRounds_Schedule.map(function(item) {
-    return '<span style="color: black; font-weight: bold;">' + item + '</span> <button onclick="delete_Round_Schedule(\'' + item + '\')" style="font-size: 20px; color: red; background: none; border: none;">-</button>';
-}).join('<br>');
+
 
 
   if (edit_Schedule.style.display === "block") {

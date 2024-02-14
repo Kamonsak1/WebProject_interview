@@ -28,7 +28,8 @@
                         {% csrf_token %}
                         <input type="hidden" name="id" value="{{ user.id }}">
                         <input type="hidden" name="major" value="{{ s_major }}">
-                        <button type="submit">+</button>
+                        
+                        <button type="submit" ><i class="ti ti-user-plus"></i></button>
                     </form>
                     {% for major in user.manager.all %}
                         {% if major.major == s_major %}
@@ -36,7 +37,7 @@
                                 {% csrf_token %}
                                 <input type="hidden" name="id" value="{{ user.id }}">
                                 <input type="hidden" name="major" value="{{ s_major }}">
-                                <button type="submit">-</button>
+                                <button type="submit"><i class="ti ti-user-minus"></i></button>
                             </form>
                         {% endif %}
                     {% endfor %}

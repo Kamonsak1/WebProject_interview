@@ -53,13 +53,6 @@
         <input type="text" hidden name="email" value="{{student.email}}">
         <button type="submit"> ดาวโหลดไฟล์ CSV</button>
     </form>
-    <div>
-      <form action="{% url 'load_inte' %}" method="post">
-        {% csrf_token %}
-        <button>เทส</button>
-      </form>
-      
-    </div>
 {% else %}
     <p>ไม่มีคะแนนสำหรับนักเรียนในรอบการประเมินนี้</p>
 {% endif %}
