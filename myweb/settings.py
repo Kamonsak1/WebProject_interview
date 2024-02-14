@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-bwy(%3w9p5%z^o-(=^4&p-p-%hemlv9ji2n!xiuc1ru3!e70w7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['1765-101-51-236-121.ngrok-free.app','127.0.0.1']
+ALLOWED_HOSTS = ['178.128.106.158','127.0.0.1']
 
 
 # Application definition    
@@ -97,19 +97,19 @@ WSGI_APPLICATION = 'myweb.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-        'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-    
-    # "default": {
-    #    'ENGINE':'django.db.backends.mysql',
-    #    "NAME": os.environ.get("DB_NAME"),
-    #    "USER": os.environ.get("DB_USER"),
-    #     "PASSWORD": os.environ.get("DB_PASS"),
-    #     "HOST": os.environ.get("DB_HOST"),
-    #     "PORT": 3306,
+    #     'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     # }
+    
+    "default": {
+       'ENGINE':'django.db.backends.mysql',
+       "NAME": os.environ.get("DB_NAME"),
+       "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASS"),
+        "HOST": os.environ.get("DB_HOST"),
+        "PORT": 3306,
+    }
     
 }
 
