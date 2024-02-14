@@ -21,22 +21,25 @@
                             {% csrf_token %}
                             <input type="hidden" name="user_id" id="user_id" value="{{ user.id }}">
                             <input type="hidden" name="page" id="page_id" value="{{source_page}}">
-                            <div style="display: flex; flex-direction: row; align-items: center;">
+                            <div style="display: flex; flex-direction: row; align-items: center; flex-wrap: nowrap; width: 100%;">
+                                <label for="prefix">คำนำหน้า</label>
+                                <input style="width: 10%; margin-right: 10px;" type="text" name="prefix" id="prefix" value="{{ user.prefix }}">
+                            
                                 <label for="first_name">ชื่อ</label>
-                                <input type="text" name="first_name" id="first_name" value="{{ user.first_name }}">
+                                <input style="margin-right: 10px; width: 30%; " type="text" name="first_name" id="first_name_input" value="{{ user.first_name }}">
                                 
                                 <label for="last_name">นามสกุล</label>
-                                <input type="text" name="last_name" id="last_name" value="{{ user.last_name }}">
-                                
-                                <button type="submit" onclick="changename('{{ user.id }}')">ยืนยัน</button>
+                                <input style="width: 30%;" type="text" name="last_name" id="last_name" value="{{ user.last_name }}">
+                                <button id="confirm" type="submit" onclick="changename('{{ user.id }}')">ยืนยัน</button>
                             </div>
+                            
                         </form>
                     </div>
                 </div>
             </div>
             <div class="card w-100" style="display: block;" id="show_name">
                 <div class="card-body mini-card-body d-flex justify-content-between"  >
-                    <h4>ชื่อ-นามสกุล : {{ user.first_name }} {{ user.last_name }}</h5>
+                    <h4>ชื่อ-นามสกุล :{{ user.prefix }} {{ user.first_name }} {{ user.last_name }}</h5>
                     <span class="text-primary fs-6 edit-icon" onclick="changename('{{ user.id }}')">✎</span>
                 </div>
             </div>
@@ -50,7 +53,7 @@
                     <label for="Email">Email</label>
                     <input type="hidden" name="page" id="page_id" value="{{ source_page }}">
                     <input type="text" name="email" id="meail_done" value="{{ user.email }}">
-                    <button type="submit">ตรวจสอบอีเมล</button>
+                    <button id="confirm" type="submit">ตรวจสอบอีเมล</button>
                 </div>
             </form>
         </div>
@@ -60,15 +63,15 @@
         <div class="card-body mini-card-body">
             <form action="{% url 'profile_changemail' %}" method="post">
                 {% csrf_token %}
-                <input type="text" name="email" id="meail_done" value="{{ email }}">
+                <input type="text" name="email" id="meail_done" value="{{ email }}" readonly >
                 <div style="display: flex; flex-direction: row; align-items: center;">
-                    <input type="hidden" name="user_id" id="user_id" value="{{ user.id }}">
+                    <input type="hidden" name="user_id" id="user_id" value="{{ user.id }}" >
                     <input type="hidden" name="page" id="page_id" value="{{ source_page }}">
                 </div>
                 <div id="check_hide">
                     <label for="confirmemail">ยืนยันรหัส  7 หลักที่ถูกส่งไปในเมลล์</label>
                     <input type="text" name="confirmemail" id="">
-                    <button type="submit" onclick="changeemail('{{ user.id }}')">ยืนยัน</button>
+                    <button id="confirm" type="submit" onclick="changeemail('{{ user.id }}')">ยืนยัน</button>
                 </div>
             </form>
         </div>
@@ -95,8 +98,8 @@
                         <input type="hidden" name="page" id="page_id" value="{{source_page}}">
                         <div style="display: flex; flex-direction: row; align-items: center;">
                         <label for="citizen_id">เลขประจำตัวประชาชน</label>
-                        <input type="text" name="citizen_id" id="" value="{{ user.citizen_id }}">
-                        <button type="submit" onclick="changecitizen_id('{{ user.id }}')">ยืนยัน</button>
+                        <input style="width: 70%;" type="text" name="citizen_id" id="" value="{{ user.citizen_id }}">
+                        <button id="confirm" type="submit" onclick="changecitizen_id('{{ user.id }}')">ยืนยัน</button>
                         </div>
                     </form>
                 </div>
@@ -117,10 +120,11 @@
                         {% csrf_token %}
                         <input type="hidden" name="user_id" id="user_id" value="{{ user.id }}">
                         <input type="hidden" name="page" id="page_id" value="{{source_page}}">
-                        <div style="display: flex; flex-direction: row; align-items: center;">
-                        <label for="phone_number">เบอร์โทร</label>
-                        <input type="text" name="phone_number" id="" value="{{ user.phone_number }}">
-                        <button type="submit" onclick="changephone_number('{{ user.id }}')">ยืนยัน</button>
+                        <div style="display: flex; flex-direction: row; align-items: center; flex-wrap: nowrap; width: 100%;">
+                            <label style="margin-right: 20px;" for="phone_number">เบอร์โทร</label>
+                            <input style="width: 50%;" type="text" name="phone_number" id="" value="{{ user.phone_number }}">
+                            
+                            <button id="confirm2" type="submit" onclick="changephone_number('{{ user.id }}')">ยืนยัน</button>
                         </div>
                     </form>
                 </div>
@@ -148,7 +152,7 @@
                     <input type="area" name="address" id="" value="{{ user.address }}">
                     <label for="postcode">รหัสไปรษณีย์</label>
                     <input type="text" name="postcode" id="" value="{{ user.postcode }}">
-                    <button type="submit" onclick="changeaddress('{{ user.id }}')">ยืนยัน</button>
+                    <button id="confirm" type="submit" onclick="changeaddress('{{ user.id }}')">ยืนยัน</button>
                     </div>
                 </form>
             </div>
@@ -170,13 +174,14 @@
                     <input type="hidden" name="user_id" id="user_id" value="{{ user.id }}">
                     <input type="hidden" name="page" id="page_id" value="{{source_page}}">
                     <input type="text" name="birth_date" id="edit_birth_date" placeholder="วว/ดด/ปป">   
-                    <button type="submit"onclick="changehbd('{{ user.id }}')">ยืนยัน</button>
+                    <button id="confirm" type="submit"onclick="changehbd('{{ user.id }}')">ยืนยัน</button>
                     </div>
                 </form>               
             </div>
         </div>
         <div class="card w-100 mini-card"style="display: block;" id="show_hbd" >
             <div class="card-body mini-card-body d-flex justify-content-between" >
+                <label for="วว/ดด/ปป">วว/ดด/ปป</label>
                 <h4 id="text_birth_date" style="display: none;">{{ user.birth_date }}</h5>
                 <h4 id="display_birth_date" ></h4>     
                 <span class="text-primary fs-6 edit-icon" onclick="changehbd('{{ user.id }}')">✎</span>              

@@ -23,6 +23,7 @@
             {% for item in student_ex.0.scores %}
             <th>{{item.topic_name}}</th>
             {% endfor %}
+            <th>เพิ่มเติม</th>
           </tr>
         </thead>
       
@@ -34,6 +35,7 @@
             {% for i in item.scores %}
               <td>{{i.score}}</td>
             {% endfor %}
+            <td>{{item.message}}</td>
           </tr>
         {% endfor %}
         </tbody>
@@ -50,6 +52,7 @@
         <input type="checkbox" id="item5" value="True" name="student_name" checked>   <label for="item5">ชื่อนักเรียน</label> <br>
         <input type="checkbox" id="item6" value="True" name="total_score" checked>   <label for="item6">คะแนนรวมเท่านั่น</label> <br>
         <input type="checkbox" id="item8" value="True" name="Evidence_check" checked>   <label for="item6">หลักฐานการสัมภาษณ์</label> <br>
+        <input type="checkbox" id="item8" value="True" name="shortnote_check" checked>   <label for="item6">ข้อความเพิ่มเติม</label> <br>
         <input type="text" hidden name="index" value="{{index_student}}">
         <button type="submit"> ดาวโหลดไฟล์ CSV</button>
     </form>

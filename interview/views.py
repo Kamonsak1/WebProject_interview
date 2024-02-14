@@ -431,6 +431,7 @@ def form_student(request, id):
     topic_list = []
     score_list = []
     topic_all = [ ]
+    interviewer_first_name= None
     if  major_from_session and round_from_session:
         student = User.objects.get(pk=id)
         round_score = RoundScore.objects.filter(Round__round_name=round_from_session).select_related('pattern').first()
@@ -451,6 +452,7 @@ def form_student(request, id):
             for i in topic_scores:
                 topic_list.append(i.topic.topic_name)
                 if student_info['interviewer'] == '-':
+                    interviewer_first_name = i.interviewer.first_name
                     interviewer_name = i.interviewer.prefix+i.interviewer.first_name+' '+i.interviewer.last_name
                     student_info['interviewer'] = interviewer_name
         for item in topic_all:
@@ -460,8 +462,11 @@ def form_student(request, id):
                     student_info['scores'].append({'topic_name': item, 'score': i.score,'scores_max': i.topic.max_score})
             else:
                 student_info['scores'].append({'topic_name': item, 'score': 0,'scores_max': i.topic.max_score})
-        print(student_info)
+        round_instance = Round.objects.get(round_name=round_from_session,major__major=major_from_session)
+        evidence_list = Evidence.objects.filter(round__round_name=round_from_session,student__id=id,interviewer__first_name=interviewer_first_name).first()
+        Shortnote = evidence_list.Shortnote
         context = {
+            "shortnote" :Shortnote,
             "student":student,
             'score': student_info,
             'score_list':score_list,
@@ -1037,7 +1042,7 @@ def log_out(request):
     logout(request)
 
     # Redirect to sign-in page
-    return redirect('log_in')
+    return redirect('index')
 
 
 def first_login(request):
@@ -1265,6 +1270,7 @@ def delete_ScoreTopic(request,id):
 def edit_TemporaryUser(request):
     if request.method == "POST":
         user_id = request.POST.get('user_id')
+        prefix = request.POST.get('prefix')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         citizen_id = request.POST.get('citizen_id')
@@ -1275,6 +1281,7 @@ def edit_TemporaryUser(request):
         role = Role.objects.filter(TemporaryUser=tem_user)
         for role in role:
             role.TemporaryUser.remove(tem_user)
+        tem_user.prefix=prefix
         tem_user.first_name=first_name
         tem_user.last_name=last_name
         tem_user.citizen_id=citizen_id
@@ -1842,10 +1849,12 @@ def Manager_ScoreTopic(request,id):
 def profile_changname(request):
     if request.method == 'POST':
         user_id   = request.POST.get('user_id')
+        prefix   = request.POST.get('prefix')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         source_page = request.POST.get('page')
         user = User.objects.get(pk=user_id)
+        user.prefix = prefix
         user.first_name = first_name
         user.last_name = last_name
         user.first_name2 = first_name
@@ -1864,16 +1873,21 @@ def profile_changname(request):
 
 def profile_send_otp(request):
     if request.method == 'POST':
-        email_profile = request.POST.get('email')
-        confirmation_code_profile = ''.join(random.choices(string.digits, k=7))
         source_page = request.POST.get('page')
-        request.session['confirmation_code_profile'] = confirmation_code_profile
-        request.session['email_profile'] = email_profile
-        subject = 'ยืนยันอีเมลของคุณ ',email_profile
-        message = f'โปรดใช้รหัสนี้เพื่อยืนยันอีเมลของคุณ: {confirmation_code_profile} '
-        from_email = settings.EMAIL_HOST_USER
-        recipient_list = [email_profile]
-        send_mail(subject, message, from_email, recipient_list)
+        email_profile = request.POST.get('email')
+        if email_profile:
+            user_exists = User.objects.filter(email=email_profile).exists()
+            if user_exists:
+                return HttpResponse("อีเมล์นี้มีอยู่ในฐานข้อมูลแล้ว.")
+            else:
+                confirmation_code_profile = ''.join(random.choices(string.digits, k=7))
+                request.session['confirmation_code_profile'] = confirmation_code_profile
+                request.session['email_profile'] = email_profile
+                subject = 'ยืนยันอีเมลของคุณ ',email_profile
+                message = f'โปรดใช้รหัสนี้เพื่อยืนยันอีเมลของคุณ: {confirmation_code_profile} '
+                from_email = settings.EMAIL_HOST_USER
+                recipient_list = [email_profile]
+                send_mail(subject, message, from_email, recipient_list)
         if source_page == 'Admin':
             return render(request, 'admin/admin_profile.html', {'email': email_profile})
         if source_page == 'Manager':
@@ -1961,12 +1975,18 @@ def profile_changeaddress(request):
 def profile_hbd(request):
     if request.method == 'POST':
         user_id   = request.POST.get('user_id')
-        birth_date_str = request.POST.get('birth_date')
-        birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date()
         source_page = request.POST.get('page')
-        user = User.objects.get(pk=user_id)
-        user.birth_date = birth_date
-        user.save()
+        try:
+            birth_date_str = request.POST.get('birth_date')
+            if birth_date_str: 
+                birth_date = datetime.strptime(birth_date_str, "%d/%m/%Y").date()
+                user = User.objects.get(pk=user_id)
+                user.birth_date = birth_date
+                user.save()
+            else:
+                pass
+        except ObjectDoesNotExist:
+            pass
         if source_page == 'Admin':
             return redirect('admin_profile')
         if source_page == 'Manager':
@@ -2315,6 +2335,7 @@ def student_one_tocsv(request):
         checkbox = request.POST.getlist('checkbox')
         Evidence_check = request.POST.get('Evidence_check')
         score = request.POST.get('score') 
+        shortnote = request.POST.get('shortnote_check') 
         score_max = request.POST.get('score_max') 
         interviewer_name = request.POST.get('interviewer_name') 
         student_name = request.POST.get('student_name') 
@@ -2325,6 +2346,7 @@ def student_one_tocsv(request):
         if student_name :
             topic_list.append('ชื่อนักเรียน')
             data_list.append(student_name)
+            print(student_name)
         if interviewer_name :
             topic_list.append('ผู้สัมภาษณ์')
             data_list.append(interviewer_name)
@@ -2383,6 +2405,9 @@ def student_one_tocsv(request):
         if total_score:
             topic_list.append('คะแนนรวม')
             data_list.append(sum(score_plus))
+        if shortnote:
+            topic_list.append('ข้อความเพิ่มเติม')
+            data_list.append(shortnote)
         if email:
             email_split = email.split('@')[0]
         response_csv = HttpResponse(
@@ -2464,15 +2489,16 @@ def form_student_all(request):
         student_ex=[]
         index = 0
         processed_scores = set()
-        for i in student_index_list:
-            student = User.objects.get(pk=i)
+        for s in student_index_list:
+            student = User.objects.get(pk=s)
             round_score = RoundScore.objects.filter(Round__round_name=round_from_session).select_related('pattern').first()
             scores_topic = ScoreTopic.objects.filter(pattern_id=round_score.pattern)
             student_info = {
                     'student': student.prefix+student.first_name+' '+ student.last_name,
                     'interviewer': '-',
                     'scores': [] ,
-                    'scores_max': [] 
+                    'scores_max': [] ,
+                    'message':'-'
                 }
             for i in scores_topic:
                 student_info['scores'].append({
@@ -2495,8 +2521,11 @@ def form_student_all(request):
                     if student_info['interviewer'] == '-':
                         interviewer_name = score.interviewer.prefix+score.interviewer.first_name+' '+score.interviewer.last_name
                         student_info['interviewer'] = interviewer_name
+                        evidence_list = Evidence.objects.filter(round__round_name=round_from_session,student__id=s,interviewer__first_name=score.interviewer.first_name).first()
+                        student_info['message'] = evidence_list.Shortnote
             if len(student_ex) < 5:
                 student_ex.append(student_info)
+ 
         context = {
             'student_ex':student_ex,
             "student":student,
@@ -2530,6 +2559,7 @@ def student_all_tocsv(request):
         student_name = request.POST.get('student_name') 
         total_score = request.POST.get('total_score') 
         student_index = request.POST.get('index')
+        shortnote_check = request.POST.get('shortnote_check')
         student_index =eval(student_index)
         topic_scores_all = []
         column = []
@@ -2545,12 +2575,13 @@ def student_all_tocsv(request):
             column_to_csv.append('ชื่อนักเรียน')
         if get_interviewer_name == 'True':
             column_to_csv.append('ชื่อผู้สัมภาษณ์')
-        for i in student_index:
+        for s in student_index:
             list_score_max = []
             list_topic = []
             index_list = 1
             data = []
-            student = User.objects.get(pk=i)
+            message = []
+            student = User.objects.get(pk=s)
             round_score = RoundScore.objects.filter(Round__round_name=round_from_session).select_related('pattern').first()
             scores_topic = ScoreTopic.objects.filter(pattern_id=round_score.pattern)
             if student_name == 'True':
@@ -2559,7 +2590,7 @@ def student_all_tocsv(request):
                     'student': student.prefix+student.first_name+' '+ student.last_name,
                     'interviewer': 'ไม่มีผู้สัมภาษณ์',
                     'scores': [] ,
-                    'scores_max': [] 
+                    'scores_max': [] ,
                 }
             list_score = []
             if checkbox_all == 'True':
@@ -2597,6 +2628,8 @@ def student_all_tocsv(request):
                         if student_info['interviewer'] == 'ไม่มีผู้สัมภาษณ์':
                             interviewer_name = score.interviewer.prefix+score.interviewer.first_name+' '+score.interviewer.last_name
                             student_info['interviewer'] = interviewer_name
+                            evidence_list = Evidence.objects.filter(round__round_name=round_from_session,student__id=s,interviewer__first_name=score.interviewer.first_name).first()
+                            message.append(evidence_list.Shortnote)   
             else:
                 for i in scores_topic:
                     list_score = []
@@ -2633,7 +2666,9 @@ def student_all_tocsv(request):
                                     index = index+1
                                 if student_info['interviewer'] == 'ไม่มีผู้สัมภาษณ์':
                                     interviewer_name = score.interviewer.prefix+score.interviewer.first_name+' '+score.interviewer.last_name
-                                    student_info['interviewer'] = interviewer_name                
+                                    student_info['interviewer'] = interviewer_name  
+                                    evidence_list = Evidence.objects.filter(round__round_name=round_from_session,student__id=s,interviewer__first_name=score.interviewer.first_name).first()
+                                    message.append(evidence_list.Shortnote)            
             if get_interviewer_name == 'True':
                 data.append(interviewer_name)
             
@@ -2656,6 +2691,8 @@ def student_all_tocsv(request):
 
             if len(student_ex) < 5:
                 student_ex.append(student_info)
+            if shortnote_check == 'True':
+                data.extend(message)
 
             data_to_csv.append(data) 
             
@@ -2671,6 +2708,8 @@ def student_all_tocsv(request):
         if total_score == 'True':
                 column_to_csv.append('คะแนนรวมเต็ม')
                 column_to_csv.append('คะแนนรวม')
+        if shortnote_check == 'True':
+                column_to_csv.append('ข้อความเพิ่มเติม')
         response_csv = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f'attachment; filename="{round_from_session}".csv'},
@@ -2969,7 +3008,36 @@ def Manager_add_announcement(request):
         return redirect('Manager_Announcement')
 
 def Manager_edit_Announcement(request):
-    pass
+    myuser_id = request.session.get('myuser_id')
+    faculty_all = Faculty.objects.filter(users=myuser_id)
+    majors = Major.objects.filter(default_manager=myuser_id)
+    major_from_session = request.session.get('major')
+    round_from_session = request.session.get('round')
+    if request.method == 'POST':
+        Announcement_id = request.POST.get('Announcement_id')
+        topic = request.POST.get('topic')
+        details = request.POST.get('details')
+        checkboxgroup = request.POST.getlist('checkboxgroup')
+        edit_announcement = Announcement.objects.get(pk=Announcement_id)
+        edit_announcement.title = topic
+        edit_announcement.announcement_content = details
+        edit_announcement.role.clear()
+        edit_announcement.round.clear()
+        edit_announcement.major.clear()
+        try:
+            for role_name in checkboxgroup:
+                role_model = Role.objects.get(name=role_name)
+                edit_announcement.role.add(role_model)
+        except ObjectDoesNotExist:
+            pass
+ 
+        round_model = Round.objects.get(round_name=round_from_session,major__major=major_from_session)
+        edit_announcement.round.add(round_model)
+        edit_announcement.major.add(round_model.major)
+
+        
+        edit_announcement.save()
+        return redirect('Manager_Announcement')
 
 def Manager_deledte_announcement(request,id):
     delete_Am = Announcement.objects.get(pk=id)

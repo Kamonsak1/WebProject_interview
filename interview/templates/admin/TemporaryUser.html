@@ -66,7 +66,7 @@
         <tbody>
             {% for user in users %}
             <tr>
-                <td>{{ user.first_name }} {{ user.last_name }}</td>
+                <td>{{ user.prefix}}{{ user.first_name }} {{ user.last_name }}</td>
 
                 <td class="d-flex justify-content-center">
                     <a class="btn btn-primary btn-sm fs-3 mx-1" href="javascript:void(0);" onclick="display_popup
@@ -78,11 +78,11 @@
                         '{{user.roles.all}}',
                         '{% for round in user.round_temp_user.all %}{{ round.major }}{% if not forloop.last %}, {% endif %}{% endfor %}',
                         '{% for round in user.round_temp_user.all %}{{ round.major.faculty.faculty }}{% if not forloop.last %}, {% endif %}{% endfor %}',
-                        '{{ user.round_temp_user.all|join:',' }}')">ดูข้อมูล</a>
+                        '{{ user.round_temp_user.all|join:',' }}','{{user.prefix}}',)">ดูข้อมูล</a>
                     <a class="btn btn-secondary btn-sm fs-3 mx-1" href="javascript:void(0);" onclick="edit_popup
-                        ('{{ user.id }}', '{{ user.first_name }}', '{{ user.last_name }}',
+                        ('{{user.prefix}}','{{ user.id }}', '{{ user.first_name }}', '{{ user.last_name }}',
                         '{{ user.faculty_set.all }}','{{ user.major_set.all}}','{{ user.citizen_id }}',
-                        '{{user.birth_date}}','{{user.roles.all}}','{{user.email}}')">แก้ไข</a>
+                        '{{user.birth_date}}','{{user.roles.all}}','{{user.email}}',)">แก้ไข</a>
                     <a class="btn btn-danger btn-sm fs-3 mx-1" href="delete_TemporaryUser/{{user.id}}">ลบ</a>  
                 </td>
             </tr>
@@ -102,6 +102,10 @@
             </div>  
             <div class="input_data">
                 <input type="hidden" name="user_id" id="user_id">
+                <div>
+                    <label >คำนำหน้า</label>
+                    <input type="text" name="prefix" id="prefix" >
+                </div>
                 <div>
                     <label >ชื่อ</label>
                     <input type="text" name="first_name" id="first_name" >
@@ -149,6 +153,10 @@
             </div>  
             <div class="input_data">
                 <input type="hidden" name="user_id" id="user_id">
+                <div>
+                    <label >คำนำหน้า</label>
+                    <input type="text" name="first_name" id="display_prefix" placeholder="" readonly>
+                </div>
                 <div>
                     <label >ชื่อ</label>
                     <input type="text" name="first_name" id="display_first_name" placeholder="" readonly>

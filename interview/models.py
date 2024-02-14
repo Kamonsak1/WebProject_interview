@@ -214,8 +214,6 @@ class Evidence(models.Model):
     round = models.ForeignKey(Round, on_delete=models.CASCADE)
     document = models.FileField(upload_to=evidence_path)
     Shortnote = models.CharField(max_length=500,blank=True,null=True)
-    def __str__(self):
-        return self.interviewer
 
 class ScorePattern(models.Model):
     pattern_name = models.CharField(max_length=100)

@@ -53,7 +53,7 @@
         <tbody>
             {% for user in users %}
             <tr>
-                <td>{{ user.first_name }} {{ user.last_name }}</td>
+                <td>{{ user.prefix }} {{ user.first_name }} {{ user.last_name }}</td>
                 <td>{{ user.email }}</td>
                 <td class="d-flex justify-content-center">
                     <a class="btn btn-primary btn-sm fs-3 mx-1" href="javascript:void(0);" onclick="display_popup
@@ -67,7 +67,8 @@
                         '{{ user.round_user.all|join:',' }}',
                         '{{user.phone_number}}',
                         '{{user.address}}',
-                        '{{user.postcode}}',)">ดูข้อมูล</a>
+                        '{{user.postcode}}',
+                        '{{user.prefix}}',)">ดูข้อมูล</a>
                     <a class="btn btn-secondary btn-sm fs-3 mx-1" href="javascript:void(0);" onclick="edit_popup
                         ('{{ user.id }}','{{user.roles.all}}','{{user.email}}')">แก้ไข</a>
                     <a class="btn btn-danger btn-sm fs-3 mx-1" href="delete_User/{{user.id}}">ลบ</a>  
@@ -122,6 +123,10 @@
             <div class="input_data">
                 <input type="hidden" name="user_id" id="user_id">
                 <div class="input_row">
+                    <div class="input_group">
+                        <label for="prefix">คำนำหน้า</label>
+                        <input type="text" name="prefix" id="display_prefix"readonly>
+                    </div>
                     <div class="input_group">
                         <label for="first_name">ชื่อ</label>
                         <input type="text" name="first_name" id="display_first_name"readonly>

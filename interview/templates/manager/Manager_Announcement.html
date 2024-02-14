@@ -219,6 +219,7 @@
   
         <div id="calendar2"></div>
     </div>  
+  </div>
   
   <div  class="container_edit" id="edit_Announcement" >
       <form action="{% url 'Manager_edit_Announcement' %}" method="post">
@@ -253,19 +254,6 @@
               <input type="checkbox" id="checkbox4" name="checkboxgroup" value="Student" >
               <label for="checkbox4" class="checkbox-label">Student</label>
           </div>
-          <div class="title_role">
-              <h3 class="title">รอบที่ต้องการให้เห็น</h3>
-              <select name="" id="edit_selectRound" class="select-round" onchange="editRoundInfo() ">
-                <option value="">เลือกรอบ</option>
-                {% for round in round %}
-                    <option value="{{ round.round_name }} ({{ round.academic_year }})">{{ round.round_name }} ({{ round.academic_year }})</option>
-                {% endfor %}
-            </select>
-          </div>
-            <div class="title_round" id="edit_round">
-    
-            </div>
-            <input type="hidden" id="edit_selectedRoundsInput" name="edit_selectedRounds" value="">   
             <div class="bt">
               <button  type="submit">แก้ไขข้อมูล</button>
               <button type="button"><a href="#" id="deleteLink_Announcement" style="color: black;">ลบประกาศ</a></button>

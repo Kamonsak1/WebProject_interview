@@ -83,13 +83,15 @@ function add_User() {
   }
   }
   
-  function display_popup(user_id, first_name, last_name,birth_date,role,email,major,faculty,round,phone_number,address,postcode) {
+  function display_popup(user_id, first_name, last_name,birth_date,role,email,major,faculty,round,phone_number,address,postcode,prefix) {
     var optionsDiv = document.getElementById("display_popup");
     var fullAddress = address + ' ' + postcode;
     document.getElementById('user_id').value = user_id;
     document.getElementById('display_first_name').value = first_name;
     document.getElementById('display_last_name').value = last_name;
     document.getElementById('display_email').value = email;
+    document.getElementById('display_prefix').value = prefix;
+    console.log(prefix)
     document.getElementById('display_phone_number').value = phone_number;display_address
     document.getElementById('display_address').value = fullAddress;
   var formattedround = round.replace(',', "<br>");

@@ -111,3 +111,20 @@ input {
 .hide_name{
     display: none;
 }
+
+#confirm{
+    background-color: white;
+    width: 5%;
+    height: 50px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+}
+#confirm2{
+    background-color: white;
+    height: 35px;
+    width: 100px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+}

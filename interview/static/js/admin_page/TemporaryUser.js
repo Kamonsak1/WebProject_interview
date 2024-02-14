@@ -37,9 +37,11 @@ function updateMajorOptions() {
       }
   });
 }
-function edit_popup(user_id, first_name, last_name, faculty, major,citizen_id,birth_date,role) {
+function edit_popup(prefix,user_id, first_name, last_name, faculty, major,citizen_id,birth_date,role) {
 var optionsDiv = document.getElementById("edit_popup");
+console.log(prefix)
 document.getElementById('user_id').value = user_id;
+document.getElementById('prefix').value = prefix;
 document.getElementById('first_name').value = first_name;
 document.getElementById('last_name').value = last_name;
 document.getElementById('citizen_id').value = citizen_id;
@@ -156,9 +158,11 @@ if (optionsDiv.style.display === "block") {
 }
 }
 
-function display_popup(user_id, first_name, last_name,citizen_id,birth_date,role,major,faculty,round) {
+function display_popup(user_id, first_name, last_name,citizen_id,birth_date,role,major,faculty,round,prefix) {
 var optionsDiv = document.getElementById("display_popup");
+console.log(prefix)
 document.getElementById('user_id').value = user_id;
+document.getElementById('display_prefix').value = prefix;
 document.getElementById('display_first_name').value = first_name;
 document.getElementById('display_last_name').value = last_name;
 document.getElementById('display_citizen_id').value = citizen_id;
