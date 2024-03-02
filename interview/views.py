@@ -411,7 +411,6 @@ def Manager_Print_Interview(request):
     round_from_session = request.session.get('round')
     if  major_from_session and round_from_session:
         student = User.objects.filter(major__major=major_from_session,round_user__round_name=round_from_session,roles__name='Student')
-        print(student)
         context = {
         "student":student,
         "s_major" : major_from_session,
@@ -456,6 +455,7 @@ def form_student(request, id):
                     interviewer_first_name = i.interviewer.first_name
                     interviewer_name = i.interviewer.prefix+i.interviewer.first_name+' '+i.interviewer.last_name
                     student_info['interviewer'] = interviewer_name
+                    student_info['index_interviewer'] = i.interviewer.first_name+' '+i.interviewer.last_name
         for item in topic_all:
             if item in topic_list:
                 topic_scores = Score.objects.filter(student=student,topic__topic_name=item,topic__pattern_id__pattern_name=round_score.pattern.pattern_name)  
@@ -2345,6 +2345,7 @@ def student_one_tocsv(request):
         checkbox_all = request.POST.get('checkbox_all') 
         checkbox_all_T = request.POST.get('checkbox_all_T') 
         checkbox = request.POST.getlist('checkbox')
+        id_interviewer = request.POST.getlist('id_interviewer')
         Evidence_check = request.POST.get('Evidence_check')
         score = request.POST.get('score') 
         shortnote = request.POST.get('shortnote_check') 
@@ -2444,7 +2445,6 @@ def student_one_tocsv(request):
             year = year_round.academic_year
         else:
             year = None  
-        a= interviewer_name.split('.')[-1]
         a2=student_name.split(' ')[1]
         a3=student_name.split(' ')[0]
         if 'นาย' in a3:
@@ -2452,13 +2452,13 @@ def student_one_tocsv(request):
         elif 'นางสาว' in a3:
             a4 = a3.split('นางสาว')[1]
         name = User.objects.get(first_name=a4,last_name=a2)
-        print(name.username)
-        link = f'./media/Evidence/{major_from_session}/{round_from_session}/{a}/{name.username}.jpg'
+        link = f'./media/Evidence/{major_from_session}/{round_from_session}/{id_interviewer[0]}/{name.username}.jpg'
         os.makedirs(Evidence_folder, exist_ok=True) 
+        print(link)
     
 
         try:
-            destination2 = os.path.join(Evidence_folder, f'{student_name}')
+            destination2 = os.path.join(Evidence_folder, f'{student_name}.jpg')
             shutil.copy(link, destination2)
         except FileNotFoundError:
             print(f"ไม่พบโฟลเดอร์ที่ทาง {link}")
@@ -2517,6 +2517,7 @@ def form_student_all(request):
             student_info = {
                     'student': student.prefix+student.first_name+' '+ student.last_name,
                     'interviewer': '-',
+                    'index_interviewer': '0',
                     'scores': [] ,
                     'scores_max': [] ,
                     'message':'-'
@@ -2825,7 +2826,6 @@ def ajax_round(request):
     major_name = request.GET.get('major')  
     major_object = Major.objects.get(major=major_name)
     round = major_object.round_set.all()
-    print(round)
 
     return render(request, 'admin/dropdown-round.html', {"rounds": round})
 
@@ -2954,7 +2954,6 @@ def manager_edit_Schedule(request):
             date_object = datetime.strptime(date_str, '%d/%m/%Y')
             new_start_time = datetime.strptime(start_time, '%H:%M').time()
             combined_start_time = datetime.combine(date_object.date(), new_start_time)
-            print(combined_start_time)
             edit_Schedule.start_date = combined_start_time
         except ObjectDoesNotExist:
             pass

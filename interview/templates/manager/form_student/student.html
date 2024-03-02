@@ -55,6 +55,7 @@
         <input type="checkbox" id="item8" value="True" name="Evidence_check" checked>   <label for="item6">หลักฐานการสัมภาษณ์</label> <br>
         <input type="checkbox" id="item8" value="{{ shortnote }}" name="shortnote_check" checked>   <label for="item6">ข้อความเพิ่มเติม</label> <br>
         <input type="text" hidden name="email" value="{{student.email}}">
+        <input type="hidden" name="id_interviewer" id="" value="{{score.index_interviewer}}">
         <button type="submit"> ดาวโหลดไฟล์ CSV</button>
     </form>
 {% else %}
