@@ -115,6 +115,7 @@ urlpatterns = [
     path('Interviewer_Profile',Interviewer_Profile, name='Interviewer_Profile'),
     path('Interviewer_room',Interviewer_room, name='Interviewer_room'),
     path('add_meetlink', add_meetlink, name="add_meetlink"),
+    path('get-current-student/', get_current_student, name='get_current_student'),
 
     #Student
     path('Student_page',student_page, name='Student_page'),

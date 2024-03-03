@@ -82,6 +82,8 @@ def is_Student(user):
     else:
         return False
 
+def is_ManagerOrAdmin(user):
+    return is_Manager(user) or is_admin(user)
 
 def index(request):
     mode = login_mode.objects.all()
@@ -1173,7 +1175,7 @@ def delete_TemporaryUser(request,id):
     return redirect("TemporaryUser")
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_ManagerOrAdmin)
 def add_InterviewRound(request):
     if request.method == "POST":     
         major_name = request.POST.get('major')
@@ -1195,14 +1197,14 @@ def add_InterviewRound(request):
     return redirect("Interview")
     
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_ManagerOrAdmin)
 def delete_InterviewRound(request,id):
     object = Round.objects.get(pk=id)
     object.delete()
     return redirect("Interview")
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_ManagerOrAdmin)
 def add_ScorePattern(request):
     if request.method == "POST":
         round_value = request.POST.get("round")
@@ -1221,7 +1223,7 @@ def add_ScorePattern(request):
             return redirect(f"/Score")
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_ManagerOrAdmin)
 def add_ScoreTopic(request):
     if request.method == "POST":
         round_value = request.POST.get("round")
@@ -1252,7 +1254,7 @@ def add_ScoreTopic(request):
             return redirect(f"/Score")
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_ManagerOrAdmin)
 def View_ScoreTopic(request,id):
     Topics = ScoreTopic.objects.filter(pattern_id=id)
     context = {
@@ -1262,13 +1264,13 @@ def View_ScoreTopic(request,id):
     return render(request , 'admin/Score_Template.html', context)
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_ManagerOrAdmin)
 def delete_ScoreTemplate(request,id):
     object = ScorePattern.objects.get(pk=id)
     object.delete()
     return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_ManagerOrAdmin)
 def delete_ScoreTopic(request,id):
     object = ScoreTopic.objects.get(pk=id)
     object.delete()
@@ -1303,7 +1305,7 @@ def edit_TemporaryUser(request):
     return redirect('TemporaryUser')
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_ManagerOrAdmin)
 def edit_ScoreTopic(request):
     if request.method == "POST":
         topic_id = request.POST.get('topic_id')
@@ -1319,7 +1321,7 @@ def edit_ScoreTopic(request):
     return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_ManagerOrAdmin)
 def edit_InterviewRound(request):
     if request.method == "POST":
         id = request.POST.get('round_id')
@@ -3048,3 +3050,11 @@ def Manager_deledte_announcement(request,id):
     delete_Am = Announcement.objects.get(pk=id)
     delete_Am.delete()
     return redirect('Manager_Announcement')
+
+def get_current_student(request):
+    interviewing = InterviewNow.objects.get(interviewer=request.user)
+    if interviewing.student:
+        current_student_id = interviewing.student.id
+    else:
+        current_student_id = None
+    return JsonResponse({'current_student_id': current_student_id})

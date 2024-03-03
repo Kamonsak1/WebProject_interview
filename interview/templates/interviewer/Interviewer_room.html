@@ -320,21 +320,39 @@ function resetRefreshCount() {
             localStorage.setItem('refreshCount', 0);}
 
 document.addEventListener('DOMContentLoaded', function() {
+    var initialStudentId = '{{ student.id }}';
+
+    function checkForStudentChange() {
+        fetch('{% url "get_current_student" %}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.current_student_id != initialStudentId) {
+                    window.location.reload();
+                }
+            })
+            .catch(error => console.error('Error fetching student data:', error));
+    }
+
+    // Check for changes every 5 seconds
+    setInterval(checkForStudentChange, 5000);
+});
+
+document.addEventListener('DOMContentLoaded', function() {
     var inputValues = {};
     var otherForm = document.getElementById('other-form-id');
     var otherForms = document.getElementById('other-form-ids');
-    // ฟังก์ชันสำหรับอัพเดทค่าในตัวแปร inputValues
+
 function updateInputValues(event) {
         inputValues[event.target.id] = event.target.value;
         console.log(inputValues);
-        updateOtherForm1(); // อัปเดต form ที่สองทันทีหลังจากมีการเปลี่ยนแปลง
+        updateOtherForm1(); 
         updateOtherForm2();
     }
 
-    // ฟังก์ชันสำหรับอัพเดทค่าใน form ที่สอง
+
 function updateOtherForm1() {
     for (var id in inputValues) {
-        var selectorId = id; // ปรับแต่ง ID ให้เริ่มด้วยตัวอักษร
+        var selectorId = id;
         var otherInput = otherForm.querySelector(`input#${selectorId}`);
         if (otherInput) {
             otherInput.value = inputValues[id];
@@ -344,7 +362,7 @@ function updateOtherForm1() {
 
 function updateOtherForm2() {
     for (var id in inputValues) {
-        var selectorId = id; // ปรับแต่ง ID ให้เริ่มด้วยตัวอักษร
+        var selectorId = id;
         var otherInput = otherForms.querySelector(`input#${selectorId}`);
         if (otherInput) {
             otherInput.value = inputValues[id];
@@ -352,7 +370,6 @@ function updateOtherForm2() {
     }
 }
 
-    // เพิ่ม event listener ให้กับทุก input ประเภท 'number' ใน form แรก
     var inputs = document.querySelectorAll('form input[type="number"]');
     var Shortnote = document.getElementById('Shortnote');
     Shortnote.addEventListener('change', updateInputValues)
