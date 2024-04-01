@@ -45,4 +45,26 @@ function add_Major_manager(Major_manager,id_Major_manager) {
     }
   
   
-  
+function display_popup_del(major_name,major_id){
+  var optionsDiv = document.getElementById("display_popup_del");
+  document.getElementById('major_name_tag').innerHTML = major_name;
+  var deleteLink = document.querySelector('.bt_del a[href^="delete_Major"]');
+  deleteLink.setAttribute('href', 'delete_Major/' + major_id);
+  if (optionsDiv.style.display === "block") {
+    optionsDiv.style.display = "none";
+  } else {
+    optionsDiv.style.display = "block";
+  }
+}
+
+function display_popup_del_faculty(faculty_name,faculty_id){
+  var optionsDiv = document.getElementById("display_popup_del_faculty");
+  document.getElementById('faculty_name_tag').innerHTML = faculty_name;
+  var deleteLink = document.querySelector('.bt_del_faculty a[href^="delete_Faculty"]');
+  deleteLink.setAttribute('href', 'delete_Faculty/' + faculty_id);
+  if (optionsDiv.style.display === "block") {
+    optionsDiv.style.display = "none";
+  } else {
+    optionsDiv.style.display = "block";
+  }
+}

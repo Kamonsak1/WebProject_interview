@@ -71,7 +71,8 @@
                         '{{user.prefix}}',)">ดูข้อมูล</a>
                     <a class="btn btn-secondary btn-sm fs-3 mx-1" href="javascript:void(0);" onclick="edit_popup
                         ('{{ user.id }}','{{user.roles.all}}','{{user.email}}')">แก้ไข</a>
-                    <a class="btn btn-danger btn-sm fs-3 mx-1" href="delete_User/{{user.id}}">ลบ</a>  
+                    <a class="btn btn-danger btn-sm fs-3 mx-1" href="javascript:void(0);"
+                     onclick="del_user('{{ user.prefix }}','{{user.first_name }}','{{user.last_name }}','{{user.id }}')">ลบ</a> 
                 </td>
             </tr>
             {% endfor %}
@@ -79,7 +80,17 @@
     </table>
 
     
-    
+    <div class="container_del_user"  id="del_user">
+        <div class="text_del" style="white-space: nowrap;">
+            ต้องการที่จะลบ:<p id="name_tag" style="display: inline;"></p>
+        </div>
+        <div class="bt_del">
+            <a href="javascript:void(0);" class="btn btn-secondary m-1 fs-2" onclick="del_user()">ยกเลิก</a>
+            <a href="delete_User/"><button class="fs-2 m-1 btn btn-red p1">ลบผู้ใช้งาน</button></a>
+        </div>
+    </div>
+
+
     <div class="container_edit" id="edit_popup">
         <form action="{% url 'edit_User' %}" method="post">
             {% csrf_token %}

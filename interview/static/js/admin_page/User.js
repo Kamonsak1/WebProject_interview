@@ -180,4 +180,15 @@ function add_User() {
   }
   }
   
-  
+  function del_user(prefix,first_name,last_name,id){
+    var optionsDiv = document.getElementById("del_user");
+    var fullName = prefix + first_name + last_name;
+    document.getElementById('name_tag').innerHTML = fullName;
+    var deleteLink = document.querySelector('.bt_del a[href^="delete_User"]');
+    deleteLink.setAttribute('href', 'delete_User/' + id);
+    if (optionsDiv.style.display === "block") {
+      optionsDiv.style.display = "none";
+    } else {
+      optionsDiv.style.display = "block";
+    }
+  }

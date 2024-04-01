@@ -278,3 +278,16 @@ if (optionsDiv.style.display === "block") {
 //       button.className = "mode"; // กลับสู่สไตล์เริ่มต้น
 //   }
 // }
+
+function del_tem_user(prefix,first_name,last_name,id){
+  var optionsDiv = document.getElementById("del_tem_user");
+  var fullName = prefix + first_name + last_name;
+  document.getElementById('name_tag').innerHTML = fullName;
+  var deleteLink = document.querySelector('.bt_del a[href^="delete_TemporaryUser"]');
+  deleteLink.setAttribute('href', 'delete_TemporaryUser/' + id);
+  if (optionsDiv.style.display === "block") {
+    optionsDiv.style.display = "none";
+  } else {
+    optionsDiv.style.display = "block";
+  }
+}

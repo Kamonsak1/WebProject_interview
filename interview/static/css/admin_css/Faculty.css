@@ -222,3 +222,58 @@ input {
 }
   
 
+.container_del {
+    width: 500px;
+    margin: 0 auto;
+    display: none;
+    z-index: 999;
+    border: 3px solid black;
+    border-radius: 9px;
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+}
+
+.text_del {
+    text-align: center;
+    white-space: nowrap;
+    color: black;
+    font-size: larger;
+}
+
+#major_name_tag {
+    display: inline;
+}
+.bt_del {
+    text-align: center;
+}
+
+.container_del_faculty {
+    width: 500px;
+    margin: 0 auto;
+    display: none;
+    z-index: 999;
+    border: 3px solid black;
+    border-radius: 9px;
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+}
+
+.text_del_faculty {
+    text-align: center;
+    white-space: nowrap;
+    color: black;
+    font-size: larger;
+}
+
+#faculty_name_tag {
+    display: inline;
+}
+.bt_del_faculty {
+    text-align: center;
+}

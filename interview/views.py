@@ -1024,8 +1024,8 @@ def changepassword(request):
 
 def log_in(request):
     if request.method == "POST":
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        username = request.POST.get('username').replace(' ', '')
+        password = request.POST.get('password').replace(' ', '')
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
@@ -1079,12 +1079,16 @@ def first_login(request):
 @user_passes_test(is_admin)
 def add_Faculty(request):
     if request.method == "POST":
-        add_Faculty = request.POST.get('faculty')
+        add_Faculty = request.POST.get('faculty').replace(' ', '')
         if add_Faculty:
             try:
+                if add_Faculty.startswith('คณะ'):
+                    add_Faculty = add_Faculty[3:]
                 faculty_exists = Faculty.objects.get(faculty=add_Faculty)
                 return redirect("FacultyMajor")
             except Faculty.DoesNotExist:
+                if add_Faculty.startswith('คณะ'):
+                    add_Faculty = add_Faculty[3:]
                 new_faculty = Faculty(faculty=add_Faculty)
                 new_faculty.save()
                 return redirect("FacultyMajor")
@@ -1103,15 +1107,19 @@ def delete_Faculty(request,id):
 def add_Major(request):
     if request.method == "POST":
         
-        add_Major = request.POST.get('Major')
+        add_Major = request.POST.get('Major').replace(' ', '')
         faculty_id = request.POST.get('faculty_id')
         faculty = get_object_or_404(Faculty, pk=int(faculty_id))
         
         if add_Major:
             try:
+                if add_Major.startswith('สาขา'):
+                    add_Major = add_Major[4:]
                 Major_exists = Major.objects.get(major=add_Major, faculty=faculty)
                 return redirect("FacultyMajor")
             except Major.DoesNotExist:
+                if add_Major.startswith('สาขา'):
+                    add_Major = add_Major[4:]
                 new_Major = Major(major=add_Major, faculty=faculty)
                 new_Major.save()
                 return redirect("FacultyMajor")
@@ -1133,7 +1141,7 @@ def add_TemporaryUser(request):
         last_name = request.POST.get('last_name')
         citizen_id = request.POST.get('citizen_id')
         prefix = request.POST.get('prefix')
-        password = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
+        password = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(6))
         round = request.POST.get('round') 
         round = Round.objects.get(round_name=round)
         try:
@@ -1501,7 +1509,7 @@ def add_User(request):
         faculty_name = request.POST.get('faculty')  
         major_name = request.POST.get('major')  
         round = request.POST.get('round')  
-        password = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
+        password = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(6))
         checkboxgroup = request.POST.getlist('checkboxgroup')
         faculty = Faculty.objects.get(faculty=faculty_name)
         major= Major.objects.get(major=major_name, faculty=faculty)
@@ -1587,7 +1595,7 @@ def add_User_by_file(request):
                 )
         request.session['user_duplicate_emails'] = duplicate_emails
             # if not checkuser.exists():
-            #     password = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
+            #     password = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(6))
             #     create_User = User.objects.create(first_name=first_name,last_name=last_name,email=email)
             #     create_User.username = email
             #     create_User.save()

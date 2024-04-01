@@ -32,7 +32,8 @@
               <span class="card-title fw-semibold mb-2 col-6">คณะ: {{ i.faculty }}</span>
               <div class="d-flex justify-content-end mb-2 col-6">
                 <button class="btn btn-secondary m-1 fs-5" onclick="add_Major('{{ i.faculty }}', '{{ i.id }}')">เพิ่มสาขา</button>
-                <a href="delete_Faculty/{{i.id}}"><button class="fs-5 m-1 btn btn-red p1">ลบคณะ</button></a>
+                <a href="javascript:void(0);" class="fs-5 m-1 btn btn-red p1" onclick="display_popup_del_faculty('{{ i.faculty }}', '{{ i.id }}')">ลบคณะ</a>
+                
               </div>
               {% for major in i.major_set.all %}
               <div class="card mb-1">
@@ -40,7 +41,7 @@
                     <h5 class="mb-0" onclick="display_manager('{{ major.id }}')" style="cursor: pointer;">สาขา: {{ major.major }}</h5>
                     <div class="d-flex justify-content-end mb-2 col-6">
                         <button class="btn btn-secondary m-1 fs-2" onclick="add_Major_manager('{{ major.major }}', '{{ major.id }}')">เพิ่มผู้ดูแล</button>
-                        <a href="delete_Major/{{major.id}}"><button class="fs-2 m-1 btn btn-red p1">ลบสาขา</button></a>
+                        <a href="javascript:void(0);" class="fs-2 m-1 btn btn-red p1" onclick="display_popup_del('{{ major.major }}','{{major.id}}')">ลบสาขา</a>
                     </div>
                 </div>
                 <div style="display: none;" id="display_manager_{{ major.id }}">
@@ -66,7 +67,25 @@
 </div>
 {% endfor %}
 
+<div class="container_del" id="display_popup_del">
+  <div class="text_del" style="white-space: nowrap;">
+    ต้องการที่จะลบ สาขา:<p id="major_name_tag" style="display: inline;"></p>
+  </div>
+  <div class="bt_del">
+    <a href="javascript:void(0);" class="btn btn-secondary m-1 fs-2" onclick="display_popup_del()">ยกเลิก</a>
+    <a href="delete_Major/{{major.id}}"><button class="fs-2 m-1 btn btn-red p1">ลบสาขา</button></a>
+  </div>
+</div>
 
+<div class="container_del_faculty" id="display_popup_del_faculty">
+  <div class="text_del_faculty" style="white-space: nowrap;">
+    ต้องการที่จะลบ คณะ:<p id="faculty_name_tag" style="display: inline;"></p>
+  </div>
+  <div class="bt_del_faculty">
+    <a href="javascript:void(0);" class="btn btn-secondary m-1 fs-2" onclick="display_popup_del_faculty()">ยกเลิก</a>
+    <a href="delete_Faculty/{{Faculty.id}}"><button class="fs-2 m-1 btn btn-red p1">ลบคณะ</button></a>
+  </div>
+</div>
 
   <div  id="add_Faculty" class="container_Faculty ">
     <form  method="post" action="{% url 'add_Faculty' %}">
