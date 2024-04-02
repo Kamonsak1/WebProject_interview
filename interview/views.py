@@ -2113,12 +2113,15 @@ def edit_Announcement(request):
             pass
         try:
             for round in selected_rounds_str:
-                round_name, year = round.rsplit(" (",1)
-                round_name = round_name.lstrip()
-                year = year.strip(")")
-                round_model = Round.objects.get(round_name=round_name,academic_year=year)
-                edit_announcement.round.add(round_model)
-                edit_announcement.major.add(round_model.major)
+                if " (" in round:
+                        round_name, year = round.rsplit(" (", 1)
+                        round_name = round_name.lstrip()
+                        year = year.strip(")")
+                        round_model = Round.objects.get(round_name=round_name, academic_year=year)
+                        edit_announcement.round.add(round_model)
+                        edit_announcement.major.add(round_model.major)
+                else:
+                    pass
 
         except ObjectDoesNotExist:
             pass

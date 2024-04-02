@@ -263,7 +263,7 @@
         {% csrf_token %}
         <div  class="topic">
             <h3 >แก้ไขประกาศ</h3>
-            <a href="Manager_Announcement">
+            <a href="Announcement_page">
                 <i class="fs-6 ti ti-x text-danger"></i>
             </a>         
         </div>   
@@ -316,11 +316,11 @@
 </div>  
 
 <div class="container_add" id="add_Announcement" >
-  <form action="{% url 'Manager_add_announcement' %}" method="post">
+  <form action="{% url 'add_announcement' %}" method="post">
       {% csrf_token %}
       <div  class="topic">
         <h3 >เพิ่มประกาศ</h3>
-        <a href="Manager_Announcement">
+        <a href="Announcement_page">
             <i class="fs-6 ti ti-x text-danger"></i>
         </a>
     </div>       
@@ -345,11 +345,22 @@
       
           <input type="checkbox" id="checkbox8" name="checkboxgroup" value="Student" >
           <label for="checkbox4" class="checkbox-label">Student</label>
-      </div>     
+        </div>     
+        <div class="title_role">
+          <h3 class="title">รอบที่ต้องการให้เห็น</h3>
+          <select name="" id="selectRound" class="select-round" onchange="updateRoundInfo()">
+            <option value="">เลือกรอบ</option>
+            {% for round in round %}
+            <option value="{{ round.round_name }} ({{ round.academic_year }})">{{ round.round_name }} ({{ round.academic_year }})</option>
+            {% endfor %}
+        </select>
+        </div>
+        <div class="title_round"  id="round">
+        </div>
+        <input type="hidden" id="selectedRoundsInput" name="selectedRounds" value="">
         <div class="bt">
           <button  type="submit">เพิ่ม</button>
-        </div>        
-    </form>
+      </form>
 </div>
 
 
