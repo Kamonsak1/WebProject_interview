@@ -1586,8 +1586,6 @@ def add_User_by_file(request):
                 citizen_id=row['APPLICANTCODE'],
                 first_name=row['APPLICANTNAME'],
                 last_name=row['APPLICANTSURNAME'],
-                first_name2=row['APPLICANTNAME'],
-                last_name2=row['APPLICANTSURNAME'],
                 prefix=row['PREFIXNAME'],
                 email=row['EMAIL'],
                 round_name=round,
