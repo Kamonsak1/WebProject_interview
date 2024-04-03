@@ -2857,13 +2857,15 @@ def confirm_adduser(request):
         data_list=report_User.objects.all()
         for item in data_list:
             if not User.objects.filter(email=item.email).exists():
+                password = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(6))
         
                 new_user = User(
                     username=item.citizen_id,
                     first_name=item.first_name,
                     last_name=item.last_name,
                     email=item.email,
-                    prefix=item.prefix
+                    prefix=item.prefix,
+                    password= make_password(password)
                 )
                 new_user.save()
                 Round_db = Round.objects.get(round_name=item.round_name)
@@ -2877,8 +2879,12 @@ def confirm_adduser(request):
                 for role_name in list_role:
                         role_model, _ = Role.objects.get_or_create(name=role_name)
                         role_model.users.add(new_user)
+                send_registration_email("kamonsakprj@gmail.com",password,item.citizen_id)
             else:
+                password = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(6))
                 old_user = User.objects.get(email=item.email)
+                old_user.set_password(password)
+                old_user.save()
                 Round_db = Round.objects.get(round_name=item.round_name)
                 Round_db.users.add(old_user)  
                 faculty_instance = Faculty.objects.get(faculty=Round_db.major.faculty.faculty)
@@ -2890,6 +2896,7 @@ def confirm_adduser(request):
                 for role_name in list_role:
                         role_model, _ = Role.objects.get_or_create(name=role_name)
                         role_model.users.add(old_user)
+                send_registration_email("kamonsakprj@gmail.com",password,old_user.username)
             
 
         return redirect('User')
