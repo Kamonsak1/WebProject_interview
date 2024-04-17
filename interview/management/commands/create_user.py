@@ -16,8 +16,8 @@ class Command(BaseCommand):
             {'username': 'phaichayon', 'email': 'user7@example.com', 'password': 'kwgbdj','prefix':'ดร.','first_name':'ไพชยนต์' ,'last_name':'คงไชย'},
             {'username': 'supawadee', 'email': 'user8@example.com', 'password': 'xskhbf','prefix':'ผศ.ดร.','first_name':'สุภาวดี' ,'last_name':'หิรัญพงศ์สิน'},
             {'username': 'tossaporn', 'email': 'user9@example.com', 'password': 'qgwryt','prefix':'ดร.','first_name':'ทศพร' ,'last_name':'อเลิร์ป'},
-            {'username': '64114540025', 'email': 'kamonsak.ba.64@ubu.ac.th', 'password': 'qgwryt','prefix':'นาย','first_name':'กมลศักดิ์' ,'last_name':'บรรพตะธิ'},
-            {'username': '64114540506', 'email': 'ronnapong.pi.64@ubu.ac.th', 'password': 'hsumxh','prefix':'นาย','first_name':'รณพงษ์' ,'last_name':'ไพชยนต์'},
+            {'username': '64114540025', 'email': 'kamonsak.ba.64@ubu.ac.th', 'password': '1','prefix':'นาย','first_name':'กมลศักดิ์' ,'last_name':'บรรพตะธิ'},
+            {'username': '64114540506', 'email': 'ronnapong.pi.64@ubu.ac.th', 'password': '1','prefix':'นาย','first_name':'รณพงษ์' ,'last_name':'ไพชยนต์'},
         ]
         users_stuedbt= [
             {'username': '6701920033','email': 'user10@gmail.com','password': 'mavnhb','prefix':'นาย','first_name':'ธาราธร' ,'last_name':'บุญประดับ'},
