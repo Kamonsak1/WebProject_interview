@@ -1031,10 +1031,11 @@ def log_in(request):
             login(request, user)
             if hasattr(user, 'roles'):
                 # ตรวจสอบ Role ของผู้ใช้ที่ล็อกอิน
+                user = User.objects.get(username=username)
                 if user.roles.filter(name='Admin').exists():
                     return redirect('Admin_page')
                 elif user.roles.filter(name='Manager').exists():
-                    return redirect('Manager_page')         
+                    return redirect('Manager_page',id=user.id)          
                 elif user.roles.filter(name='Interviewer').exists():
                     return redirect('Interviewer_page') 
                 elif user.roles.filter(name='Student').exists():
