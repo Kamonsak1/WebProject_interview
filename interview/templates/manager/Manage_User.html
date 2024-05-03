@@ -10,16 +10,6 @@
 {% endblock %}
 {% block content %}
 <div class="pt-14 px-2">
-    <div class="d-flex justify-content-between mb-2">
-        <div class="d-flex flex-row flex-nowrap">
-            <form action="{% url 'search_user' %}" method="post" class="w-100 d-flex flex-row align-items-center">
-                {% csrf_token %}
-                <input class="form-control me-2" type="search" name="search" id="" placeholder="ค้นหา..." style="flex-grow: 1; min-width: 0;">
-                <button class="btn btn-info mx-2" type="submit">ค้นหา</button>
-            </form>
-        </div>
-
-    </div>
     <table class="table table-bordered table-hover">
         <thead class="thead-dark">
             <tr>
@@ -50,7 +40,12 @@
                         ('{{ user.id }}', '{{ user.first_name }}', '{{ user.last_name }}',
                         '{{ user.faculty_set.all }}','{{ user.major_set.all}}','{{ user.citizen_id }}',
                         '{{user.birth_date}}','{{user.roles.all}}','{{user.email}}')">แก้ไข</a>  -->
-                    <a class="btn btn-danger btn-sm fs-3 mx-1" href="delete_User_in_manager/{{user.id}}">ลบ</a>  
+                        <form action="{% url 'delete_User_in_manager' %}" method="post">
+                            {% csrf_token %}
+                            <input type="text" value="{{user.id}}" name="user_id" hidden >
+                            <input type="text" value="{{s_round}}" name="name_round" hidden>
+                        <button type="submit" class="btn btn-danger btn-sm fs-3 mx-1" >ลบ</button>
+                        </form>
                 </td>
             </tr>
             {% endfor %}

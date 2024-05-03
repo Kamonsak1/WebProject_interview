@@ -207,8 +207,8 @@
         </thead>
         <tbody>
             <tr>
-                {% if user.rounds_participated.all %}
-                    {% for round in user.rounds_participated.all %}
+                {% if user.round_user.all %}
+                    {% for round in user.round_user.all %}
                     <td style="text-align: center;">{{ round.round_name }}</td>
                     <td style="text-align: center;">{{ round.major.faculty.faculty }}</td>
                     <td style="text-align: center;">{{ round.major.major }}</td>

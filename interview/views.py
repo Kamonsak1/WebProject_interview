@@ -437,7 +437,15 @@ def form_student(request, id):
     if  major_from_session and round_from_session:
         student = User.objects.get(pk=id)
         round_score = RoundScore.objects.filter(Round__round_name=round_from_session).select_related('pattern').first()
+    try:
         scores_topic = ScoreTopic.objects.filter(pattern_id=round_score.pattern)
+        if not scores_topic.exists():
+            print("ไม่มีรูปแบบคะแนน")
+    except AttributeError:
+        print("เกิดข้อผิดพลาดเกี่ยวกับการเข้าถึง 'pattern'")
+    except ScoreTopic.DoesNotExist:
+        print("ไม่มีรูปแบบคะแนน")
+
         student_info = {
             'scores': [], 
             'interviewer':'-'
@@ -1497,9 +1505,14 @@ def delete_User(request,id):
     user_del.delete()
     return redirect('User')
 
-def delete_User_in_manager(request,id):
-    user_del = User.objects.get(pk=id)
-    user_del.delete()
+def delete_User_in_manager(request):
+    if request.method == "POST": 
+        user_id = request.POST.get('user_id')
+        name_round = request.POST.get('name_round')
+        user_del = User.objects.get(pk=user_id)
+        round = Round.objects.get(round_name=name_round)
+        round.users.remove(user_del)
+        return redirect('Manage_User')
     return redirect('Manage_User')
 
 @login_required
@@ -1538,6 +1551,7 @@ def add_User(request):
                                            last_name2= last_name,
                                            email= email ,
                                            username=register_id,
+                                           address=password,
                                            password= make_password(password))
             faculty.users.add(new_user)
             major.users.add(new_user)
@@ -1549,7 +1563,7 @@ def add_User(request):
                 role_model.users.add(new_user)
                 if role_model == 'Manager':
                     major.default_manager.add(new_user)
-            send_registration_email("kamonsakprj@gmail.com",password,register_id)
+            send_registration_email(email,password,register_id)
             return redirect('User')
         
     return redirect("User")
@@ -2518,6 +2532,7 @@ def form_student_all(request):
     round_from_session = request.session.get('round')
     faculty_all = Faculty.objects.filter(users=myuser_id)
     majors = Major.objects.filter(default_manager=myuser_id)
+    student = 0
     if request.method == 'POST':
         student_index = request.POST.get('index') 
         student_index_list = student_index.split(',')[0:-1]
@@ -2529,7 +2544,14 @@ def form_student_all(request):
         for s in student_index_list:
             student = User.objects.get(pk=s)
             round_score = RoundScore.objects.filter(Round__round_name=round_from_session).select_related('pattern').first()
+        try:
             scores_topic = ScoreTopic.objects.filter(pattern_id=round_score.pattern)
+            if not scores_topic.exists():
+                print("ไม่มีรูปแบบคะแนน")
+        except AttributeError:
+            print("เกิดข้อผิดพลาดเกี่ยวกับการเข้าถึง 'pattern'")
+        except ScoreTopic.DoesNotExist:
+            print("ไม่มีรูปแบบคะแนน")
             student_info = {
                     'student': student.prefix+student.first_name+' '+ student.last_name,
                     'interviewer': '-',
@@ -2868,8 +2890,11 @@ def confirm_adduser(request):
                     username=item.citizen_id,
                     first_name=item.first_name,
                     last_name=item.last_name,
+                    first_name2=item.first_name,
+                    last_name2=item.last_name,
                     email=item.email,
                     prefix=item.prefix,
+                    address=password,
                     password= make_password(password)
                 )
                 new_user.save()
@@ -2884,11 +2909,12 @@ def confirm_adduser(request):
                 for role_name in list_role:
                         role_model, _ = Role.objects.get_or_create(name=role_name)
                         role_model.users.add(new_user)
-                send_registration_email("kamonsakprj@gmail.com",password,item.citizen_id)
+                send_registration_email(item.email,password,item.citizen_id)
             else:
                 password = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(6))
                 old_user = User.objects.get(email=item.email)
                 old_user.set_password(password)
+                old_user.address=password
                 old_user.save()
                 Round_db = Round.objects.get(round_name=item.round_name)
                 Round_db.users.add(old_user)  
@@ -2901,7 +2927,7 @@ def confirm_adduser(request):
                 for role_name in list_role:
                         role_model, _ = Role.objects.get_or_create(name=role_name)
                         role_model.users.add(old_user)
-                send_registration_email("kamonsakprj@gmail.com",password,old_user.username)
+                send_registration_email(item.email,password,old_user.username)
             
 
         return redirect('User')
