@@ -583,30 +583,31 @@ def Interviewer_room(request):
         if file:
             file_name, file_extension = os.path.splitext(file.name)
             new_file_name = user.username +".jpg"
-        if Evidence.objects.filter(student=user,round=link.round,interviewer=link.user):
-            evidence = Evidence.objects.get(student=user,round=link.round,interviewer=link.user)
-            evidence.document.save(new_file_name, ContentFile(file.read()))
-            evidence.save()
-        else:
-            evidence = Evidence(student=user,round=link.round,interviewer=link.user)
-            evidence.document.save(new_file_name, ContentFile(file.read()))
-            evidence.save()
-        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+            if Evidence.objects.filter(student=user,round=link.round,interviewer=link.user):
+                evidence = Evidence.objects.get(student=user,round=link.round,interviewer=link.user)
+                evidence.document.save(new_file_name, ContentFile(file.read()))
+                evidence.save()
+            else:
+                evidence = Evidence(student=user,round=link.round,interviewer=link.user)
+                evidence.document.save(new_file_name, ContentFile(file.read()))
+                evidence.save()
+            return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
     elif request.method == "POST" and "finish" in request.POST:
         user_id = int(request.POST.get("finish"))
         user = User.objects.get(id=user_id)
         Shortnote = request.POST.get("Shortnote")
-        evidence = Evidence.objects.get(student=user,round=link.round,interviewer=link.user)
-        evidence.Shortnote = Shortnote
-        evidence.save()
+        if Evidence.objects.filter(student=user,round=link.round,interviewer=link.user):
+            evidence = Evidence.objects.get(student=user,round=link.round,interviewer=link.user)
+            evidence.Shortnote = Shortnote
+            evidence.save()
         pattern = RoundScore.objects.filter(Round=link.round).first()
-        all_scoretopic = ScoreTopic.objects.filter(pattern_id=pattern.pattern)
-        for score in all_scoretopic:
-            value = request.POST.get("input"+str(score.id))
-            print(score,user,link.user,value)
-            if value: 
-                save_score = Score(topic=score, student=user, interviewer=link.user, score=int(value))
-                save_score.save()
+        if pattern:
+            all_scoretopic = ScoreTopic.objects.filter(pattern_id=pattern.pattern)
+            for score in all_scoretopic:
+                value = request.POST.get("input"+str(score.id))
+                if value: 
+                    save_score = Score(topic=score, student=user, interviewer=link.user, score=int(value))
+                    save_score.save()
         interviewing_now = InterviewNow.objects.get(interviewer=request.user)
         interviewing_now.student = None
         interviewing_now.save()
@@ -620,17 +621,19 @@ def Interviewer_room(request):
         user_id = int(request.POST.get("finish_leave"))
         Shortnote = request.POST.get("Shortnote")
         user = User.objects.get(id=user_id)
-        evidence = Evidence.objects.get(student=user,round=link.round,interviewer=link.user)
-        evidence.Shortnote = Shortnote
-        evidence.save()
+        if Evidence.objects.filter(student=user,round=link.round,interviewer=link.user):
+            evidence = Evidence.objects.get(student=user,round=link.round,interviewer=link.user)
+            evidence.Shortnote = Shortnote
+            evidence.save()
         pattern = RoundScore.objects.filter(Round=link.round).first()
-        all_scoretopic = ScoreTopic.objects.filter(pattern_id=pattern.pattern)
-        for score in all_scoretopic:
-            value = request.POST.get("input"+str(score.id))
-            if value: 
-                score_point = int(value)
-                save_score = Score(topic=score, student=user, interviewer=link.user, score=score_point)
-                save_score.save()
+        if pattern:
+            all_scoretopic = ScoreTopic.objects.filter(pattern_id=pattern.pattern)
+            for score in all_scoretopic:
+                value = request.POST.get("input"+str(score.id))
+                if value: 
+                    score_point = int(value)
+                    save_score = Score(topic=score, student=user, interviewer=link.user, score=score_point)
+                    save_score.save()
         interviewing_now = InterviewNow.objects.get(interviewer=request.user)
         interviewing_now.student = None
         interviewing_now.save()
@@ -774,14 +777,15 @@ def Student_register(request):
         round = Round.objects.get(id=request.POST.get("round_id"))
         doc_name = request.POST.get("doc_name")
         file = request.FILES.get('file_name')
-        if Document.objects.filter(user=user,doc_name=doc_name,round=round):
-            document = Document.objects.get(user=user,doc_name=doc_name,round=round)
-            document.document = file
-            document.save()
-        else:
-            document = Document(user=user,round=round,doc_name=doc_name,document=file)
-            document.save()
-        return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
+        if file:
+            if Document.objects.filter(user=user,doc_name=doc_name,round=round):
+                document = Document.objects.get(user=user,doc_name=doc_name,round=round)
+                document.document = file
+                document.save()
+            else:
+                document = Document(user=user,round=round,doc_name=doc_name,document=file)
+                document.save()
+            return redirect(request.META.get('HTTP_REFERER', 'fallback-url'))
 
     context = {
         'rounds': combined_rounds.distinct(),

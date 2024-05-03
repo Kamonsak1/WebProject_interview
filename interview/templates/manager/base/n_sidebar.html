@@ -27,8 +27,10 @@
 
 
         {% if s_major %}
-           {{ s_major }}
-           {{ s_round }}
+        <div class="text-center">
+           <h1 class="text-info fs-3 fw-semibold mb-sm-1">{{ s_major }}</h1>
+           <h1 class="text-info fs-3 fw-semibold">รอบ : {{ s_round }}</h1>
+          </div>
         {% endif %}
       
         <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
@@ -74,9 +76,23 @@
           </li>
 
           <li class="sidebar-item">
+            <a class="sidebar-link" href="{% url 'Manager_Announcement'%}" aria-expanded="false">
+              <span>
+                <i class="ti ti-speakerphone"></i>
+              </span>
+              <span class="hide-menu fs-4">ประกาศ</span>
+            </a>
+          </li>
+
+          <li class="nav-small-cap">
+            <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+            <span class="hide-menu fs-3">จัดการผู้ใช้</span>
+          </li>
+          
+          <li class="sidebar-item">
             <a class="sidebar-link" href="{% url 'Manage_personnel'%}" aria-expanded="false">
               <span>
-                <i class="ti ti-book"></i>
+                <i class="ti ti-users"></i>
               </span>
               <span class="hide-menu fs-4">จัดการบุคลากร</span>
             </a>
@@ -85,25 +101,22 @@
           <li class="sidebar-item">
             <a class="sidebar-link" href="{% url 'Manage_User'%}" aria-expanded="false">
               <span>
-                <i class="ti ti-book"></i>
+                <i class="ti ti-user"></i>
               </span>
               <span class="hide-menu fs-4">จัดการสมาชิก</span>
             </a>
           </li>
 
-          <li class="sidebar-item">
-            <a class="sidebar-link" href="{% url 'Manager_Announcement'%}" aria-expanded="false">
-              <span>
-                <i class="ti ti-book"></i>
-              </span>
-              <span class="hide-menu fs-4">ประกาศ</span>
-            </a>
+
+          <li class="nav-small-cap">
+            <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+            <span class="hide-menu fs-3">การสัมภาษณ์</span>
           </li>
 
           <li class="sidebar-item">
             <a class="sidebar-link" href="{% url 'Manager_interview'%}" aria-expanded="false">
               <span>
-                <i class="ti ti-book"></i>
+                <i class="ti ti-clipboard-text"></i>
               </span>
               <span class="hide-menu fs-4">จัดการสัมภาษณ์</span>
             </a>
@@ -112,7 +125,7 @@
           <li class="sidebar-item">
             <a class="sidebar-link" href="{% url 'Manager_Score'%}" aria-expanded="false">
               <span>
-                <i class="ti ti-book"></i>
+                <i class="ti ti-clipboard-check"></i>
               </span>
               <span class="hide-menu fs-4">คะแนนสัมภาษณ์</span>
             </a>
@@ -121,7 +134,7 @@
           <li class="sidebar-item">
             <a class="sidebar-link" href="{% url 'Manager_Status'%}" aria-expanded="false">
               <span>
-                <i class="ti ti-book"></i>
+                <i class="ti ti-report-analytics"></i>
               </span>
               <span class="hide-menu fs-4">สถานะการสัมภาษณ์</span>
             </a>
@@ -131,24 +144,30 @@
           <li class="sidebar-item">
             <a class="sidebar-link" href="{% url 'Manager_Print_Interview'%}" aria-expanded="false">
               <span>
-                <i class="ti ti-book"></i>
+                <i class="ti ti-printer"></i>
               </span>
               <span class="hide-menu fs-4">พิมพ์ผลสัมภาษณ์</span>
             </a>
           </li>
+
+          <li class="nav-small-cap">
+            <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+            <span class="hide-menu fs-3">จัดการรอบที่ดูแล</span>
+          </li>
+
           <form action="{% url 'chang_major' %}" method="post" >
             {% csrf_token %}
             <div class="faculty_major">
-                <select name="major" id="id_faculty_selection" style="width: 100% ; text-align: center;">
+                <select name="major" id="id_faculty_selection" class="search-bordered" style="width: 100% ; text-align: center;">
                     <option value="">สาขา</option>
                     {% for major in majors %}
                     <option value="{{major}}">{{major.major}}</option>
                     {% endfor %}
                 </select>
-                <select   name="round" id="id_round_second" style="width: 100%; text-align: center;">
+                <select   name="round" id="id_round_second" class="search-bordered mt-1" style="width: 100%; text-align: center;">
                   <option >รอบ</option>
               </select>
-                <button type="submit" style="width: 100%;">เปลี่ยนสาขา</button>
+                <button type="submit" class="btn btn-primary fw-semibold search-bordered mt-1" style="width: 100%;">เปลี่ยน</button>
             </div>
        
         </form>

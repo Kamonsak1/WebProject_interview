@@ -67,7 +67,6 @@
                     <input type="hidden" name="round_id" id="round_id" value="{{ r.round.id }}">
                     <div class="text-center">
                         <select name="doc_name" id="doc_name" class="me-2 search-bordered fs-4">
-                            <option>เอกสาร</option>
                             {% for docs in r.round.documents.all %}
                                 <option value="{{ docs.doc_name }}">{{ docs.doc_name }}</option>
                             {% endfor %}

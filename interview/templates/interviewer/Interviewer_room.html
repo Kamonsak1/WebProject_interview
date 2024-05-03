@@ -320,7 +320,7 @@ function resetRefreshCount() {
             localStorage.setItem('refreshCount', 0);}
 
 document.addEventListener('DOMContentLoaded', function() {
-    var initialStudentId = '{{ student.id }}';
+    var initialStudentId = '{{ docs.user.id }}';
 
     function checkForStudentChange() {
         fetch('{% url "get_current_student" %}')
