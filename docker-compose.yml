@@ -17,7 +17,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    image: kamonsak_64114540025
+    image: django
     command: sh -c "python manage.py runserver 0.0.0.0:80"
     ports:
       - "80:80"
