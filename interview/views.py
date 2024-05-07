@@ -437,15 +437,7 @@ def form_student(request, id):
     if  major_from_session and round_from_session:
         student = User.objects.get(pk=id)
         round_score = RoundScore.objects.filter(Round__round_name=round_from_session).select_related('pattern').first()
-    try:
         scores_topic = ScoreTopic.objects.filter(pattern_id=round_score.pattern)
-        if not scores_topic.exists():
-            print("ไม่มีรูปแบบคะแนน")
-    except AttributeError:
-        print("เกิดข้อผิดพลาดเกี่ยวกับการเข้าถึง 'pattern'")
-    except ScoreTopic.DoesNotExist:
-        print("ไม่มีรูปแบบคะแนน")
-
         student_info = {
             'scores': [], 
             'interviewer':'-'
@@ -2544,14 +2536,7 @@ def form_student_all(request):
         for s in student_index_list:
             student = User.objects.get(pk=s)
             round_score = RoundScore.objects.filter(Round__round_name=round_from_session).select_related('pattern').first()
-        try:
             scores_topic = ScoreTopic.objects.filter(pattern_id=round_score.pattern)
-            if not scores_topic.exists():
-                print("ไม่มีรูปแบบคะแนน")
-        except AttributeError:
-            print("เกิดข้อผิดพลาดเกี่ยวกับการเข้าถึง 'pattern'")
-        except ScoreTopic.DoesNotExist:
-            print("ไม่มีรูปแบบคะแนน")
             student_info = {
                     'student': student.prefix+student.first_name+' '+ student.last_name,
                     'interviewer': '-',
